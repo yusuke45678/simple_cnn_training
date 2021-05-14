@@ -13,7 +13,8 @@ from optimizer import optimizer_factory, scheduler_factory
 def val(model, criterion, optimizer, loader, device):
 
     model.eval()
-
+    loss_list = []
+    acc_list = []
     with torch.no_grad(), tqdm(loader, leave=False) as pbar_loss:
         pbar_loss.set_description('[val]')
         for data, labels in pbar_loss:
@@ -30,6 +31,11 @@ def val(model, criterion, optimizer, loader, device):
 
             pbar_loss.set_postfix_str(
                 'loss={:.05f}, acc={:.03f}'.format(batch_loss, batch_acc))
+
+            loss_list.append(batch_loss)
+            acc_list.append(batch_acc)
+    total_loss = sum(loss_list) / len(loss_list)
+    total_acc = sum(acc_list) / len(acc_list)
 
 
 def train(model, criterion, optimizer, loader, device):
