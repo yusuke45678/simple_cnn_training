@@ -3,15 +3,14 @@ from tqdm import tqdm
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
 
 from dataset import dataset_facory
 from model import model_factory
 from args import get_args
+from optimizer import optimizer_factory, scheduler_factory
 
 
-def val(model, criterion, optimizer, scheduler, loader, device):
+def val(model, criterion, optimizer, loader, device):
 
     model.eval()
 
@@ -33,7 +32,7 @@ def val(model, criterion, optimizer, scheduler, loader, device):
                 'loss={:.05f}, acc={:.03f}'.format(batch_loss, batch_acc))
 
 
-def train(model, criterion, optimizer, scheduler, loader, device):
+def train(model, criterion, optimizer, loader, device):
 
     model.train()
 
@@ -60,19 +59,6 @@ def train(model, criterion, optimizer, scheduler, loader, device):
                 'loss={:.05f}, acc={:.03f}'.format(batch_loss, batch_acc))
 
 
-def optimizer_factory(args, model):
-    if args.optimizer == 'SGD':
-        optimizer = optim.SGD(model.parameters(),
-                              lr=args.lr, momentum=args.momentum)
-    elif args.optmizer == 'Adam':
-        optimizer = optim.Adam(model.parameters(),
-                               lr=args.lr, betas=args.betas)
-    else:
-        raise ValueError("invalid args.optimizer")
-
-    return optimizer
-
-
 def main():
 
     args = get_args()
@@ -86,20 +72,20 @@ def main():
     model = nn.DataParallel(model)
 
     criterion = nn.CrossEntropyLoss()
-
     optimizer = optimizer_factory(args, model)
-
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+    scheduler = scheduler_factory(args, optimizer)
 
     with tqdm(range(args.num_epochs)) as pbar_epoch:
         for e in pbar_epoch:
             pbar_epoch.set_description('[Epoch {}]'.format(e))
 
-            train(model, criterion, optimizer, scheduler,
-                  train_loader, device)
-            if e % 2:
-                val(model, criterion, optimizer, scheduler,
-                    val_loader, device)
+            train(model, criterion, optimizer, train_loader, device)
+
+            if e % args.val_epochs:
+                val(model, criterion, optimizer, val_loader, device)
+
+            if args.use_scheduler:
+                scheduler.update()
 
 
 if __name__ == "__main__":

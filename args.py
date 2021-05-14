@@ -33,6 +33,8 @@ def get_args():
                         help='number of workers. default to 2')
     parser.add_argument('-e', '--num_epochs', type=int, default=25,
                         help='number of epochs. default to 25')
+    parser.add_argument('--val_epochs', type=int, default=2,
+                        help='validation interval in epochs. default to 2')
     # optimizer
     parser.add_argument('--optimizer', type=str, default='SGD',
                         help='optimizer. SGD or Adam. default to SGD')
@@ -43,6 +45,10 @@ def get_args():
     parser.add_argument('--betas', nargs='+', type=float, default=[0.9, 0.999],
                         help='betas of Adam. default to (0.9, 0.999).'
                         'specify like --betas 0.9 0.999')
+    parser.add_argument("--use_scheduler", dest='use_scheduler',
+                        action='store_true',
+                        help='use scheduler')
+    parser.set_defaults(use_scheduler=False)
 
     args = parser.parse_args()
     print(args)
