@@ -51,10 +51,12 @@ def dataset_facory(args):
     train_loader = DataLoader(train_set,
                               batch_size=args.batch_size,
                               shuffle=True,
+                              drop_last=True,
                               num_workers=args.num_workers)
     val_loader = DataLoader(val_set,
                             batch_size=args.batch_size,
                             shuffle=False,
+                            drop_last=True,
                             num_workers=args.num_workers)
 
     return train_loader, val_loader, n_classes

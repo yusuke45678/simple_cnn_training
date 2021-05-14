@@ -54,11 +54,12 @@ def get_args():
     args = parser.parse_args()
     print(args)
 
-    mlflow.log_param('batch_size', args.batch_size)
-    mlflow.log_param('learning_rate', args.lr)
-    mlflow.log_param('momentum', args.momentum)
     mlflow.log_param('dataset', args.dataset_name)
     mlflow.log_param('model', args.model)
+    mlflow.log_param('use pretrain', args.pretrain)
     mlflow.log_param('optimizer', args.optimizer)
+    mlflow.log_param('learning_rate', args.lr)
+    mlflow.log_param('momentum', args.momentum)
+    mlflow.log_param('batch_size', args.batch_size)
 
     return args
