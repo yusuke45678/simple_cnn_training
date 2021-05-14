@@ -6,7 +6,7 @@ def optimizer_factory(args, model):
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(model.parameters(),
                               lr=args.lr, momentum=args.momentum)
-    elif args.optmizer == 'Adam':
+    elif args.optimizer == 'Adam':
         optimizer = optim.Adam(model.parameters(),
                                lr=args.lr, betas=args.betas)
     else:

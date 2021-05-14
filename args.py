@@ -1,12 +1,13 @@
 import argparse
+import mlflow
 
 
 def get_args():
-    """generate argparse object
+    '''generate argparse object
 
     Returns:
         args: [description]
-    """
+    '''
     parser = argparse.ArgumentParser(description='simple CNN model')
 
     # dataset
@@ -20,9 +21,9 @@ def get_args():
                         ' default to ./models')
     parser.add_argument('-m', '--model', type=str, default='resnet18',
                         help='CNN model. default to resnet18')
-    parser.add_argument("--pretrain", dest='pretrain', action='store_true',
+    parser.add_argument('--pretrain', dest='pretrain', action='store_true',
                         help='use pretrained model')
-    parser.add_argument("--no_pretrain", dest='pretrain', action='store_false',
+    parser.add_argument('--no_pretrain', dest='pretrain', action='store_false',
                         help='do not use pretrained model')
     parser.set_defaults(pretrain=True)
 
@@ -45,11 +46,19 @@ def get_args():
     parser.add_argument('--betas', nargs='+', type=float, default=[0.9, 0.999],
                         help='betas of Adam. default to (0.9, 0.999).'
                         'specify like --betas 0.9 0.999')
-    parser.add_argument("--use_scheduler", dest='use_scheduler',
+    parser.add_argument('--use_scheduler', dest='use_scheduler',
                         action='store_true',
                         help='use scheduler')
     parser.set_defaults(use_scheduler=False)
 
     args = parser.parse_args()
     print(args)
+
+    mlflow.log_param('batch_size', args.batch_size)
+    mlflow.log_param('learning_rate', args.lr)
+    mlflow.log_param('momentum', args.momentum)
+    mlflow.log_param('dataset', args.dataset_name)
+    mlflow.log_param('model', args.model)
+    mlflow.log_param('optimizer', args.optimizer)
+
     return args

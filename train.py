@@ -4,13 +4,15 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 
+import mlflow
+
 from dataset import dataset_facory
 from model import model_factory
 from args import get_args
 from optimizer import optimizer_factory, scheduler_factory
 
 
-def val(model, criterion, optimizer, loader, device):
+def val(model, criterion, optimizer, loader, device, iters, epoch):
 
     model.eval()
     loss_list = []
@@ -34,11 +36,16 @@ def val(model, criterion, optimizer, loader, device):
 
             loss_list.append(batch_loss)
             acc_list.append(batch_acc)
-    total_loss = sum(loss_list) / len(loss_list)
-    total_acc = sum(acc_list) / len(acc_list)
+
+    val_loss = sum(loss_list) / len(loss_list)
+    val_acc = sum(acc_list) / len(acc_list)
+
+    mlflow.log_metrics({'val_loss': val_loss,
+                        'val_acc': val_acc},
+                       step=iters)
 
 
-def train(model, criterion, optimizer, loader, device):
+def train(model, criterion, optimizer, loader, device, iters, epoch):
 
     model.train()
 
@@ -64,6 +71,14 @@ def train(model, criterion, optimizer, loader, device):
             pbar_loss.set_postfix_str(
                 'loss={:.05f}, acc={:.03f}'.format(batch_loss, batch_acc))
 
+            mlflow.log_metrics({'train_loss': batch_loss,
+                                'train_acc': batch_acc},
+                               step=iters)
+
+            iters += 1
+
+    return iters
+
 
 def main():
 
@@ -81,14 +96,19 @@ def main():
     optimizer = optimizer_factory(args, model)
     scheduler = scheduler_factory(args, optimizer)
 
+    iters = 0
+
     with tqdm(range(args.num_epochs)) as pbar_epoch:
-        for e in pbar_epoch:
-            pbar_epoch.set_description('[Epoch {}]'.format(e))
 
-            train(model, criterion, optimizer, train_loader, device)
+        for epoch in pbar_epoch:
+            pbar_epoch.set_description('[Epoch {}]'.format(epoch))
 
-            if e % args.val_epochs:
-                val(model, criterion, optimizer, val_loader, device)
+            iters = train(model, criterion, optimizer, train_loader, device,
+                          iters, epoch)
+
+            if epoch % args.val_epochs:
+                val(model, criterion, optimizer, val_loader, device,
+                    iters, epoch)
 
             if args.use_scheduler:
                 scheduler.update()
