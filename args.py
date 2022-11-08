@@ -1,24 +1,23 @@
 import argparse
-import mlflow
 
 
 def get_args():
-    '''generate argparse object
+    """generate argparse object
 
     Returns:
         args: [description]
-    '''
+    """
     parser = argparse.ArgumentParser(description='simple CNN model')
 
     # dataset
-    parser.add_argument('-r', '--root', type=str, default='./data',
-                        help='root of dataset. default to ./data')
+    parser.add_argument('-r', '--root', type=str, default='./downloaded_data',
+                        help='root of dataset. default to ./downloaded_data')
     parser.add_argument('-d', '--dataset_name', type=str, default='CIFAR10',
                         help='name of dataset. default to CIFAR10')
     # model
-    parser.add_argument('--torch_home', type=str, default='./models',
+    parser.add_argument('--torch_home', type=str, default='./pretrained_models',
                         help='TORCH_HOME where pre-trained models are stored.'
-                        ' default to ./models')
+                        ' default to ./pretrained_models')
     parser.add_argument('-m', '--model', type=str, default='resnet18',
                         help='CNN model. default to resnet18')
     parser.add_argument('--pretrain', dest='pretrain', action='store_true',
@@ -53,13 +52,5 @@ def get_args():
 
     args = parser.parse_args()
     print(args)
-
-    mlflow.log_param('dataset', args.dataset_name)
-    mlflow.log_param('model', args.model)
-    mlflow.log_param('use pretrain', args.pretrain)
-    mlflow.log_param('optimizer', args.optimizer)
-    mlflow.log_param('learning_rate', args.lr)
-    mlflow.log_param('momentum', args.momentum)
-    mlflow.log_param('batch_size', args.batch_size)
 
     return args
