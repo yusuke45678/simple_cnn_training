@@ -5,19 +5,42 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "debug bs=32, GPU=2,3",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "2,3"
+            },
             "args": [
                 "-w",
                 "24",
                 "-b",
-                "512",
+                "32",
                 "-e",
                 "5"
+            ]
+        },
+        {
+            "name": "debug bs=128, GPU=3",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "3"
+            },
+            "args": [
+                "-w",
+                "64",
+                "-b",
+                "128",
+                "-e",
+                "5",
+                "--single_gpu"
             ]
         }
     ]

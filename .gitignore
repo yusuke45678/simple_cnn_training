@@ -1,5 +1,5 @@
 __pycache__/
 log/
-.vscode/
+comet_logs/
 downloaded_data/
 pretrained_models/
