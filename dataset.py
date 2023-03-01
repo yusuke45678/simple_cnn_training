@@ -81,7 +81,7 @@ def dataset_facory(args):
         val_dataset,
         batch_size=args.batch_size,
         shuffle=False,
-        drop_last=True,
+        drop_last=False,
         num_workers=args.num_workers)
 
     return train_loader, val_loader, n_classes

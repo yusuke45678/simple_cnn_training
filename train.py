@@ -41,9 +41,9 @@ def val(
                 'loss={:6.4e}({:6.4e}), '
                 'top1={:6.2f}({:6.2f}), '
                 'top5={:6.2f}({:6.2f})'.format(
-                    val_loss.val, val_loss.avg,
-                    val_top1.val, val_top1.avg,
-                    val_top5.val, val_top5.avg,
+                    val_loss.value, val_loss.avg,
+                    val_top1.value, val_top1.avg,
+                    val_top5.value, val_top5.avg,
                 ))
 
     experiment.log_metric(
@@ -75,7 +75,7 @@ def train(
     model.train()
 
     with tqdm(
-        enumerate(loader),
+        enumerate(loader, start=1),
         total=len(loader),
         leave=False
     ) as pbar_loss:
@@ -94,9 +94,7 @@ def train(
             loss = criterion(outputs, labels)
             loss.backward()
 
-            if (batch_index + 1) % args.grad_accum == 0:
-                optimizer.step()
-                global_steps += 1
+            if batch_index % args.grad_accum == 0:
 
                 top1, top5 = accuracy(outputs, labels, topk=(1, 5))
                 train_top1.update(top1, batch_size)
@@ -109,17 +107,21 @@ def train(
                     'top1={:6.2f}({:6.2f}), '
                     'top5={:6.2f}({:6.2f})'.format(
                         global_steps,
-                        train_loss.val, train_loss.avg,
-                        train_top1.val, train_top1.avg,
-                        train_top5.val, train_top5.avg,
+                        train_loss.value, train_loss.avg,
+                        train_top1.value, train_top1.avg,
+                        train_top5.value, train_top5.avg,
                     ))
 
-                experiment.log_metric(
-                    'train_batch_loss', train_loss.val, step=global_steps)
-                experiment.log_metric(
-                    'train_batch_top1', train_top1.val, step=global_steps)
-                experiment.log_metric(
-                    'train_batch_top5', train_top5.val, step=global_steps)
+                if global_steps % args.log_interval_steps == 0:
+                    experiment.log_metric(
+                        'train_batch_loss', train_loss.value, step=global_steps)
+                    experiment.log_metric(
+                        'train_batch_top1', train_top1.value, step=global_steps)
+                    experiment.log_metric(
+                        'train_batch_top5', train_top5.value, step=global_steps)
+
+                optimizer.step()
+                global_steps += 1
 
 
     experiment.log_metric(

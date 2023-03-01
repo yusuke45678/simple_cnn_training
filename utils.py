@@ -12,16 +12,16 @@ class AverageMeter(object):
         self.reset()
 
     def reset(self):
-        self.val = 0
+        self.value = 0
         self.avg = 0
         self.sum = 0
         self.count = 0
 
-    def update(self, val, n=1):
-        if isinstance(val, torch.Tensor):
-            val = val.item()
-        self.val = val
-        self.sum += val * n
+    def update(self, value, n=1):
+        if isinstance(value, torch.Tensor):
+            value = value.item()
+        self.value = value
+        self.sum += value * n
         self.count += n
         self.avg = self.sum / self.count
 

@@ -53,8 +53,10 @@ def get_args():
                         help='number of workers.')
     parser.add_argument('-e', '--num_epochs', type=int, default=25,
                         help='number of epochs.')
-    parser.add_argument('--val_epochs', type=int, default=2,
+    parser.add_argument('-vi', '--val_interval_epochs', type=int, default=2,
                         help='validation interval in epochs.')
+    parser.add_argument('-li', '--log_interval_steps', type=int, default=10,
+                        help='logging interval in steps.')
 
     # optimizer
     parser.add_argument('--optimizer', type=str, default='SGD',
@@ -62,7 +64,7 @@ def get_args():
                         help='optimizer.')
     parser.add_argument('--grad_accum', type=int, default=1,
                         help='steps to accumlate gradients.')
-    parser.add_argument('-lr', type=float, default=0.0001,
+    parser.add_argument('-lr', type=float, default=1e-4,
                         help='learning rate.')
     parser.add_argument('--momentum', type=float, default=0.9,
                         help='momentum of SGD.')

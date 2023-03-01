@@ -39,7 +39,8 @@ def main():
                 model, criterion, optimizer, train_loader,
                 device, global_steps, epoch, experiment, args)
 
-            if (epoch + 1) % args.val_epochs == 0:
+            if epoch % args.val_interval_epochs == 0 \
+                    or epoch == args.num_epochs:
                 val(model, criterion, val_loader, device,
                     global_steps, epoch, experiment)
 

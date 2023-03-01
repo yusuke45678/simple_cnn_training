@@ -44,14 +44,14 @@
             ]
         },
         {
-            "name": "debug bs=128, GPU=3, ImageFolder",
+            "name": "debug bs=256, 2GPUs, Adam, ImageFolder",
             "type": "python",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "3"
+                "CUDA_VISIBLE_DEVICES": "2,3"
             },
             "args": [
                 "-d",
@@ -64,7 +64,10 @@
                 "256",
                 "-e",
                 "5",
-                "--single_gpu"
+                "--optimizer",
+                "Adam",
+                "--grad_accum",
+                "2"
             ]
         },
     ]

@@ -4,17 +4,42 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "echo",
+            "label": "run main.py",
             "type": "shell",
             "command": "python",
             "args": [
-                "${file}",
+                "main.py",
                 "-w",
                 "24",
                 "-b",
                 "8",
                 "-e",
                 "5"
+            ]
+        },
+        {
+            "label": "run main.py, bs=256, 2GPUs, Adam, ImageFolder",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "2,3"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "256",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
             ]
         }
     ]
