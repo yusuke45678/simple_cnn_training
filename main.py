@@ -33,7 +33,7 @@ def main():
 
     with tqdm(range(1, args.num_epochs + 1)) as pbar_epoch:
         for epoch in pbar_epoch:
-            pbar_epoch.set_description('[Epoch {}]'.format(epoch))
+            pbar_epoch.set_description(f'[Epoch {epoch}]')
 
             global_steps = train(
                 model, criterion, optimizer, train_loader,

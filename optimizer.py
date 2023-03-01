@@ -23,4 +23,5 @@ def scheduler_factory(args, optimizer):
             optimizer, step_size=7, gamma=0.1)
     else:
         scheduler = None
+
     return scheduler
