@@ -25,6 +25,10 @@ def get_args():
                         help='root of dataset.')
     parser.add_argument('-d', '--dataset_name', type=str, default='CIFAR10',
                         help='name of dataset.')
+    parser.add_argument('-td', '--train_dir', type=str, default='train',
+                        help='subdier name of training dataset.')
+    parser.add_argument('-vd', '--val_dir', type=str, default='val',
+                        help='subdier name of validation dataset.')
 
     # model
     parser.add_argument('--torch_home', type=str, default='./pretrained_models',

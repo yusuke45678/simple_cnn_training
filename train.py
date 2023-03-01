@@ -19,10 +19,8 @@ def val(
 
     model.eval()
 
-    with (
-        torch.no_grad(),
-        tqdm(loader, total=len(loader), leave=False)
-    ) as pbar_loss:
+    with torch.no_grad(), \
+            tqdm(loader, total=len(loader), leave=False) as pbar_loss:
 
         pbar_loss.set_description('[val]')
         for data, labels in pbar_loss:

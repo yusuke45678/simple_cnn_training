@@ -8,7 +8,7 @@
             "name": "debug bs=32, GPU=2,3",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
             "env": {
@@ -27,7 +27,7 @@
             "name": "debug bs=128, GPU=3",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
             "env": {
@@ -42,6 +42,30 @@
                 "5",
                 "--single_gpu"
             ]
-        }
+        },
+        {
+            "name": "debug bs=128, GPU=3, ImageFolder",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "3"
+            },
+            "args": [
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "256",
+                "-e",
+                "5",
+                "--single_gpu"
+            ]
+        },
     ]
 }
