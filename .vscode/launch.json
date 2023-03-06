@@ -5,20 +5,70 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "debug bs=32, GPU=2,3",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "2,3"
+            },
             "args": [
                 "-w",
                 "24",
                 "-b",
-                "512",
+                "32",
                 "-e",
                 "5"
             ]
-        }
+        },
+        {
+            "name": "debug bs=128, GPU=3",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "3"
+            },
+            "args": [
+                "-w",
+                "64",
+                "-b",
+                "128",
+                "-e",
+                "5",
+                "--single_gpu"
+            ]
+        },
+        {
+            "name": "debug bs=256, 2GPUs, Adam, ImageFolder",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "2,3"
+            },
+            "args": [
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "256",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--grad_accum",
+                "2"
+            ]
+        },
     ]
 }

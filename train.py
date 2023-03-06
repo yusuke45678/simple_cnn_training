@@ -1,118 +1,134 @@
-
-from tqdm import tqdm
-
 import torch
-import torch.nn as nn
-
-import mlflow
-
-from dataset import dataset_facory
-from model import model_factory
-from args import get_args
-from optimizer import optimizer_factory, scheduler_factory
+from tqdm import tqdm
+from utils import AverageMeter, accuracy
 
 
-def val(model, criterion, optimizer, loader, device, iters, epoch):
+def val(
+    model,
+    criterion,
+    loader,
+    device,
+    global_steps: int,
+    epoch: int,
+    experiment
+):
+
+    val_loss = AverageMeter()
+    val_top1 = AverageMeter()
+    val_top5 = AverageMeter()
 
     model.eval()
-    loss_list = []
-    acc_list = []
-    with torch.no_grad(), tqdm(loader, leave=False) as pbar_loss:
+
+    with torch.no_grad(), \
+            tqdm(loader, total=len(loader), leave=False) as pbar_loss:
+
         pbar_loss.set_description('[val]')
         for data, labels in pbar_loss:
 
             data = data.to(device)
             labels = labels.to(device)
+            batch_size = data.size(0)
 
-            output = model(data)
-            loss = criterion(output, labels)
+            outputs = model(data)
+            loss = criterion(outputs, labels)
 
-            batch_loss = loss.item() / data.size(0)
-            _, preds = output.max(1)
-            batch_acc = preds.eq(labels).sum().item() / data.size(0)
+            top1, top5 = accuracy(outputs, labels, topk=(1, 5))
+            val_top1.update(top1, batch_size)
+            val_top5.update(top5, batch_size)
+            val_loss.update(loss, batch_size)
 
             pbar_loss.set_postfix_str(
-                'loss={:.05f}, acc={:.03f}'.format(batch_loss, batch_acc))
+                'loss={:6.4e}({:6.4e}), '
+                'top1={:6.2f}({:6.2f}), '
+                'top5={:6.2f}({:6.2f})'.format(
+                    val_loss.value, val_loss.avg,
+                    val_top1.value, val_top1.avg,
+                    val_top5.value, val_top5.avg,
+                ))
 
-            loss_list.append(batch_loss)
-            acc_list.append(batch_acc)
+    experiment.log_metric(
+        'val_loss', val_loss.avg, step=global_steps, epoch=epoch)
+    experiment.log_metric(
+        'val_top1', val_top1.avg, step=global_steps, epoch=epoch)
+    experiment.log_metric(
+        'val_top5', val_top5.avg, step=global_steps, epoch=epoch)
 
-    val_loss = sum(loss_list) / len(loss_list)
-    val_acc = sum(acc_list) / len(acc_list)
-
-    mlflow.log_metrics({'val_loss': val_loss,
-                        'val_acc': val_acc},
-                       step=iters)
+    return
 
 
-def train(model, criterion, optimizer, loader, device, iters, epoch):
+def train(
+    model,
+    criterion,
+    optimizer,
+    loader,
+    device,
+    global_steps: int,
+    epoch: int,
+    experiment,
+    args
+) -> int:
+
+    train_loss = AverageMeter()
+    train_top1 = AverageMeter()
+    train_top5 = AverageMeter()
 
     model.train()
 
-    with tqdm(loader, leave=False) as pbar_loss:
+    with tqdm(
+        enumerate(loader, start=1),
+        total=len(loader),
+        leave=False
+    ) as pbar_loss:
+
         pbar_loss.set_description('[train]')
-        for data, labels in pbar_loss:
+        for batch_index, (data, labels) in pbar_loss:
 
             data = data.to(device)
             labels = labels.to(device)
+            batch_size = data.size(0)
 
-            optimizer.zero_grad()
+            if batch_index % args.grad_accum == 0:
+                optimizer.zero_grad()
 
-            output = model(data)
-            loss = criterion(output, labels)
-
+            outputs = model(data)
+            loss = criterion(outputs, labels)
             loss.backward()
-            optimizer.step()
 
-            batch_loss = loss.item() / data.size(0)
-            _, preds = output.max(1)
-            batch_acc = preds.eq(labels).sum().item() / data.size(0)
+            if batch_index % args.grad_accum == 0:
 
-            pbar_loss.set_postfix_str(
-                'loss={:.05f}, acc={:.03f}'.format(batch_loss, batch_acc))
+                top1, top5 = accuracy(outputs, labels, topk=(1, 5))
+                train_top1.update(top1, batch_size)
+                train_top5.update(top5, batch_size)
+                train_loss.update(loss, batch_size)
 
-            mlflow.log_metrics({'train_loss': batch_loss,
-                                'train_acc': batch_acc},
-                               step=iters)
+                pbar_loss.set_postfix_str(
+                    'step={:d}, '
+                    'loss={:6.4e}({:6.4e}), '
+                    'top1={:6.2f}({:6.2f}), '
+                    'top5={:6.2f}({:6.2f})'.format(
+                        global_steps,
+                        train_loss.value, train_loss.avg,
+                        train_top1.value, train_top1.avg,
+                        train_top5.value, train_top5.avg,
+                    ))
 
-            iters += 1
+                if global_steps % args.log_interval_steps == 0:
+                    experiment.log_metric(
+                        'train_batch_loss', train_loss.value, step=global_steps)
+                    experiment.log_metric(
+                        'train_batch_top1', train_top1.value, step=global_steps)
+                    experiment.log_metric(
+                        'train_batch_top5', train_top5.value, step=global_steps)
 
-    return iters
-
-
-def main():
-
-    args = get_args()
-
-    train_loader, val_loader, n_classes = dataset_facory(args)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    model = model_factory(args, n_classes)
-    model = model.to(device)
-    model = nn.DataParallel(model)
-
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optimizer_factory(args, model)
-    scheduler = scheduler_factory(args, optimizer)
-
-    iters = 0
-
-    with tqdm(range(args.num_epochs)) as pbar_epoch:
-
-        for epoch in pbar_epoch:
-            pbar_epoch.set_description('[Epoch {}]'.format(epoch))
-
-            iters = train(model, criterion, optimizer, train_loader, device,
-                          iters, epoch)
-
-            if epoch % args.val_epochs:
-                val(model, criterion, optimizer, val_loader, device,
-                    iters, epoch)
-
-            if args.use_scheduler:
-                scheduler.update()
+                optimizer.step()
+                global_steps += 1
 
 
-if __name__ == "__main__":
-    main()
+    experiment.log_metric(
+        'train_loss', train_loss.avg, step=global_steps, epoch=epoch)
+    experiment.log_metric(
+        'train_top1', train_top1.avg, step=global_steps, epoch=epoch)
+    experiment.log_metric(
+        'train_top5', train_top5.avg, step=global_steps, epoch=epoch)
+
+    return global_steps
