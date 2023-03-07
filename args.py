@@ -24,6 +24,7 @@ def get_args():
     parser.add_argument('-r', '--root', type=str, default='./downloaded_data',
                         help='root of dataset.')
     parser.add_argument('-d', '--dataset_name', type=str, default='CIFAR10',
+                        choices=['CIFAR10', 'ImageFolder'],
                         help='name of dataset.')
     parser.add_argument('-td', '--train_dir', type=str, default='train',
                         help='subdier name of training dataset.')
