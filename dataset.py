@@ -5,6 +5,17 @@ import os
 
 
 def transform_factory(args, do_crop=True):
+    """transform factory
+
+    Args:
+        args (argparse): args
+        do_crop (bool, optional): flag to use random crop. Defaults to True.
+
+    Returns:
+        torchvision.transforms: transforms
+    """
+
+
     if do_crop:
         transform = transforms.Compose([
             transforms.RandomResizedCrop(224),
@@ -31,9 +42,13 @@ def dataset_facory(args):
     Args:
         args (argparse): args
 
+    Raises:
+        ValueError: invalide dataset name given by command line
+
     Returns:
-        DataLoader: training set loader
-        DataLoader: validation set loader
+        torch.utils.data.DataLoader: training set loader
+        torch.utils.data.DataLoader: validation set loader
+        int: number of classes
     """
 
     transform = transform_factory(args)
@@ -44,7 +59,7 @@ def dataset_facory(args):
             train=True,
             download=True,
             transform=transform)
-        val_set = CIFAR10(
+        val_dataset = CIFAR10(
             root=args.root,
             train=False,
             download=True,

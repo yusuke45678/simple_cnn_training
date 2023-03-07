@@ -13,7 +13,7 @@ def get_args():
     """generate argparse object
 
     Returns:
-        args: [description]
+        args: object of command line arguments
     """
     parser = argparse.ArgumentParser(
         description='simple CNN model',

@@ -10,6 +10,18 @@ from torchvision.models import (
 
 
 def model_factory(args, n_classes):
+    """model factory
+
+    Args:
+        args (argparse): args
+        n_classes (int): number of classes
+
+    Raises:
+        ValueError: invalide model name given by command line
+
+    Returns:
+        torch.nn: CNN model
+    """
 
     if args.use_pretrained:
         # Specity the directory where a pre-trained model is stored.

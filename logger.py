@@ -3,6 +3,14 @@ from comet_ml import Experiment
 
 
 def logger_factory(args):
+    """comet logger factory
+
+    Args:
+        args (argparse): args
+
+    Returns:
+        comet_ml.Experiment: Experiment object
+    """
 
     # Use ./.comet.config and ~/.comet.config
     # to specify API key, workspace and project name.
