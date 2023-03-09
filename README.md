@@ -72,10 +72,52 @@ python3 main.py -h
   --single_gpu          use single GPU (not default) (default: True)
 ```
 
-## comet
+## Cometの設定
 
-このディレクトリの`.comet.config`と，ホームの`~/.comet.config`を利用する．コード中にはAPIキーなどは書かないこと（`logger.py`参照）．
+このディレクトリの`./.comet.config`と，ホームの`~/.comet.config`を利用する．詳しくは[cometのドキュメント](https://www.comet.com/docs/v2/api-and-sdk/python-sdk/advanced/configuration/)を参照．コード中にはAPIキーなどは書かないこと（[logger.py](./logger.py)参照）．
 
-- `~/.comet.config`：cometのAPIキー，デフォルトのcomet workspaceを設定．
-- このディレクトリの`.comet.config`：comet projectを設定．（comet workspaceを設定すると`~/.comet.config`よりも優先きされる）
-- コード（`logger.py`）：`Experiment`オブジェクトにexperiment nameを設定．必要ならtagを設定する．
+- `~/.comet.config`：すべてに共通する設定を書く．
+  - cometのAPIキー，デフォルトのcomet workspaceを設定．
+  - `hide_api_key`はTrueにすること（しないとログにAPIキーが残ってしまう）
+
+```ini:
+[comet]
+api_key=XXXXXXXXXXXXXXXXXXXX
+workspace=tttamaki
+
+[comet_logging]
+hide_api_key=True
+```
+
+- このディレクトリの`./.comet.config`：このディレクトリで使用する設定を書く．
+  - comet project nameを設定．
+  - （ここで設定する内容はホームの`~/.comet.config`よりも優先されて，上書きされる）
+
+```ini:
+[comet]
+project_name=simple_cnn_20230309
+
+[comet_logging]
+display_summary_level=0
+file=comet_logs/comet_{project}_{datetime}.log
+
+[comet_auto_log]
+env_details=True
+env_gpu=True
+env_host=True
+env_cpu=True
+cli_arguments=True
+```
+
+- コード：
+  - `Experiment`オブジェクトにcomet experiment nameを設定．必要ならtagを設定する．
+  - コード中にはAPIキーなどは書かない．
+  - （コード中で設定する内容はこのディレクトリの`./.comet.config`よりも優先されて，上書きされる）
+
+```python:
+    experiment = Experiment()  # ここでは何も設定しない
+
+    exp_name = datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')  # これは日時をexperiment nameに設定する例．
+    experiment.set_name(exp_name)
+    experiment.add_tag(args.model)  # これはモデル名をタグに設定する例．
+```
