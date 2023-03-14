@@ -87,7 +87,6 @@ def get_args():
                         help='use single GPU (not default)')
     parser.set_defaults(use_dp=True)
 
-
     args = parser.parse_args()
     print(args)
 

@@ -3,7 +3,6 @@ from tqdm import tqdm
 from utils import AverageMeter, accuracy
 
 
-
 def val(
     model,
     criterion,
@@ -150,7 +149,6 @@ def train(
 
                 optimizer.step()
                 global_steps += 1
-
 
     experiment.log_metric(
         'train_loss', train_loss.avg, step=global_steps, epoch=epoch)

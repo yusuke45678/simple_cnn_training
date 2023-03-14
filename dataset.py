@@ -15,7 +15,6 @@ def transform_factory(args, do_crop=True):
         torchvision.transforms: transforms
     """
 
-
     if do_crop:
         transform = transforms.Compose([
             transforms.RandomResizedCrop(224),
