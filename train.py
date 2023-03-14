@@ -3,6 +3,7 @@ from tqdm import tqdm
 from utils import AverageMeter, accuracy
 
 
+
 def val(
     model,
     criterion,
@@ -12,6 +13,17 @@ def val(
     epoch: int,
     experiment
 ):
+    """training loop for one epoch
+
+    Args:
+        model(torch.nn): CNN model
+        criterion(torch.nn loss): loss function
+        loader(torch.utils.data.DataLoader): validation dataset loader
+        device(torch.device): GPU device
+        global_steps(int): current step from the beginning
+        epoch(int): current epoch
+        experiment(comet_ml.Experiment): comet logger
+    """
 
     val_loss = AverageMeter()
     val_top1 = AverageMeter()
@@ -25,8 +37,8 @@ def val(
         pbar_loss.set_description('[val]')
         for data, labels in pbar_loss:
 
-            data = data.to(device)
-            labels = labels.to(device)
+            data = data.to(device)  # BCHW
+            labels = labels.to(device)  # B
             batch_size = data.size(0)
 
             outputs = model(data)
@@ -67,6 +79,22 @@ def train(
     experiment,
     args
 ) -> int:
+    """training loop for one epoch
+
+    Args:
+        model (torch.nn): CNN model
+        criterion (torch.nn loss): loss function
+        optimizer (torch.optim): optimizer
+        loader (torch.utils.data.DataLoader): training dataset loader
+        device (torch.device): GPU device
+        global_steps (int): current step from the beginning
+        epoch (int): current epoch
+        experiment (comet_ml.Experiment): comet logger
+        args (argparse): args
+
+    Returns:
+        int: global_steps
+    """
 
     train_loss = AverageMeter()
     train_top1 = AverageMeter()
@@ -83,8 +111,8 @@ def train(
         pbar_loss.set_description('[train]')
         for batch_index, (data, labels) in pbar_loss:
 
-            data = data.to(device)
-            labels = labels.to(device)
+            data = data.to(device)  # BCHW
+            labels = labels.to(device)  # B
             batch_size = data.size(0)
 
             if batch_index % args.grad_accum == 0:
