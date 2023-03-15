@@ -88,13 +88,21 @@ class MyLightningModel(pl.LightningModule):
             {
                 'train_loss': loss,
                 'train_top1': top1,
-                'train_top5': top5,
             },
             prog_bar=True,
             on_step=True,
             on_epoch=True,
-            rank_zero_only=True,
-            sync_dist=False,
+            rank_zero_only=False,
+            sync_dist=True,
+            batch_size=batch_size)
+
+        self.log(
+            'train_top5', top5,
+            prog_bar=False,  # do not show on the progress bar
+            on_step=True,
+            on_epoch=True,
+            rank_zero_only=False,
+            sync_dist=True,
             batch_size=batch_size)
 
         return loss
