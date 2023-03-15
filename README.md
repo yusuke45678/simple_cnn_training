@@ -6,14 +6,18 @@ CNNを使って学習する単純な練習用コードです．
 
 - pytorch
   - torchvision
+  - pytorch lightning
 - comet
 - tqdm
 
 ## usage example
 
-```:bash
-python3 main.py -w 24 -b 8 -e 5 -d ImageFolder -r /mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/
+```bash
+python3 main.py -w 24 -b 8 -e 5 -d ImageFolder -r /mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/  --use_dp
+python3 main_pl.py -w 24 -b 8 -e 5 -d ImageFolder -r /mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/ --gpu_strategy ddp --gpus 3
 ```
+
+`_pl`がついたファイルはPytorch lightningのコードを使用（ddp対応）．
 
 ### option
 
@@ -26,16 +30,19 @@ python3 main.py -w 24 -b 8 -e 5 -d ImageFolder -r /mnt/NAS-TVS872XT/dataset-lab/
 - `-d`：データセット
   - `CIFAR10`：[torchvisionのCIFAR10](https://pytorch.org/vision/main/generated/torchvision.datasets.CIFAR10.html)
   - `ImageFolder`：`-r`で指定したフォルダ以下に`train/`と`val/`のディレクトリがあり，それ以下はカテゴリ名のサブディレクトリに分かれて保存されている画像データセット（[torchvisionのImageFolder](https://pytorch.org/vision/main/generated/torchvision.datasets.ImageFolder.html)）
+- `--gpu_strategy`：dp (Data Parallel), ddp (Distributed Data Parallel), single GPU
+- `--gpus`: dpとddpで使用するGPU数
 
 または
 
-```:bash
+```bash
 python3 main.py -h
+python3 main_pl.py -h
 ```
 
 を実行．
 
-```:text
+```text
   -h, --help            show this help message and exit
   -r str, --root str    root of dataset. (default: ./downloaded_data)
   -d {CIFAR10,ImageFolder}, --dataset_name {CIFAR10,ImageFolder}
@@ -68,8 +75,13 @@ python3 main.py -h
                         betas of Adam. (default: [0.9, 0.999])
   --use_scheduler       use scheduler (not default) (default: False)
   --no_scheduler        do not use scheduler (default) (default: False)
-  --use_dp              use multi GPUs with data parallel (default) (default: True)
-  --single_gpu          use single GPU (not default) (default: True)
+  --use_dp              use multi GPUs with data parallel (default: None)
+  --single_gpu          use single GPU (default: None)
+  --gpu_strategy {None,dp,ddp}
+                        GPU training strategy. None: single GPU. dp: Data Parallel (default). ddp: Distributed Data Parallel. (default: dp)
+  --gpus int            how many GPUs are used for dp and ddp. (default: 2)
+  --comet_log_dir str   dir to comet log files. (default: ./comet_logs/)
+  --tf_log_dir str      dir to TensorBoard log files. (default: ./tf_logs/)
   --save_checkpoint_dir str
                         dir to save checkpoint files. (default: ./log)
   --resume_from_checkpoint str
@@ -86,7 +98,7 @@ python3 main.py -h
   - cometのAPIキー，デフォルトのcomet workspaceを設定．
   - `hide_api_key`はTrueにすること（しないとログにAPIキーが残ってしまう）
 
-```ini:
+```ini
 [comet]
 api_key=XXXXXXXXXXXXXXXXXXXX
 workspace=tttamaki
@@ -99,7 +111,7 @@ hide_api_key=True
   - comet project nameを設定．
   - （ここで設定する内容はホームの`~/.comet.config`よりも優先されて，上書きされる）
 
-```ini:
+```ini
 [comet]
 project_name=simple_cnn_20230309
 
@@ -115,12 +127,12 @@ env_cpu=True
 cli_arguments=True
 ```
 
-- コード：
+- コード
   - `Experiment`オブジェクトにcomet experiment nameを設定．必要ならtagを設定する．
   - コード中にはAPIキーなどは書かない．
   - （コード中で設定する内容はこのディレクトリの`./.comet.config`よりも優先されて，上書きされる）
 
-```python:
+```python
     experiment = Experiment()  # ここでは何も設定しない
 
     exp_name = datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')  # これは日時をexperiment nameに設定する例．
