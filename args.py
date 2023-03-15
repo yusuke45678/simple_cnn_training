@@ -87,6 +87,12 @@ def get_args():
                         help='use single GPU (not default)')
     parser.set_defaults(use_dp=True)
 
+    # disabling comet for debugging
+    parser.add_argument('--disable_comet', '--no_comet', dest='disable_comet',
+                        action='store_true',
+                        help='do not use comet.ml (default: use comet)')
+    parser.set_defaults(disable_comet=False)
+
     args = parser.parse_args()
     print(args)
 
