@@ -3,6 +3,16 @@ from pytorch_lightning.loggers import CometLogger, TensorBoardLogger
 
 
 def logger_factory(args):
+    """generating two loggers.
+    - comet logger for cloud logging
+    - tensorboard logger for local logging (in case of network lost)
+
+    Args:
+        args (argparse): args
+
+    Returns:
+        Tuple[pytorch_lightning.loggers]: loggers
+    """
 
     exp_name = datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 

@@ -17,7 +17,17 @@ from utils import accuracy
 
 
 class MyLightningModel(pl.LightningModule):
+    """Lightning model
+
+    """
+
     def __init__(self, args, n_classes):
+        """constructor
+
+        Args:
+            args (argparse): args
+            n_classes (int): number of categories
+        """
         super().__init__()
         self.args = args
 
@@ -44,6 +54,11 @@ class MyLightningModel(pl.LightningModule):
         self.save_hyperparameters()
 
     def configure_optimizers(self):
+        """optimizer and scheduler
+
+        Returns:
+            optim or dict: optimizer, or dict
+        """
         if self.args.optimizer == 'SGD':
             optimizer = optim.SGD(
                 self.model.parameters(),
@@ -66,6 +81,11 @@ class MyLightningModel(pl.LightningModule):
             return optimizer
 
     def configure_callbacks(self):
+        """model-specific callbacks
+
+        Returns:
+            callback or List[callback]: callback(s)
+        """
         os.makedirs(self.args.save_checkpoint_dir, exist_ok=True)
         checkpoint_callback = ModelCheckpoint(
             dirpath=self.args.save_checkpoint_dir,
