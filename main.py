@@ -8,6 +8,7 @@ from model import model_factory
 from optimizer import optimizer_factory, scheduler_factory
 from logger import logger_factory
 from train import train, val
+from utils import save_to_checkpoint, load_from_checkpoint
 
 
 def main():
@@ -22,16 +23,22 @@ def main():
 
     model = model_factory(args, n_classes)
     model = model.to(device)
-    if args.use_dp:
-        model = nn.DataParallel(model)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optimizer_factory(args, model)
     scheduler = scheduler_factory(args, optimizer)
 
     global_steps = 1
+    start_epoch = 0
 
-    with tqdm(range(1, args.num_epochs + 1)) as pbar_epoch:
+    if args.resume_from_checkpoint:
+        start_epoch, global_steps, model, optimizer, scheduler = \
+            load_from_checkpoint(args, model, optimizer, scheduler, device)
+
+    if args.use_dp:
+        model = nn.DataParallel(model)
+
+    with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as pbar_epoch:
         for epoch in pbar_epoch:
             pbar_epoch.set_description(f'[Epoch {epoch}]')
 
@@ -41,8 +48,13 @@ def main():
 
             if epoch % args.val_interval_epochs == 0 \
                     or epoch == args.num_epochs:
-                val(model, criterion, val_loader, device,
+                _, val_top1 = val(
+                    model, criterion, val_loader, device,
                     global_steps, epoch, experiment)
+
+                save_to_checkpoint(
+                    args, epoch, global_steps, val_top1,
+                    model, optimizer, scheduler, experiment)
 
             if args.use_scheduler:
                 scheduler.update()

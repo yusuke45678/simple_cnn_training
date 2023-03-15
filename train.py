@@ -1,6 +1,7 @@
 import torch
 from tqdm import tqdm
 from utils import AverageMeter, accuracy
+from typing import Tuple
 
 
 def val(
@@ -11,8 +12,8 @@ def val(
     global_steps: int,
     epoch: int,
     experiment
-):
-    """training loop for one epoch
+) -> Tuple[float, float]:
+    """validation for the current model
 
     Args:
         model(torch.nn): CNN model
@@ -22,6 +23,10 @@ def val(
         global_steps(int): current step from the beginning
         epoch(int): current epoch
         experiment(comet_ml.Experiment): comet logger
+
+    Returns:
+        float: val loss
+        float: val top1
     """
 
     val_loss = AverageMeter()
@@ -64,7 +69,7 @@ def val(
     experiment.log_metric(
         'val_top5', val_top5.avg, step=global_steps, epoch=epoch)
 
-    return
+    return val_loss.avg, val_top1.avg
 
 
 def train(

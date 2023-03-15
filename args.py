@@ -87,6 +87,12 @@ def get_args():
                         help='use single GPU (not default)')
     parser.set_defaults(use_dp=True)
 
+    # checkpoint files
+    parser.add_argument('--save_checkpoint_dir', type=str, default='./log',
+                        help='dir to save checkpoint files.')
+    parser.add_argument('--resume_from_checkpoint', type=str, default=None,
+                        help='path to the checkpoint file to resume from.')
+
     # disabling comet for debugging
     parser.add_argument('--disable_comet', '--no_comet', dest='disable_comet',
                         action='store_true',
