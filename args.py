@@ -79,13 +79,26 @@ def get_args():
                         help='do not use scheduler (default)')
     parser.set_defaults(use_scheduler=False)
 
-    parser.add_argument('--use_dp', dest='use_dp',
-                        action='store_true',
-                        help='use multi GPUs with data parallel (default)')
-    parser.add_argument('--single_gpu', dest='use_dp',
-                        action='store_false',
-                        help='use single GPU (not default)')
-    parser.set_defaults(use_dp=True)
+    parser.add_argument('--use_dp', dest='gpu_strategy',
+                        action='store_const', const='dp',
+                        help='use multi GPUs with data parallel')
+    parser.add_argument('--single_gpu', dest='gpu_strategy',
+                        action='store_const', const='None',
+                        help='use single GPU')
+    parser.add_argument('--gpu_strategy', type=str, default='dp',
+                        choices=['None', 'dp', 'ddp'],
+                        help='GPU training strategy. '
+                        'None: single GPU. '
+                        'dp: Data Parallel (default). '
+                        'ddp: Distributed Data Parallel. ')
+    parser.add_argument('--gpus', type=int, default=2,
+                        help='how many GPUs are used for dp and ddp.')
+
+    # log dirs
+    parser.add_argument('--comet_log_dir', type=str, default='./comet_logs/',
+                        help='dir to comet log files.')
+    parser.add_argument('--tf_log_dir', type=str, default='./tf_logs/',
+                        help='dir to TensorBoard log files.')
 
     # checkpoint files
     parser.add_argument('--save_checkpoint_dir', type=str, default='./log',

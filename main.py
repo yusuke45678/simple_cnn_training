@@ -35,7 +35,7 @@ def main():
         start_epoch, global_steps, model, optimizer, scheduler = \
             load_from_checkpoint(args, model, optimizer, scheduler, device)
 
-    if args.use_dp:
+    if args.gpu_strategy == 'dp':
         model = nn.DataParallel(model)
 
     with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as pbar_epoch:
