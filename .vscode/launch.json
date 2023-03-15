@@ -95,5 +95,32 @@
                 "2"
             ]
         },
+        {
+            "name": "pl bs=64, GPU=0,1 resume",
+            "type": "python",
+            "request": "launch",
+            "program": "main_pl.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0,1"
+            },
+            "args": [
+                "-w",
+                "24",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--val_interval_epochs",
+                "1",
+                // "--use_dp",
+                // "--single_gpu",
+                "--gpu_strategy",
+                "dp",
+                // "--resume_from_checkpoint",
+                // "./log/epoch3_steps2344_acc70.51.pt"
+            ]
+        },
     ]
 }
