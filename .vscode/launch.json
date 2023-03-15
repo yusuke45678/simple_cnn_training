@@ -5,6 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "debug bs=32, GPU=0,1,2 resume",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0,1,2"
+            },
+            "args": [
+                "-w",
+                "24",
+                "-b",
+                "32",
+                "-e",
+                "5",
+                // "--disable_comet", // "--no_comet",
+                "--val_interval_epochs",
+                "1",
+                // "--resume_from_checkpoint",
+                // "./log/epoch3_steps2344_acc70.51.pt"
+                // "experiment://xxxxxxxxxxxxxxxxxxxxxxxx/resnet18"
+            ]
+        },
+        {
             "name": "debug bs=32, GPU=2,3",
             "type": "python",
             "request": "launch",
