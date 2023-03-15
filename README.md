@@ -70,6 +70,12 @@ python3 main.py -h
   --no_scheduler        do not use scheduler (default) (default: False)
   --use_dp              use multi GPUs with data parallel (default) (default: True)
   --single_gpu          use single GPU (not default) (default: True)
+  --save_checkpoint_dir str
+                        dir to save checkpoint files. (default: ./log)
+  --resume_from_checkpoint str
+                        path to the checkpoint file to resume from. (default: None)
+  --disable_comet, --no_comet
+                        do not use comet.ml (default: use comet) (default: False)
 ```
 
 ## Cometの設定
