@@ -11,6 +11,7 @@ from torchvision.models import (
     ResNet18_Weights,
 )
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 from utils import accuracy
 
@@ -63,6 +64,18 @@ class MyLightningModel(pl.LightningModule):
             }
         else:
             return optimizer
+
+    def configure_callbacks(self):
+        os.makedirs(self.args.save_checkpoint_dir, exist_ok=True)
+        checkpoint_callback = ModelCheckpoint(
+            dirpath=self.args.save_checkpoint_dir,
+            monitor='val_top1',
+            mode='max',  # larger is better
+            save_top_k=2,
+            filename='epoch{epoch}_steps{step}_acc={val_top1:.2f}',
+            auto_insert_metric_name=False,
+        )
+        return checkpoint_callback
 
     def training_step(self, batch, batch_idx):
         """training loop for one batch (not for one epoch)

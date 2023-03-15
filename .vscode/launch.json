@@ -128,9 +128,9 @@
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0,1,2"
+                "CUDA_VISIBLE_DEVICES": "4,5,6,7"
             },
             "args": [
                 "-w",
@@ -138,13 +138,15 @@
                 "-b",
                 "64",
                 "-e",
-                "5",
+                "13",
                 "--val_interval_epochs",
                 "1",
                 "--gpu_strategy",
                 "ddp",
                 "--gpus",
-                "2"
+                "3",
+                "--resume_from_checkpoint",
+                "./log/epoch9_steps2275_acc=68.24.ckpt"
             ]
         },
     ]

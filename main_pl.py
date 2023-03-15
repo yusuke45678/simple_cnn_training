@@ -1,17 +1,18 @@
 import torch
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelSummary
 
 from args import get_args
 from dataset_pl import MyDataModule
 from model_pl import MyLightningModel
 from logger_pl import logger_factory
+from callback_pl import callback_factory
 
 
 def main():
 
     args = get_args()
-    loggers, checkpoint_callback = logger_factory(args)
+    loggers = logger_factory(args)
+    callbacks = callback_factory(args)
 
     accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
 
@@ -38,10 +39,7 @@ def main():
         # fast_dev_run=5, # only for debug
         # limit_train_batches=5, # only for debug
         # limit_val_batches=5, # only for debug
-        callbacks=[
-            ModelSummary(max_depth=3),
-            checkpoint_callback,
-        ]
+        callbacks=callbacks,
     )
 
     trainer.fit(
