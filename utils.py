@@ -90,7 +90,7 @@ def save_to_checkpoint(
         'epoch': epoch,
         'global_steps': global_steps,
         'accuracy': acc,
-        'model_state_dict': model.state_dict() if not args.use_dp else model.module.state_dict(),
+        'model_state_dict': model.state_dict() if not args.gpu_strategy == 'dp' else model.module.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'scheduler_state_dict': scheduler.state_dict() if scheduler else None,
     }
