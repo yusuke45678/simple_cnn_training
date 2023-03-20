@@ -1,6 +1,11 @@
+import os
+from pathlib import Path
+import itertools
+
+import torch
 from torchvision.datasets import CIFAR10, ImageFolder
 from torch.utils.data import DataLoader
-import os
+
 
 from torchvision import transforms
 from torchvision.transforms import Compose
@@ -10,8 +15,10 @@ import pytorchvideo.transforms as vt  # video trans
 
 from pytorchvideo.data import labeled_video_dataset
 
-from torch.utils.data import SequentialSampler
-from torch.utils.data import RandomSampler
+from torch.utils.data import (
+    SequentialSampler,
+    RandomSampler,
+)
 from pytorchvideo.data.clip_sampling import (
     RandomClipSampler,
     ConstantClipsPerVideoSampler,
@@ -142,7 +149,6 @@ def dataset_facory(args):
             drop_last=False,
             num_workers=args.num_workers)
 
-
     elif args.dataset_name == "ImageFolder":
         train_transform, val_transform = transform_image(args)
 
@@ -207,13 +213,18 @@ def dataset_facory(args):
             decoder="pyav",
         )
 
+        train_dataset.n_classes = list(Path(root_train).iterdir())
+        val_dataset.n_classes = list(Path(root_val).iterdir())
+        assert len(train_dataset.n_classes) == len(val_dataset.n_classes)
+        n_classes = len(train_dataset.n_classes)
+
         train_loader = DataLoader(
-            train_dataset,
+            LimitDataset(train_dataset),
             batch_size=args.batch_size,
             drop_last=True,
             num_workers=args.num_workers)
         val_loader = DataLoader(
-            val_dataset,
+            LimitDataset(val_dataset),
             batch_size=args.batch_size,
             drop_last=False,
             num_workers=args.num_workers)
@@ -222,3 +233,28 @@ def dataset_facory(args):
         raise ValueError("invalid args.dataset_name")
 
     return train_loader, val_loader, n_classes
+
+
+class LimitDataset(torch.utils.data.Dataset):
+    """
+    To ensure a constant number of samples are retrieved from the dataset we use this
+    LimitDataset wrapper. This is necessary because several of the underlying videos
+    may be corrupted while fetching or decoding, however, we always want the same
+    number of steps per epoch.
+
+    https://github.com/facebookresearch/pytorchvideo/blob/f7e7a88a9a04b70cb65a564acfc38538fe71ff7b/tutorials/video_classification_example/train.py#L341
+    https://github.com/facebookresearch/pytorchvideo/issues/96
+    """
+
+    def __init__(self, dataset):
+        super().__init__()
+        self.dataset = dataset
+        self.dataset_iter = itertools.chain.from_iterable(
+            itertools.repeat(iter(dataset), 2)
+        )
+
+    def __getitem__(self, index):
+        return next(self.dataset_iter)
+
+    def __len__(self):
+        return self.dataset.num_videos

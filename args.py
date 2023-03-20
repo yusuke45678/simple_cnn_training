@@ -36,7 +36,7 @@ def get_args():
                         help='TORCH_HOME environment variable '
                         'where pre-trained model weights are stored.')
     parser.add_argument('-m', '--model', type=str, default='resnet18',
-                        choices=['resnet18', 'resnet50'],
+                        choices=['resnet18', 'resnet50', 'x3d'],
                         help='CNN model.')
     parser.add_argument('--use_pretrained', dest='use_pretrained',
                         action='store_true',

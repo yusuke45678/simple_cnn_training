@@ -112,13 +112,16 @@
                 "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
                 "--val_dir",
                 "test",
+                "--model",
+                "x3d",
                 "-w",
                 "64",
                 "-b",
-                "128",
+                "8",
                 "-e",
                 "5",
-                "--single_gpu"
+                "--single_gpu",
+                "--disable_comet"
             ]
         },
         {
