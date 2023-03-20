@@ -11,7 +11,8 @@ def val(
     device,
     global_steps: int,
     epoch: int,
-    experiment
+    experiment,
+    args
 ) -> Tuple[float, float]:
     """validation for the current model
 
@@ -39,10 +40,18 @@ def val(
             tqdm(loader, total=len(loader), leave=False) as pbar_loss:
 
         pbar_loss.set_description('[val]')
-        for data, labels in pbar_loss:
+        for batch in pbar_loss:
 
-            data = data.to(device)  # BCHW
-            labels = labels.to(device)  # B
+            if args.data_type == 'image':
+                data, labels = batch  # (BCHW, B)
+            elif args.data_type == 'video':
+                # {'video': BCTHW, 'label': B}
+                data, labels = batch['video'], batch['label']
+            else:
+                raise ValueError('unsupported batch type')
+
+            data = data.to(device)
+            labels = labels.to(device)
             batch_size = data.size(0)
 
             outputs = model(data)
@@ -113,10 +122,18 @@ def train(
     ) as pbar_loss:
 
         pbar_loss.set_description('[train]')
-        for batch_index, (data, labels) in pbar_loss:
+        for batch_index, batch in pbar_loss:
 
-            data = data.to(device)  # BCHW
-            labels = labels.to(device)  # B
+            if args.data_type == 'image':
+                data, labels = batch  # (BCHW, B)
+            elif args.data_type == 'video':
+                # {'video': BCTHW, 'label': B}
+                data, labels = batch['video'], batch['label']
+            else:
+                raise ValueError('unsupported batch type')
+
+            data = data.to(device)
+            labels = labels.to(device)
             batch_size = data.size(0)
 
             if batch_index % args.grad_accum == 0:

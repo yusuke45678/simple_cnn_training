@@ -52,6 +52,12 @@ class MyLightningModel(pl.LightningModule):
             in_features = model.blocks[5].proj.in_features
             model.proj = nn.Linear(
                 in_features, n_classes)
+        elif args.model == 'x3d':
+            model = torch.hub.load(
+                'facebookresearch/pytorchvideo', "x3d_m", pretrained=args.use_pretrained)
+            in_features = model.blocks[5].proj.in_features
+            model.proj = nn.Linear(
+                in_features, n_classes)
         else:
             raise ValueError("invalid args.model")
 
@@ -116,7 +122,14 @@ class MyLightningModel(pl.LightningModule):
             float: loss
         """
 
-        data, labels = batch  # (BCHW, B)
+        if self.args.data_type == 'image':
+            data, labels = batch  # (BCHW, B)
+        elif self.args.data_type == 'video':
+            # {'video': BCTHW, 'label': B}
+            data, labels = batch['video'], batch['label']
+        else:
+            raise ValueError('unsupported batch type')
+
         batch_size = data.size(0)
 
         outputs = self.model(data)
@@ -160,7 +173,14 @@ class MyLightningModel(pl.LightningModule):
             dict: used by validation_epoch_end()
         """
 
-        data, labels = batch  # (BCHW, B)
+        if self.args.data_type == 'image':
+            data, labels = batch  # (BCHW, B)
+        elif self.args.data_type == 'video':
+            # {'video': BCTHW, 'label': B}
+            data, labels = batch['video'], batch['label']
+        else:
+            raise ValueError('unsupported batch type')
+
         batch_size = data.size(0)
 
         outputs = self.model(data)

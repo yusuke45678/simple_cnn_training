@@ -43,7 +43,7 @@ def model_factory(args, n_classes):
         model = torch.hub.load(
             'facebookresearch/pytorchvideo', "x3d_m", pretrained=args.use_pretrained)
         in_features = model.blocks[5].proj.in_features
-        model.proj = nn.Linear(
+        model.blocks[5].proj = nn.Linear(
             in_features, n_classes)
     else:
         raise ValueError("invalid args.model")

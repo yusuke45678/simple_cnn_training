@@ -48,12 +48,12 @@ def get_args():
     parser.set_defaults(use_pretrained=True)
 
     # video
-    parser.add_argument('--frames_per_clip', type=int, default=8,
-                        help='frames per clip (Typically 8 or 16).')
-    parser.add_argument('--clip_duration', type=int, default=80 / 30,
+    parser.add_argument('--frames_per_clip', type=int, default=16,
+                        help='frames per clip.')
+    parser.add_argument('--clip_duration', type=float, default=80 / 30,
                         help='duration of a clip (in second).')
     parser.add_argument('--clips_per_video', type=int, default=10,
-                        help='clips per video for validation')
+                        help='sampling clips per video for validation')
 
     # training
     parser.add_argument('-b', '--batch_size', type=int, default=8,
@@ -121,6 +121,12 @@ def get_args():
     parser.set_defaults(disable_comet=False)
 
     args = parser.parse_args()
+
+    if args.dataset_name in ['CIFAR10', 'ImageFolder']:
+        args.data_type = 'image'
+    elif args.dataset_name in ['VideoFolder']:
+        args.data_type = 'video'
+
     print(args)
 
     return args

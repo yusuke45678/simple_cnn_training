@@ -76,7 +76,7 @@
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "2,3"
+                "CUDA_VISIBLE_DEVICES": "0,1"
             },
             "args": [
                 "-d",
@@ -96,7 +96,7 @@
             ]
         },
         {
-            "name": "debug bs=128, GPU=3, video",
+            "name": "debug bs=8 w=12 GPU1 video x3d",
             "type": "python",
             "request": "launch",
             "program": "main.py",
@@ -115,11 +115,46 @@
                 "--model",
                 "x3d",
                 "-w",
-                "64",
+                "12",
                 "-b",
                 "8",
                 "-e",
                 "5",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-3",
+                "--single_gpu",
+                "--disable_comet"
+            ]
+        },
+        {
+            "name": "debug bs=8 w=12 GPU1 image r50",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            },
+            "args": [
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "--model",
+                "resnet50",
+                "-w",
+                "12",
+                "-b",
+                "8",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-3",
                 "--single_gpu",
                 "--disable_comet"
             ]
