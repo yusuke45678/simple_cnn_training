@@ -46,6 +46,12 @@ class MyLightningModel(pl.LightningModule):
             self.model = resnet50(weights=weights)
             self.model.fc = nn.Linear(
                 self.model.fc.in_features, n_classes)
+        elif args.model == 'x3d':
+            model = torch.hub.load(
+                'facebookresearch/pytorchvideo', "x3d_m", pretrained=args.use_pretrained)
+            in_features = model.blocks[5].proj.in_features
+            model.proj = nn.Linear(
+                in_features, n_classes)
         else:
             raise ValueError("invalid args.model")
 
@@ -178,7 +184,7 @@ class MyLightningModel(pl.LightningModule):
             'batch_label': labels
         }
 
-    def validation_epoch_end(self, val_step_outputs):
+    def on_validation_epoch_end(self, val_step_outputs):
         '''
         aggregating validation predicttions
         NOTE: NOT working for DDP! only for DP or single GPU

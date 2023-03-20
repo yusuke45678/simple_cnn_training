@@ -96,6 +96,32 @@
             ]
         },
         {
+            "name": "debug bs=128, GPU=3, video",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            },
+            "args": [
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "-w",
+                "64",
+                "-b",
+                "128",
+                "-e",
+                "5",
+                "--single_gpu"
+            ]
+        },
+        {
             "name": "pl bs=64, GPU=0,1 dp",
             "type": "python",
             "request": "launch",

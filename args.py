@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument('-r', '--root', type=str, default='./downloaded_data',
                         help='root of dataset.')
     parser.add_argument('-d', '--dataset_name', type=str, default='CIFAR10',
-                        choices=['CIFAR10', 'ImageFolder'],
+                        choices=['CIFAR10', 'ImageFolder', 'VideoFolder'],
                         help='name of dataset.')
     parser.add_argument('-td', '--train_dir', type=str, default='train',
                         help='subdier name of training dataset.')
@@ -46,6 +46,14 @@ def get_args():
                         help='do not use pretrained model weights, '
                         'instead train from scratch (not default)')
     parser.set_defaults(use_pretrained=True)
+
+    # video
+    parser.add_argument('--frames_per_clip', type=int, default=8,
+                        help='frames per clip (Typically 8 or 16).')
+    parser.add_argument('--clip_duration', type=int, default=80 / 30,
+                        help='duration of a clip (in second).')
+    parser.add_argument('--clips_per_video', type=int, default=10,
+                        help='clips per video for validation')
 
     # training
     parser.add_argument('-b', '--batch_size', type=int, default=8,
