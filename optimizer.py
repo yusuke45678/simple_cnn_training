@@ -19,11 +19,15 @@ def optimizer_factory(args, model):
     if args.optimizer == 'SGD':
         optimizer = optim.SGD(
             model.parameters(),
-            lr=args.lr, momentum=args.momentum)
+            lr=args.lr,
+            momentum=args.momentum,
+            weight_decay=args.weight_decay)
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(
             model.parameters(),
-            lr=args.lr, betas=args.betas)
+            lr=args.lr,
+            betas=args.betas,
+            weight_decay=args.weight_decay)
     else:
         raise ValueError("invalid args.optimizer")
 

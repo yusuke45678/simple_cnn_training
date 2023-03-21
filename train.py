@@ -71,12 +71,13 @@ def val(
                     val_top5.value, val_top5.avg,
                 ))
 
-    experiment.log_metric(
-        'val_loss', val_loss.avg, step=global_steps, epoch=epoch)
-    experiment.log_metric(
-        'val_top1', val_top1.avg, step=global_steps, epoch=epoch)
-    experiment.log_metric(
-        'val_top5', val_top5.avg, step=global_steps, epoch=epoch)
+    experiment.log_metrics(
+        {
+            'val_loss': val_loss.avg,
+            'val_top1': val_top1.avg,
+            'val_top5': val_top5.avg,
+        },
+        step=global_steps, epoch=epoch)
 
     return val_loss.avg, val_top1.avg
 
@@ -136,20 +137,19 @@ def train(
             labels = labels.to(device)
             batch_size = data.size(0)
 
-            if batch_index % args.grad_accum == 0:
+            if batch_index % args.grad_accum == 1:
                 optimizer.zero_grad()
 
             outputs = model(data)
             loss = criterion(outputs, labels)
             loss.backward()
 
-            if batch_index % args.grad_accum == 0:
+            top1, top5 = accuracy(outputs, labels, topk=(1, 5))
+            train_top1.update(top1, batch_size)
+            train_top5.update(top5, batch_size)
+            train_loss.update(loss, batch_size)
 
-                top1, top5 = accuracy(outputs, labels, topk=(1, 5))
-                train_top1.update(top1, batch_size)
-                train_top5.update(top5, batch_size)
-                train_loss.update(loss, batch_size)
-
+            if global_steps % args.log_interval_steps == 0:
                 pbar_loss.set_postfix_str(
                     'step={:d}, '
                     'loss={:6.4e}({:6.4e}), '
@@ -160,23 +160,24 @@ def train(
                         train_top1.value, train_top1.avg,
                         train_top5.value, train_top5.avg,
                     ))
+                experiment.log_metrics(
+                    {
+                        'train_batch_loss': train_loss.value,
+                        'train_batch_top1': train_top1.value,
+                        'train_batch_top5': train_top5.value,
+                    },
+                    step=global_steps, epoch=epoch)
 
-                if global_steps % args.log_interval_steps == 0:
-                    experiment.log_metric(
-                        'train_batch_loss', train_loss.value, step=global_steps)
-                    experiment.log_metric(
-                        'train_batch_top1', train_top1.value, step=global_steps)
-                    experiment.log_metric(
-                        'train_batch_top5', train_top5.value, step=global_steps)
-
+            if batch_index % args.grad_accum == 0:
                 optimizer.step()
                 global_steps += 1
 
-    experiment.log_metric(
-        'train_loss', train_loss.avg, step=global_steps, epoch=epoch)
-    experiment.log_metric(
-        'train_top1', train_top1.avg, step=global_steps, epoch=epoch)
-    experiment.log_metric(
-        'train_top5', train_top5.avg, step=global_steps, epoch=epoch)
+    experiment.log_metrics(
+        {
+            'train_loss': train_loss.avg,
+            'train_top1': train_top1.avg,
+            'train_top5': train_top5.avg,
+        },
+        step=global_steps, epoch=epoch)
 
     return global_steps

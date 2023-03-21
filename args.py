@@ -77,6 +77,8 @@ def get_args():
                         help='learning rate.')
     parser.add_argument('--momentum', type=float, default=0.9,
                         help='momentum of SGD.')
+    parser.add_argument('--weight_decay', type=float, default=5e-4,
+                        help='weight decay.')
     parser.add_argument('--betas', nargs='+', type=float, default=[0.9, 0.999],
                         help='betas of Adam.')
     parser.add_argument('--use_scheduler', dest='use_scheduler',
