@@ -18,6 +18,7 @@ def image_folder(args, train_transform, val_transform):
     val_dataset = ImageFolder(
         root=root_val,
         transform=val_transform)
+    assert train_dataset.classes == val_dataset.classes
     assert len(train_dataset.classes) == len(val_dataset.classes)
     n_classes = len(train_dataset.classes)
 
