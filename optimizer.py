@@ -22,6 +22,7 @@ def optimizer_factory(args, model):
             lr=args.lr,
             momentum=args.momentum,
             weight_decay=args.weight_decay)
+
     elif args.optimizer == 'Adam':
         optimizer = optim.Adam(
             model.parameters(),

@@ -46,11 +46,12 @@ def video_folder(args, train_transform, val_transform):
         decoder="pyav",
     )
 
-    train_dataset.classes = list(Path(root_train).iterdir())
-    train_dataset.n_classes = len(train_dataset.classes)
-    val_dataset.classes = list(Path(root_val).iterdir())
-    val_dataset.n_classes = len(val_dataset.classes)
+    train_dataset.classes = sorted([d.name for d in Path(root_train).iterdir()])
+    val_dataset.classes = sorted([d.name for d in Path(root_val).iterdir()])
     assert train_dataset.classes == val_dataset.classes
+
+    train_dataset.n_classes = len(train_dataset.classes)
+    val_dataset.n_classes = len(val_dataset.classes)
     assert train_dataset.n_classes == val_dataset.n_classes
 
     train_loader = DataLoader(
