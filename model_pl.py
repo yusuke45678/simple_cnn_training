@@ -202,6 +202,7 @@ class MyLightningModel(pl.LightningModule):
             prog_bar=False,
             on_step=False,
             on_epoch=True,
+            rank_zero_only=False,
             sync_dist=True,
             batch_size=batch_size)
 

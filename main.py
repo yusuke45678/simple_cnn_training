@@ -50,7 +50,7 @@ def main():
                     or epoch == args.num_epochs:
                 _, val_top1 = val(
                     model, criterion, val_loader, device,
-                    global_steps, epoch, experiment)
+                    global_steps, epoch, experiment, args)
 
                 save_to_checkpoint(
                     args, epoch, global_steps, val_top1,
