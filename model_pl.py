@@ -41,11 +41,23 @@ class MyLightningModel(pl.LightningModule):
             self.model = resnet18(weights=weights)
             self.model.fc = nn.Linear(
                 self.model.fc.in_features, n_classes)
+
         elif args.model == 'resnet50':
             weights = ResNet50_Weights.IMAGENET1K_V1 if args.use_pretrained else None
             self.model = resnet50(weights=weights)
             self.model.fc = nn.Linear(
                 self.model.fc.in_features, n_classes)
+
+        elif args.model == 'x3d':
+            self.model = torch.hub.load(
+                'facebookresearch/pytorchvideo', "x3d_m",
+                pretrained=args.use_pretrained,
+                head_activation=None,  # default is nn.Softmax, which is not for training
+            )
+            in_features = self.model.blocks[5].proj.in_features
+            self.model.proj = nn.Linear(
+                in_features, n_classes)
+
         else:
             raise ValueError("invalid args.model")
 
@@ -62,11 +74,17 @@ class MyLightningModel(pl.LightningModule):
         if self.args.optimizer == 'SGD':
             optimizer = optim.SGD(
                 self.model.parameters(),
-                lr=self.args.lr, momentum=self.args.momentum)
+                lr=self.args.lr,
+                momentum=self.args.momentum,
+                weight_decay=self.args.weight_decay)
+
         elif self.args.optimizer == 'Adam':
             optimizer = optim.Adam(
                 self.model.parameters(),
-                lr=self.args.lr, betas=self.args.betas)
+                lr=self.args.lr,
+                betas=self.args.betas,
+                weight_decay=self.args.weight_decay)
+
         else:
             raise ValueError("invalid args.optimizer")
 
@@ -110,7 +128,14 @@ class MyLightningModel(pl.LightningModule):
             float: loss
         """
 
-        data, labels = batch  # (BCHW, B)
+        if self.args.data_type == 'image':
+            data, labels = batch  # (BCHW, B)
+        elif self.args.data_type == 'video':
+            # {'video': BCTHW, 'label': B}
+            data, labels = batch['video'], batch['label']
+        else:
+            raise ValueError('unsupported batch type')
+
         batch_size = data.size(0)
 
         outputs = self.model(data)
@@ -154,7 +179,14 @@ class MyLightningModel(pl.LightningModule):
             dict: used by validation_epoch_end()
         """
 
-        data, labels = batch  # (BCHW, B)
+        if self.args.data_type == 'image':
+            data, labels = batch  # (BCHW, B)
+        elif self.args.data_type == 'video':
+            # {'video': BCTHW, 'label': B}
+            data, labels = batch['video'], batch['label']
+        else:
+            raise ValueError('unsupported batch type')
+
         batch_size = data.size(0)
 
         outputs = self.model(data)
@@ -170,6 +202,7 @@ class MyLightningModel(pl.LightningModule):
             prog_bar=False,
             on_step=False,
             on_epoch=True,
+            rank_zero_only=False,
             sync_dist=True,
             batch_size=batch_size)
 

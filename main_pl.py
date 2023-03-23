@@ -23,7 +23,8 @@ def main():
     if args.gpu_strategy == 'dp':
         strategy = 'dp'
     if args.gpu_strategy == 'ddp':
-        strategy = 'ddp_find_unused_parameters_false'
+        # strategy = 'ddp_find_unused_parameters_false'
+        strategy = 'ddp'
 
     trainer = pl.Trainer(
         devices=args.gpus,
@@ -40,6 +41,7 @@ def main():
         # limit_train_batches=5, # only for debug
         # limit_val_batches=5, # only for debug
         callbacks=callbacks,
+        # profiler="simple",
     )
 
     trainer.fit(

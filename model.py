@@ -1,5 +1,6 @@
 import os
 
+import torch
 import torch.nn as nn
 from torchvision.models import (
     resnet50,
@@ -33,11 +34,23 @@ def model_factory(args, n_classes):
         model = resnet18(weights=weights)
         model.fc = nn.Linear(
             model.fc.in_features, n_classes)
+
     elif args.model == 'resnet50':
         weights = ResNet50_Weights.IMAGENET1K_V1 if args.use_pretrained else None
         model = resnet50(weights=weights)
         model.fc = nn.Linear(
             model.fc.in_features, n_classes)
+
+    elif args.model == 'x3d':
+        model = torch.hub.load(
+            'facebookresearch/pytorchvideo', "x3d_m",
+            pretrained=args.use_pretrained,
+            head_activation=None,  # default is nn.Softmax, which is not for training
+        )
+        in_features = model.blocks[5].proj.in_features
+        model.blocks[5].proj = nn.Linear(
+            in_features, n_classes)
+
     else:
         raise ValueError("invalid args.model")
 
