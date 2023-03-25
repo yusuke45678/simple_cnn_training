@@ -137,7 +137,8 @@ def train(
             labels = labels.to(device)
             batch_size = data.size(0)
 
-            if batch_index % args.grad_accum == 1:
+            if args.grad_accum == 1 \
+                    or batch_index % args.grad_accum == 1:
                 optimizer.zero_grad()
 
             outputs = model(data)
