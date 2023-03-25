@@ -62,9 +62,9 @@ def get_args():
                         help='number of workers.')
     parser.add_argument('-e', '--num_epochs', type=int, default=25,
                         help='number of epochs.')
-    parser.add_argument('-vi', '--val_interval_epochs', type=int, default=2,
+    parser.add_argument('-vi', '--val_interval_epochs', type=int, default=1,
                         help='validation interval in epochs.')
-    parser.add_argument('-li', '--log_interval_steps', type=int, default=10,
+    parser.add_argument('-li', '--log_interval_steps', type=int, default=1,
                         help='logging interval in steps.')
 
     # optimizer

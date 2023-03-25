@@ -292,7 +292,7 @@
                 "--optimizer",
                 "SGD",
                 "-lr",
-                "1e-5",
+                "1e-4",
                 "--single_gpu",
                 "--gpus",
                 "1",

@@ -24,6 +24,7 @@ def logger_factory(args):
         save_dir=args.comet_log_dir,
         experiment_name=exp_name,
         parse_args=True,
+        disabled=args.disable_comet,
     )
     comet_logger.experiment.add_tag(args.model)
 
