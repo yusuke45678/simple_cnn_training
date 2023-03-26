@@ -131,5 +131,245 @@
                 // "--disable_comet",
             ]
         },
+        {
+            "label": "tmux bs=8 w=8 1GPU(0) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
+        {
+            "label": "tmux bs=8 w=8 1GPU(1) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "1"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
+        {
+            "label": "tmux bs=8 w=8 1GPU(2) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "2"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
+        {
+            "label": "tmux bs=8 w=8 1GPU(3) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "3"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
+        {
+            "label": "pl tmux bs=8 w=8 1GPU(0) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
+        {
+            "label": "pl tmux bs=8 w=8 1GPU(1) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "1"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
+        {
+            "label": "pl tmux bs=8 w=8 1GPU(2) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "2"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
+        {
+            "label": "pl tmux bs=8 w=8 1GPU(3) x3d",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "3"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
     ]
 }
