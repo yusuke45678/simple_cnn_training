@@ -19,9 +19,9 @@ def main():
     data_module = MyDataModule(args)
     model_lightning = MyLightningModel(args, data_module.n_classes)
 
-    strategy = None
-    if args.gpu_strategy == 'dp':
-        strategy = 'dp'
+    strategy = 'auto'
+    # if args.gpu_strategy == 'dp':
+    #     strategy = 'dp'
     if args.gpu_strategy == 'ddp':
         # strategy = 'ddp_find_unused_parameters_false'
         strategy = 'ddp'
@@ -40,7 +40,7 @@ def main():
         # fast_dev_run=5, # only for debug
         # limit_train_batches=5, # only for debug
         # limit_val_batches=5, # only for debug
-        callbacks=callbacks,
+        # callbacks=callbacks,
         # profiler="simple",
     )
 
