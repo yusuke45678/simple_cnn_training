@@ -106,7 +106,10 @@ class MyLightningModel(pl.LightningModule):
         """
         os.makedirs(self.args.save_checkpoint_dir, exist_ok=True)
         checkpoint_callback = ModelCheckpoint(
-            dirpath=self.args.save_checkpoint_dir,
+            dirpath=os.path.join(
+                self.args.save_checkpoint_dir,
+                self.loggers[0].experiment.get_name().replace(' ', '_'),
+            ),
             monitor='val_top1',
             mode='max',  # larger is better
             save_top_k=2,

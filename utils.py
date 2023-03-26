@@ -84,6 +84,7 @@ def save_to_checkpoint(
 
     checkpoint_file = os.path.join(
         args.save_checkpoint_dir,
+        experiment.get_name().replace(' ', '_'),
         f'epoch{epoch}_steps{global_steps}_acc{acc:.2f}.pt')
 
     checkpoint_dict = {
