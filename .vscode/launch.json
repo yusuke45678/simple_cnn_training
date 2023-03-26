@@ -384,5 +384,35 @@
                 "./log/epoch9_steps2275_acc=68.24.ckpt"
             ]
         },
+        {
+            "name": "pl tmux bs=8 w=8 1GPU(3) x3d",
+            "type": "python",
+            "request": "launch",
+            "program": "main_pl.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "3"
+            },
+            "args": [
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
+                "--val_dir",
+                "test",
+                "--model",
+                "x3d",
+                "-w",
+                "8",
+                "-b",
+                "8",
+                "-e",
+                "50",
+                // "--single_gpu",
+                "--gpus",
+                "1",
+            ]
+        },
     ]
 }
