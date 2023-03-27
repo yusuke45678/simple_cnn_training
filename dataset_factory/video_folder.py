@@ -15,6 +15,11 @@ from pytorchvideo.data.clip_sampling import (
 )
 
 
+def collate_for_video(batch):
+    ret = torch.utils.data.default_collate(batch)
+    return ret['video'], ret['label']
+
+
 def video_folder(args, train_transform, val_transform):
 
     root_train = os.path.join(args.root, args.train_dir)
@@ -58,12 +63,16 @@ def video_folder(args, train_transform, val_transform):
         LimitDataset(train_dataset),
         batch_size=args.batch_size,
         drop_last=True,
-        num_workers=args.num_workers)
+        num_workers=args.num_workers,
+        collate_fn=collate_for_video,
+    )
     val_loader = DataLoader(
         LimitDataset(val_dataset),
         batch_size=args.batch_size,
         drop_last=False,
-        num_workers=args.num_workers)
+        num_workers=args.num_workers,
+        collate_fn=collate_for_video,
+    )
 
     return train_loader, val_loader, train_dataset.n_classes
 

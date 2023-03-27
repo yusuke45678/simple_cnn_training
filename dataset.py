@@ -16,23 +16,23 @@ def dataset_facory(args):
         torch.utils.data.DataLoader: validation set loader
         int: number of classes
     """
-
     if args.dataset_name == "CIFAR10":
-        train_transform, val_transform = transform_image(args)
-        train_loader, val_loader, n_classes = \
-            cifar10(args, train_transform, val_transform)
+        transform_func = transform_image
+        dataset_func = cifar10
 
     elif args.dataset_name == "ImageFolder":
-        train_transform, val_transform = transform_image(args)
-        train_loader, val_loader, n_classes = \
-            image_folder(args, train_transform, val_transform)
+        transform_func = transform_image
+        dataset_func = image_folder
 
     elif args.dataset_name == "VideoFolder":
-        train_transform, val_transform = transform_video(args)
-        train_loader, val_loader, n_classes = \
-            video_folder(args, train_transform, val_transform)
+        transform_func = transform_video
+        dataset_func = video_folder
 
     else:
         raise ValueError("invalid args.dataset_name")
+
+    train_transform, val_transform = transform_func(args)
+    train_loader, val_loader, n_classes = \
+        dataset_func(args, train_transform, val_transform)
 
     return train_loader, val_loader, n_classes

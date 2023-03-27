@@ -42,13 +42,7 @@ def val(
         pbar_loss.set_description('[val]')
         for batch in pbar_loss:
 
-            if args.data_type == 'image':
-                data, labels = batch  # (BCHW, B)
-            elif args.data_type == 'video':
-                # {'video': BCTHW, 'label': B}
-                data, labels = batch['video'], batch['label']
-            else:
-                raise ValueError('unsupported batch type')
+            data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
 
             data = data.to(device)
             labels = labels.to(device)
@@ -125,13 +119,7 @@ def train(
         pbar_loss.set_description('[train]')
         for batch_index, batch in pbar_loss:
 
-            if args.data_type == 'image':
-                data, labels = batch  # (BCHW, B)
-            elif args.data_type == 'video':
-                # {'video': BCTHW, 'label': B}
-                data, labels = batch['video'], batch['label']
-            else:
-                raise ValueError('unsupported batch type')
+            data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
 
             data = data.to(device)
             labels = labels.to(device)

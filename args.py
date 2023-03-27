@@ -5,7 +5,11 @@ class CustomFormatter(
     argparse.ArgumentDefaultsHelpFormatter,
     argparse.MetavarTypeHelpFormatter
 ):
-    # https://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef
+    """show default values of argparse.
+        see
+        https://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef
+        for details.
+    """
     pass
 
 
