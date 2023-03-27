@@ -1,4 +1,4 @@
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 
 from transforms import transform_image, transform_video
 from dataset_factory import cifar10, image_folder, video_folder

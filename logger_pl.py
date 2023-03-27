@@ -1,5 +1,5 @@
 from datetime import datetime
-from pytorch_lightning.loggers import CometLogger, TensorBoardLogger
+from lightning.pytorch.loggers import CometLogger, TensorBoardLogger
 
 
 def logger_factory(args):
@@ -11,7 +11,7 @@ def logger_factory(args):
         args (argparse): args
 
     Returns:
-        Tuple[pytorch_lightning.loggers]: loggers
+        Tuple[lightning.pytorch.loggers]: loggers
     """
 
     exp_name = datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')

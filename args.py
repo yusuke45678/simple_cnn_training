@@ -52,7 +52,7 @@ def get_args():
                         help='frames per clip.')
     parser.add_argument('--clip_duration', type=float, default=80 / 30,
                         help='duration of a clip (in second).')
-    parser.add_argument('--clips_per_video', type=int, default=10,
+    parser.add_argument('--clips_per_video', type=int, default=1,
                         help='sampling clips per video for validation')
 
     # training

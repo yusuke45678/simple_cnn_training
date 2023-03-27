@@ -10,8 +10,8 @@ from torchvision.models import (
     resnet18,
     ResNet18_Weights,
 )
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
+import lightning.pytorch as pl
+from lightning.pytorch.callbacks import ModelCheckpoint
 
 from utils import accuracy
 
