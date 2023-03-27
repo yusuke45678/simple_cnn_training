@@ -104,12 +104,15 @@ class MyLightningModel(pl.LightningModule):
         Returns:
             callback or List[callback]: callback(s)
         """
-        os.makedirs(self.args.save_checkpoint_dir, exist_ok=True)
+        save_checkpoint_dir = os.path.join(
+            self.args.save_checkpoint_dir,
+            self.loggers[0].experiment.project_name.replace(' ', '_'),
+            self.loggers[0].experiment.name.replace(' ', '_'),
+        )
+        os.makedirs(save_checkpoint_dir, exist_ok=True)
+
         checkpoint_callback = ModelCheckpoint(
-            dirpath=os.path.join(
-                self.args.save_checkpoint_dir,
-                self.loggers[0].experiment.get_name().replace(' ', '_'),
-            ),
+            dirpath=save_checkpoint_dir,
             monitor='val_top1',
             mode='max',  # larger is better
             save_top_k=2,
@@ -209,35 +212,35 @@ class MyLightningModel(pl.LightningModule):
             sync_dist=True,
             batch_size=batch_size)
 
-        return {
-            'batch_prediction': outputs,
-            'batch_label': labels
-        }
+        # return {
+        #     'batch_prediction': outputs,
+        #     'batch_label': labels
+        # }
 
-    def validation_epoch_end(self, val_step_outputs):
-        '''
-        aggregating validation predicttions
-        NOTE: NOT working for DDP! only for DP or single GPU
+    # def on_validation_epoch_end(self, val_step_outputs):
+    #     '''
+    #     aggregating validation predicttions
+    #     NOTE: NOT working for DDP! only for DP or single GPU
 
-        Args:
-            val_step_outputs (stack of dict):
-                a stack of all outputs of validation_step()
-        '''
+    #     Args:
+    #         val_step_outputs (stack of dict):
+    #             a stack of all outputs of validation_step()
+    #     '''
 
-        all_preds = torch.cat([
-            out['batch_prediction'] for out in val_step_outputs
-        ])
-        all_labels = torch.cat([
-            out['batch_label'] for out in val_step_outputs
-        ])
+    #     all_preds = torch.cat([
+    #         out['batch_prediction'] for out in val_step_outputs
+    #     ])
+    #     all_labels = torch.cat([
+    #         out['batch_label'] for out in val_step_outputs
+    #     ])
 
-        self.loggers[0].experiment.log_confusion_matrix(
-            all_labels.cpu().numpy(),
-            all_preds.cpu().numpy(),
-            step=self.global_step,
-            epoch=self.current_epoch,
-            title='Confusion matrix',
-            row_label='Actual label',
-            column_label='Prediction',
-            # labels=[ ... list of category names ... ]
-        )
+    #     self.loggers[0].experiment.log_confusion_matrix(
+    #         all_labels.cpu().numpy(),
+    #         all_preds.cpu().numpy(),
+    #         step=self.global_step,
+    #         epoch=self.current_epoch,
+    #         title='Confusion matrix',
+    #         row_label='Actual label',
+    #         column_label='Prediction',
+    #         # labels=[ ... list of category names ... ]
+    #     )

@@ -80,12 +80,16 @@ def save_to_checkpoint(
         experiment (comet_ml.Experiment): comet logger
     """
 
-    os.makedirs(args.save_checkpoint_dir, exist_ok=True)
+    save_checkpoint_dir = os.path.join(
+        args.save_checkpoint_dir,
+        experiment.project_name.replace(' ', '_'),
+        experiment.name.replace(' ', '_'),
+    )
+    os.makedirs(save_checkpoint_dir, exist_ok=True)
 
     checkpoint_file = os.path.join(
-        args.save_checkpoint_dir,
-        experiment.get_name().replace(' ', '_'),
-        f'epoch{epoch}_steps{global_steps}_acc{acc:.2f}.pt')
+        save_checkpoint_dir,
+        f'epoch{epoch}_steps{global_steps}_acc={acc:.2f}.pt')
 
     checkpoint_dict = {
         'epoch': epoch,

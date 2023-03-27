@@ -40,7 +40,7 @@ def main():
         # fast_dev_run=5, # only for debug
         # limit_train_batches=5, # only for debug
         # limit_val_batches=5, # only for debug
-        # callbacks=callbacks,
+        callbacks=callbacks,
         # profiler="simple",
     )
 
