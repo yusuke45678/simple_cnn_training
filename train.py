@@ -10,7 +10,7 @@ def val(
     loader,
     device,
     global_step: int,
-    epoch: int,
+    current_epoch: int,
     experiment,
     args
 ) -> Tuple[float, float]:
@@ -22,7 +22,7 @@ def val(
         loader(torch.utils.data.DataLoader): validation dataset loader
         device(torch.device): GPU device
         global_step(int): current step from the beginning
-        epoch(int): current epoch
+        current_epoch(int): current epoch
         experiment(comet_ml.Experiment): comet logger
 
     Returns:
@@ -73,11 +73,11 @@ def val(
 
     experiment.log_metrics(
         {
-            'val_loss': val_loss.avg,
-            'val_top1': val_top1.avg,
-            'val_top5': val_top5.avg,
+            'val_loss_epoch': val_loss.avg,
+            'val_top1_epoch': val_top1.avg,
+            'val_top5_epoch': val_top5.avg,
         },
-        step=global_step, epoch=epoch)
+        step=global_step, epoch=current_epoch)
 
     return val_loss.avg, val_top1.avg
 
@@ -89,7 +89,7 @@ def train(
     loader,
     device,
     global_step: int,
-    epoch: int,
+    current_epoch: int,
     experiment,
     args
 ) -> int:
@@ -102,7 +102,7 @@ def train(
         loader (torch.utils.data.DataLoader): training dataset loader
         device (torch.device): GPU device
         global_step (int): current step from the beginning
-        epoch (int): current epoch
+        current_epoch (int): current epoch
         experiment (comet_ml.Experiment): comet logger
         args (argparse): args
 
@@ -163,11 +163,11 @@ def train(
                     ))
                 experiment.log_metrics(
                     {
-                        'train_batch_loss': train_loss.value,
-                        'train_batch_top1': train_top1.value,
-                        'train_batch_top5': train_top5.value,
+                        'train_loss_step': train_loss.value,
+                        'train_top1_step': train_top1.value,
+                        'train_top5_step': train_top5.value,
                     },
-                    step=global_step, epoch=epoch)
+                    step=global_step, epoch=current_epoch)
 
             if batch_index % args.grad_accum == 0:
                 optimizer.step()
@@ -175,10 +175,10 @@ def train(
 
     experiment.log_metrics(
         {
-            'train_loss': train_loss.avg,
-            'train_top1': train_top1.avg,
-            'train_top5': train_top5.avg,
+            'train_loss_epoch': train_loss.avg,
+            'train_top1_epoch': train_top1.avg,
+            'train_top5_epoch': train_top5.avg,
         },
-        step=global_step, epoch=epoch)
+        step=global_step, epoch=current_epoch)
 
     return global_step

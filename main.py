@@ -39,21 +39,21 @@ def main():
         model = nn.DataParallel(model)
 
     with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as pbar_epoch:
-        for epoch in pbar_epoch:
-            pbar_epoch.set_description(f'[Epoch {epoch}]')
+        for current_epoch in pbar_epoch:
+            pbar_epoch.set_description(f'[Epoch {current_epoch}]')
 
             global_step = train(
                 model, criterion, optimizer, train_loader,
-                device, global_step, epoch, experiment, args)
+                device, global_step, current_epoch, experiment, args)
 
-            if epoch % args.val_interval_epochs == 0 \
-                    or epoch == args.num_epochs:
+            if current_epoch % args.val_interval_epochs == 0 \
+                    or current_epoch == args.num_epochs:
                 _, val_top1 = val(
                     model, criterion, val_loader, device,
-                    global_step, epoch, experiment, args)
+                    global_step, current_epoch, experiment, args)
 
                 save_to_checkpoint(
-                    args, epoch, global_step, val_top1,
+                    args, current_epoch, global_step, val_top1,
                     model, optimizer, scheduler, experiment)
 
             if args.use_scheduler:

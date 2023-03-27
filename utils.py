@@ -59,7 +59,7 @@ def accuracy(output, target, topk=(1,)):
 
 def save_to_checkpoint(
     args,
-    epoch,
+    current_epoch,
     global_step,
     acc,
     model,
@@ -71,7 +71,7 @@ def save_to_checkpoint(
 
     Args:
         args (argparse): args
-        epoch (int): epoch
+        current_epoch (int): epoch
         global_step (int): global step counter
         acc (float): accuracy (0 to 100)
         model (torch.nn): CNN model
@@ -92,7 +92,7 @@ def save_to_checkpoint(
         f'epoch{current_epoch}_step{global_step}_acc={acc:.2f}.pt')
 
     checkpoint_dict = {
-        'epoch': epoch,
+        'current_epoch': current_epoch,
         'global_step': global_step,
         'accuracy': acc,
         'model_state_dict': model.state_dict() if not args.gpu_strategy == 'dp' else model.module.state_dict(),
@@ -129,7 +129,7 @@ def load_from_checkpoint(
         assert os.path.exists(args.resume_from_checkpoint)
         checkpoint = torch.load(args.resume_from_checkpoint, map_location=device)
 
-    epoch = checkpoint['epoch']
+    current_epoch = checkpoint['current_epoch']
     global_step = checkpoint['global_step']
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -138,4 +138,4 @@ def load_from_checkpoint(
     if scheduler:
         scheduler.load_state_dict(scheduler)
 
-    return epoch, global_step, model, optimizer, scheduler
+    return current_epoch, global_step, model, optimizer, scheduler
