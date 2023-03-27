@@ -96,6 +96,72 @@
             ]
         },
         {
+            "name": "bs64 w64 1GPU(0) ImageFolder",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "args": [
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "64",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-5",
+                "--gpus",
+                "1",
+                "--log_interval_steps",
+                "20",
+                // "--disable_comet",
+            ]
+        },
+        {
+            "name": "pl bs64 w64 1GPU(1) ImageFolder",
+            "type": "python",
+            "request": "launch",
+            "program": "main_pl.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            },
+            "args": [
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "64",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-5",
+                "--gpus",
+                "1",
+                "--log_interval_steps",
+                "20",
+                // "--disable_comet",
+            ]
+        },
+        {
             "name": "debug bs=24 w=24 GPU3 video x3d",
             "type": "python",
             "request": "launch",
@@ -300,7 +366,7 @@
             ]
         },
         {
-            "name": "debug bs=8 w=24 GPU1 image r50",
+            "name": "debug bs=8 w=24 GPU1 image r50 ImageFolder",
             "type": "python",
             "request": "launch",
             "program": "main.py",

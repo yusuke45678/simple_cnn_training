@@ -43,6 +43,70 @@
             ]
         },
         {
+            "label": "bs64 w64 1GPU(0) ImageFolder",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "64",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-5",
+                "--gpus",
+                "1",
+                "--log_interval_steps",
+                "20",
+                "--disable_comet",
+            ]
+        },
+        {
+            "label": "pl bs64 w64 1GPU(1) ImageFolder",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "1"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "64",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-5",
+                "--gpus",
+                "1",
+                "--log_interval_steps",
+                "20",
+                "--disable_comet",
+            ]
+        },
+        {
             "label": "pl bs=64, GPU=0,1 dp",
             "type": "shell",
             "options": {
