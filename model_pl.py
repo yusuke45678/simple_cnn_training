@@ -116,7 +116,7 @@ class MyLightningModel(pl.LightningModule):
             monitor='val_top1',
             mode='max',  # larger is better
             save_top_k=2,
-            filename='epoch{epoch}_steps{step}_acc={val_top1:.2f}',
+            filename='epoch{epoch}_step{step}_acc={val_top1:.2f}',
             auto_insert_metric_name=False,
         )
         return checkpoint_callback

@@ -9,7 +9,7 @@ def val(
     criterion,
     loader,
     device,
-    global_steps: int,
+    global_step: int,
     epoch: int,
     experiment,
     args
@@ -21,7 +21,7 @@ def val(
         criterion(torch.nn loss): loss function
         loader(torch.utils.data.DataLoader): validation dataset loader
         device(torch.device): GPU device
-        global_steps(int): current step from the beginning
+        global_step(int): current step from the beginning
         epoch(int): current epoch
         experiment(comet_ml.Experiment): comet logger
 
@@ -77,7 +77,7 @@ def val(
             'val_top1': val_top1.avg,
             'val_top5': val_top5.avg,
         },
-        step=global_steps, epoch=epoch)
+        step=global_step, epoch=epoch)
 
     return val_loss.avg, val_top1.avg
 
@@ -88,7 +88,7 @@ def train(
     optimizer,
     loader,
     device,
-    global_steps: int,
+    global_step: int,
     epoch: int,
     experiment,
     args
@@ -101,13 +101,13 @@ def train(
         optimizer (torch.optim): optimizer
         loader (torch.utils.data.DataLoader): training dataset loader
         device (torch.device): GPU device
-        global_steps (int): current step from the beginning
+        global_step (int): current step from the beginning
         epoch (int): current epoch
         experiment (comet_ml.Experiment): comet logger
         args (argparse): args
 
     Returns:
-        int: global_steps
+        int: global_step
     """
 
     train_loss = AverageMeter()
@@ -150,13 +150,13 @@ def train(
             train_top5.update(top5, batch_size)
             train_loss.update(loss, batch_size)
 
-            if global_steps % args.log_interval_steps == 0:
+            if global_step % args.log_interval_steps == 0:
                 pbar_loss.set_postfix_str(
                     'step={:d}, '
                     'loss={:6.4e}({:6.4e}), '
                     'top1={:6.2f}({:6.2f}), '
                     'top5={:6.2f}({:6.2f})'.format(
-                        global_steps,
+                        global_step,
                         train_loss.value, train_loss.avg,
                         train_top1.value, train_top1.avg,
                         train_top5.value, train_top5.avg,
@@ -167,11 +167,11 @@ def train(
                         'train_batch_top1': train_top1.value,
                         'train_batch_top5': train_top5.value,
                     },
-                    step=global_steps, epoch=epoch)
+                    step=global_step, epoch=epoch)
 
             if batch_index % args.grad_accum == 0:
                 optimizer.step()
-                global_steps += 1
+                global_step += 1
 
     experiment.log_metrics(
         {
@@ -179,6 +179,6 @@ def train(
             'train_top1': train_top1.avg,
             'train_top5': train_top5.avg,
         },
-        step=global_steps, epoch=epoch)
+        step=global_step, epoch=epoch)
 
-    return global_steps
+    return global_step
