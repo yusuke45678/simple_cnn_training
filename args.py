@@ -5,7 +5,11 @@ class CustomFormatter(
     argparse.ArgumentDefaultsHelpFormatter,
     argparse.MetavarTypeHelpFormatter
 ):
-    # https://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef
+    """show default values of argparse.
+        see
+        https://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef
+        for details.
+    """
     pass
 
 
@@ -24,7 +28,7 @@ def get_args():
     parser.add_argument('-r', '--root', type=str, default='./downloaded_data',
                         help='root of dataset.')
     parser.add_argument('-d', '--dataset_name', type=str, default='CIFAR10',
-                        choices=['CIFAR10', 'ImageFolder'],
+                        choices=['CIFAR10', 'ImageFolder', 'VideoFolder'],
                         help='name of dataset.')
     parser.add_argument('-td', '--train_dir', type=str, default='train',
                         help='subdier name of training dataset.')
@@ -36,7 +40,7 @@ def get_args():
                         help='TORCH_HOME environment variable '
                         'where pre-trained model weights are stored.')
     parser.add_argument('-m', '--model', type=str, default='resnet18',
-                        choices=['resnet18', 'resnet50'],
+                        choices=['resnet18', 'resnet50', 'x3d'],
                         help='CNN model.')
     parser.add_argument('--use_pretrained', dest='use_pretrained',
                         action='store_true',
@@ -47,6 +51,14 @@ def get_args():
                         'instead train from scratch (not default)')
     parser.set_defaults(use_pretrained=True)
 
+    # video
+    parser.add_argument('--frames_per_clip', type=int, default=16,
+                        help='frames per clip.')
+    parser.add_argument('--clip_duration', type=float, default=80 / 30,
+                        help='duration of a clip (in second).')
+    parser.add_argument('--clips_per_video', type=int, default=1,
+                        help='sampling clips per video for validation')
+
     # training
     parser.add_argument('-b', '--batch_size', type=int, default=8,
                         help='batch size.')
@@ -54,9 +66,9 @@ def get_args():
                         help='number of workers.')
     parser.add_argument('-e', '--num_epochs', type=int, default=25,
                         help='number of epochs.')
-    parser.add_argument('-vi', '--val_interval_epochs', type=int, default=2,
+    parser.add_argument('-vi', '--val_interval_epochs', type=int, default=1,
                         help='validation interval in epochs.')
-    parser.add_argument('-li', '--log_interval_steps', type=int, default=10,
+    parser.add_argument('-li', '--log_interval_steps', type=int, default=1,
                         help='logging interval in steps.')
 
     # optimizer
@@ -69,6 +81,8 @@ def get_args():
                         help='learning rate.')
     parser.add_argument('--momentum', type=float, default=0.9,
                         help='momentum of SGD.')
+    parser.add_argument('--weight_decay', type=float, default=5e-4,
+                        help='weight decay.')
     parser.add_argument('--betas', nargs='+', type=float, default=[0.9, 0.999],
                         help='betas of Adam.')
     parser.add_argument('--use_scheduler', dest='use_scheduler',
@@ -113,6 +127,12 @@ def get_args():
     parser.set_defaults(disable_comet=False)
 
     args = parser.parse_args()
+
+    if args.dataset_name in ['CIFAR10', 'ImageFolder']:
+        args.data_type = 'image'
+    elif args.dataset_name in ['VideoFolder']:
+        args.data_type = 'video'
+
     print(args)
 
     return args

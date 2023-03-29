@@ -1,4 +1,4 @@
-from pytorch_lightning.callbacks import ModelSummary
+from lightning.pytorch.callbacks import ModelSummary
 
 
 def callback_factory(args):

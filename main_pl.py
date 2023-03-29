@@ -1,11 +1,13 @@
 import torch
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 
 from args import get_args
 from dataset_pl import MyDataModule
 from model_pl import MyLightningModel
 from logger_pl import logger_factory
 from callback_pl import callback_factory
+
+from lightning.pytorch.plugins import TorchSyncBatchNorm
 
 
 def main():
@@ -19,11 +21,12 @@ def main():
     data_module = MyDataModule(args)
     model_lightning = MyLightningModel(args, data_module.n_classes)
 
-    strategy = None
-    if args.gpu_strategy == 'dp':
-        strategy = 'dp'
+    strategy = 'auto'
+    # if args.gpu_strategy == 'dp':
+    #     strategy = 'dp'
     if args.gpu_strategy == 'ddp':
-        strategy = 'ddp_find_unused_parameters_false'
+        # strategy = 'ddp_find_unused_parameters_false'
+        strategy = 'ddp'
 
     trainer = pl.Trainer(
         devices=args.gpus,
@@ -40,6 +43,8 @@ def main():
         # limit_train_batches=5, # only for debug
         # limit_val_batches=5, # only for debug
         callbacks=callbacks,
+        plugins=[TorchSyncBatchNorm()],
+        # profiler="simple",
     )
 
     trainer.fit(

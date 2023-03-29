@@ -59,8 +59,8 @@ def accuracy(output, target, topk=(1,)):
 
 def save_to_checkpoint(
     args,
-    epoch,
-    global_steps,
+    current_epoch,
+    global_step,
     acc,
     model,
     optimizer,
@@ -71,8 +71,8 @@ def save_to_checkpoint(
 
     Args:
         args (argparse): args
-        epoch (int): epoch
-        global_steps (int): global step counter
+        current_epoch (int): epoch
+        global_step (int): global step counter
         acc (float): accuracy (0 to 100)
         model (torch.nn): CNN model
         optimizer (torch.optim): optimizer
@@ -80,15 +80,20 @@ def save_to_checkpoint(
         experiment (comet_ml.Experiment): comet logger
     """
 
-    os.makedirs(args.save_checkpoint_dir, exist_ok=True)
+    save_checkpoint_dir = os.path.join(
+        args.save_checkpoint_dir,
+        experiment.project_name.replace(' ', '_'),
+        experiment.name.replace(' ', '_'),
+    )
+    os.makedirs(save_checkpoint_dir, exist_ok=True)
 
     checkpoint_file = os.path.join(
-        args.save_checkpoint_dir,
-        f'epoch{epoch}_steps{global_steps}_acc{acc:.2f}.pt')
+        save_checkpoint_dir,
+        f'epoch{current_epoch}_step{global_step}_acc={acc:.2f}.pt')
 
     checkpoint_dict = {
-        'epoch': epoch,
-        'global_steps': global_steps,
+        'current_epoch': current_epoch,
+        'global_step': global_step,
         'accuracy': acc,
         'model_state_dict': model.state_dict() if not args.gpu_strategy == 'dp' else model.module.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
@@ -124,8 +129,8 @@ def load_from_checkpoint(
         assert os.path.exists(args.resume_from_checkpoint)
         checkpoint = torch.load(args.resume_from_checkpoint, map_location=device)
 
-    epoch = checkpoint['epoch']
-    global_steps = checkpoint['global_steps']
+    current_epoch = checkpoint['current_epoch']
+    global_step = checkpoint['global_step']
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
@@ -133,4 +138,4 @@ def load_from_checkpoint(
     if scheduler:
         scheduler.load_state_dict(scheduler)
 
-    return epoch, global_steps, model, optimizer, scheduler
+    return current_epoch, global_step, model, optimizer, scheduler

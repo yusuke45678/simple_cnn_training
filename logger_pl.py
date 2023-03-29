@@ -1,5 +1,5 @@
 from datetime import datetime
-from pytorch_lightning.loggers import CometLogger, TensorBoardLogger
+from lightning.pytorch.loggers import CometLogger, TensorBoardLogger
 
 
 def logger_factory(args):
@@ -11,7 +11,7 @@ def logger_factory(args):
         args (argparse): args
 
     Returns:
-        Tuple[pytorch_lightning.loggers]: loggers
+        Tuple[lightning.pytorch.loggers]: loggers
     """
 
     exp_name = datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
@@ -24,6 +24,7 @@ def logger_factory(args):
         save_dir=args.comet_log_dir,
         experiment_name=exp_name,
         parse_args=True,
+        disabled=args.disable_comet,
     )
     comet_logger.experiment.add_tag(args.model)
 

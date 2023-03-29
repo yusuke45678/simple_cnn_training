@@ -1,19 +1,13 @@
 import os
 
-import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
-from torchvision.models import (
-    resnet50,
-    ResNet50_Weights,
-    resnet18,
-    ResNet18_Weights,
-)
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
+
+import lightning.pytorch as pl
+from lightning.pytorch.callbacks import ModelCheckpoint
 
 from utils import accuracy
+from model import model_factory
+from optimizer import optimizer_factory, scheduler_factory
 
 
 class MyLightningModel(pl.LightningModule):
@@ -31,23 +25,7 @@ class MyLightningModel(pl.LightningModule):
         super().__init__()
         self.args = args
 
-        if args.use_pretrained:
-            # Specity the directory where a pre-trained model is stored.
-            # Otherwise, by default, models are stored in users home dir `~/.torch`
-            os.environ['TORCH_HOME'] = args.torch_home
-
-        if args.model == 'resnet18':
-            weights = ResNet18_Weights.IMAGENET1K_V1 if args.use_pretrained else None
-            self.model = resnet18(weights=weights)
-            self.model.fc = nn.Linear(
-                self.model.fc.in_features, n_classes)
-        elif args.model == 'resnet50':
-            weights = ResNet50_Weights.IMAGENET1K_V1 if args.use_pretrained else None
-            self.model = resnet50(weights=weights)
-            self.model.fc = nn.Linear(
-                self.model.fc.in_features, n_classes)
-        else:
-            raise ValueError("invalid args.model")
+        self.model = model_factory(args, n_classes)
 
         self.criterion = nn.CrossEntropyLoss()
 
@@ -59,20 +37,11 @@ class MyLightningModel(pl.LightningModule):
         Returns:
             optim or dict: optimizer, or dict
         """
-        if self.args.optimizer == 'SGD':
-            optimizer = optim.SGD(
-                self.model.parameters(),
-                lr=self.args.lr, momentum=self.args.momentum)
-        elif self.args.optimizer == 'Adam':
-            optimizer = optim.Adam(
-                self.model.parameters(),
-                lr=self.args.lr, betas=self.args.betas)
-        else:
-            raise ValueError("invalid args.optimizer")
 
-        if self.args.use_scheduler:
-            scheduler = lr_scheduler.StepLR(
-                optimizer, step_size=7, gamma=0.1)
+        optimizer = optimizer_factory(self.args, self.model)
+        scheduler = scheduler_factory(self.args, optimizer)
+
+        if scheduler:
             return {
                 "optimizer": optimizer,
                 "lr_scheduler": scheduler
@@ -86,13 +55,19 @@ class MyLightningModel(pl.LightningModule):
         Returns:
             callback or List[callback]: callback(s)
         """
-        os.makedirs(self.args.save_checkpoint_dir, exist_ok=True)
+        save_checkpoint_dir = os.path.join(
+            self.args.save_checkpoint_dir,
+            self.loggers[0].experiment.project_name.replace(' ', '_'),
+            self.loggers[0].experiment.name.replace(' ', '_'),
+        )
+        os.makedirs(save_checkpoint_dir, exist_ok=True)
+
         checkpoint_callback = ModelCheckpoint(
-            dirpath=self.args.save_checkpoint_dir,
+            dirpath=save_checkpoint_dir,
             monitor='val_top1',
             mode='max',  # larger is better
             save_top_k=2,
-            filename='epoch{epoch}_steps{step}_acc={val_top1:.2f}',
+            filename='epoch{epoch}_step{step}_acc={val_top1:.2f}',
             auto_insert_metric_name=False,
         )
         return checkpoint_callback
@@ -110,7 +85,7 @@ class MyLightningModel(pl.LightningModule):
             float: loss
         """
 
-        data, labels = batch  # (BCHW, B)
+        data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
         batch_size = data.size(0)
 
         outputs = self.model(data)
@@ -154,7 +129,7 @@ class MyLightningModel(pl.LightningModule):
             dict: used by validation_epoch_end()
         """
 
-        data, labels = batch  # (BCHW, B)
+        data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
         batch_size = data.size(0)
 
         outputs = self.model(data)
@@ -170,38 +145,6 @@ class MyLightningModel(pl.LightningModule):
             prog_bar=False,
             on_step=False,
             on_epoch=True,
+            rank_zero_only=False,
             sync_dist=True,
             batch_size=batch_size)
-
-        return {
-            'batch_prediction': outputs,
-            'batch_label': labels
-        }
-
-    def validation_epoch_end(self, val_step_outputs):
-        '''
-        aggregating validation predicttions
-        NOTE: NOT working for DDP! only for DP or single GPU
-
-        Args:
-            val_step_outputs (stack of dict):
-                a stack of all outputs of validation_step()
-        '''
-
-        all_preds = torch.cat([
-            out['batch_prediction'] for out in val_step_outputs
-        ])
-        all_labels = torch.cat([
-            out['batch_label'] for out in val_step_outputs
-        ])
-
-        self.loggers[0].experiment.log_confusion_matrix(
-            all_labels.cpu().numpy(),
-            all_preds.cpu().numpy(),
-            step=self.global_step,
-            epoch=self.current_epoch,
-            title='Confusion matrix',
-            row_label='Actual label',
-            column_label='Prediction',
-            # labels=[ ... list of category names ... ]
-        )
