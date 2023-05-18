@@ -55,22 +55,26 @@ class MyLightningModel(pl.LightningModule):
         Returns:
             callback or List[callback]: callback(s)
         """
-        save_checkpoint_dir = os.path.join(
-            self.args.save_checkpoint_dir,
-            self.loggers[0].experiment.project_name.replace(' ', '_'),
-            self.loggers[0].experiment.name.replace(' ', '_'),
-        )
-        os.makedirs(save_checkpoint_dir, exist_ok=True)
 
-        checkpoint_callback = ModelCheckpoint(
-            dirpath=save_checkpoint_dir,
-            monitor='val_top1',
-            mode='max',  # larger is better
-            save_top_k=2,
-            filename='epoch{epoch}_step{step}_acc={val_top1:.2f}',
-            auto_insert_metric_name=False,
-        )
-        return checkpoint_callback
+        if self.global_rank == 0:
+            save_checkpoint_dir = os.path.join(
+                self.args.save_checkpoint_dir,
+                self.loggers[0].experiment.project_name.replace(" ", "_"),
+                self.loggers[0].experiment.name.replace(" ", "_"),
+            )
+            os.makedirs(save_checkpoint_dir, exist_ok=True)
+
+            checkpoint_callback = ModelCheckpoint(
+                dirpath=save_checkpoint_dir,
+                monitor="val_top1",
+                mode="max",  # larger is better
+                save_top_k=2,
+                filename="epoch{epoch}_step{step}_acc={val_top1:.2f}",
+                auto_insert_metric_name=False,
+            )
+            return checkpoint_callback
+        else:
+            return None
 
     def training_step(self, batch, batch_idx):
         """training loop for one batch (not for one epoch)
