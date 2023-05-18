@@ -16,19 +16,21 @@ def optimizer_factory(args, model):
         torch.optim: optimizer
     """
 
-    if args.optimizer == 'SGD':
+    if args.optimizer == "SGD":
         optimizer = optim.SGD(
             model.parameters(),
             lr=args.lr,
             momentum=args.momentum,
-            weight_decay=args.weight_decay)
+            weight_decay=args.weight_decay,
+        )
 
-    elif args.optimizer == 'Adam':
+    elif args.optimizer == "Adam":
         optimizer = optim.Adam(
             model.parameters(),
             lr=args.lr,
             betas=args.betas,
-            weight_decay=args.weight_decay)
+            weight_decay=args.weight_decay,
+        )
     else:
         raise ValueError("invalid args.optimizer")
 
@@ -46,8 +48,7 @@ def scheduler_factory(args, optimizer):
         torch.optim.lr_scheduler: learning rate scheduler
     """
     if args.use_scheduler:
-        scheduler = lr_scheduler.StepLR(
-            optimizer, step_size=7, gamma=0.1)
+        scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
     else:
         scheduler = None
 

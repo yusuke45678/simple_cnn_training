@@ -16,6 +16,7 @@ def dataset_facory(args):
         torch.utils.data.DataLoader: validation set loader
         int: number of classes
     """
+
     if args.dataset_name == "CIFAR10":
         transform_func = transform_image
         dataset_func = cifar10
@@ -32,7 +33,8 @@ def dataset_facory(args):
         raise ValueError("invalid args.dataset_name")
 
     train_transform, val_transform = transform_func(args)
-    train_loader, val_loader, n_classes = \
-        dataset_func(args, train_transform, val_transform)
+    train_loader, val_loader, n_classes = dataset_func(
+        args, train_transform, val_transform
+    )
 
     return train_loader, val_loader, n_classes

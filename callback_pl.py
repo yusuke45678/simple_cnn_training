@@ -11,8 +11,6 @@ def callback_factory(args):
         List[pl.callbacks]: callbacks
     """
 
-    callbacks = [
-        ModelSummary(max_depth=3)
-    ]
+    callbacks = [ModelSummary(max_depth=3)]
 
     return callbacks

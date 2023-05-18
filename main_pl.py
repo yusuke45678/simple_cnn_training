@@ -11,22 +11,21 @@ from lightning.pytorch.plugins import TorchSyncBatchNorm
 
 
 def main():
-
     args = get_args()
     loggers = logger_factory(args)
     callbacks = callback_factory(args)
 
-    accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
+    accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
     data_module = MyDataModule(args)
     model_lightning = MyLightningModel(args, data_module.n_classes)
 
-    strategy = 'auto'
+    strategy = "auto"
     # if args.gpu_strategy == 'dp':
     #     strategy = 'dp'
-    if args.gpu_strategy == 'ddp':
+    if args.gpu_strategy == "ddp":
         # strategy = 'ddp_find_unused_parameters_false'
-        strategy = 'ddp'
+        strategy = "ddp"
 
     trainer = pl.Trainer(
         devices=args.gpus,
@@ -50,9 +49,9 @@ def main():
     trainer.fit(
         model=model_lightning,
         datamodule=data_module,
-        ckpt_path=args.resume_from_checkpoint
+        ckpt_path=args.resume_from_checkpoint,
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

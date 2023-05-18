@@ -82,22 +82,25 @@ def save_to_checkpoint(
 
     save_checkpoint_dir = os.path.join(
         args.save_checkpoint_dir,
-        experiment.project_name.replace(' ', '_'),
-        experiment.name.replace(' ', '_'),
+        experiment.project_name.replace(" ", "_"),
+        experiment.name.replace(" ", "_"),
     )
     os.makedirs(save_checkpoint_dir, exist_ok=True)
 
     checkpoint_file = os.path.join(
         save_checkpoint_dir,
-        f'epoch{current_epoch}_step{global_step}_acc={acc:.2f}.pt')
+        f"epoch{current_epoch}_step{global_step}_acc={acc:.2f}.pt",
+    )
 
     checkpoint_dict = {
-        'current_epoch': current_epoch,
-        'global_step': global_step,
-        'accuracy': acc,
-        'model_state_dict': model.state_dict() if not args.gpu_strategy == 'dp' else model.module.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'scheduler_state_dict': scheduler.state_dict() if scheduler else None,
+        "current_epoch": current_epoch,
+        "global_step": global_step,
+        "accuracy": acc,
+        "model_state_dict": model.state_dict()
+        if not args.gpu_strategy == "dp"
+        else model.module.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "scheduler_state_dict": scheduler.state_dict() if scheduler else None,
     }
     torch.save(checkpoint_dict, checkpoint_file)
 
@@ -105,13 +108,7 @@ def save_to_checkpoint(
     log_model(experiment, checkpoint_dict, model_name=args.model)
 
 
-def load_from_checkpoint(
-        args,
-        model,
-        optimizer,
-        scheduler,
-        device
-):
+def load_from_checkpoint(args, model, optimizer, scheduler, device):
     """load from checkpoint file
 
     Args:
@@ -129,12 +126,12 @@ def load_from_checkpoint(
         assert os.path.exists(args.resume_from_checkpoint)
         checkpoint = torch.load(args.resume_from_checkpoint, map_location=device)
 
-    current_epoch = checkpoint['current_epoch']
-    global_step = checkpoint['global_step']
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    current_epoch = checkpoint["current_epoch"]
+    global_step = checkpoint["global_step"]
+    model.load_state_dict(checkpoint["model_state_dict"])
+    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-    scheduler = checkpoint['scheduler_state_dict']
+    scheduler = checkpoint["scheduler_state_dict"]
     if scheduler:
         scheduler.load_state_dict(scheduler)
 

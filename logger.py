@@ -15,11 +15,9 @@ def logger_factory(args):
     # Use ./.comet.config and ~/.comet.config
     # to specify API key, workspace and project name.
     # DO NOT put API key in the code!
-    experiment = Experiment(
-        disabled=args.disable_comet
-    )
+    experiment = Experiment(disabled=args.disable_comet)
 
-    exp_name = datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
+    exp_name = datetime.now().strftime("%Y-%m-%d_%H:%M:%S:%f")
     experiment.set_name(exp_name)
     experiment.add_tag(args.model)
 

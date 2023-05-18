@@ -8,8 +8,7 @@ class MyDataModule(pl.LightningDataModule):
         super().__init__()
         self.args = args
 
-        self.train_loader, self.val_loader, self.n_classes = \
-            dataset_facory(args)
+        self.train_loader, self.val_loader, self.n_classes = dataset_facory(args)
 
     def train_dataloader(self):
         return self.train_loader

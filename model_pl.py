@@ -11,9 +11,7 @@ from optimizer import optimizer_factory, scheduler_factory
 
 
 class MyLightningModel(pl.LightningModule):
-    """Lightning model
-
-    """
+    """Lightning model"""
 
     def __init__(self, args, n_classes):
         """constructor
@@ -42,10 +40,7 @@ class MyLightningModel(pl.LightningModule):
         scheduler = scheduler_factory(self.args, optimizer)
 
         if scheduler:
-            return {
-                "optimizer": optimizer,
-                "lr_scheduler": scheduler
-            }
+            return {"optimizer": optimizer, "lr_scheduler": scheduler}
         else:
             return optimizer
 
@@ -98,24 +93,27 @@ class MyLightningModel(pl.LightningModule):
 
         self.log_dict(
             {
-                'train_loss': loss,
-                'train_top1': top1,
+                "train_loss": loss,
+                "train_top1": top1,
             },
             prog_bar=True,
             on_step=True,
             on_epoch=True,
             rank_zero_only=False,
             sync_dist=True,
-            batch_size=batch_size)
+            batch_size=batch_size,
+        )
 
         self.log(
-            'train_top5', top5,
+            "train_top5",
+            top5,
             prog_bar=False,  # do not show on the progress bar
             on_step=True,
             on_epoch=True,
             rank_zero_only=False,
             sync_dist=True,
-            batch_size=batch_size)
+            batch_size=batch_size,
+        )
 
         return loss
 
@@ -142,13 +140,14 @@ class MyLightningModel(pl.LightningModule):
 
         self.log_dict(
             {
-                'val_loss': loss,
-                'val_top1': top1,
-                'val_top5': top5,
+                "val_loss": loss,
+                "val_top1": top1,
+                "val_top5": top5,
             },
             prog_bar=False,
             on_step=False,
             on_epoch=True,
             rank_zero_only=False,
             sync_dist=True,
-            batch_size=batch_size)
+            batch_size=batch_size,
+        )
