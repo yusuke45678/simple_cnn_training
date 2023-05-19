@@ -12,6 +12,7 @@ def logger_factory(args):
 
     Returns:
         Tuple[lightning.pytorch.loggers]: loggers
+        str: experiment name of comet.ml
     """
 
     exp_name = datetime.now().strftime("%Y-%m-%d_%H:%M:%S:%f")
@@ -31,4 +32,5 @@ def logger_factory(args):
     # logger[1]
     tb_logger = TensorBoardLogger(save_dir=args.tf_log_dir, name=exp_name)
 
-    return comet_logger, tb_logger
+    exp_name = exp_name.replace(" ", "_")
+    return (comet_logger, tb_logger), exp_name

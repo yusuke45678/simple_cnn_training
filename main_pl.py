@@ -12,13 +12,13 @@ from lightning.pytorch.plugins import TorchSyncBatchNorm
 
 def main():
     args = get_args()
-    loggers = logger_factory(args)
+    loggers, exp_name = logger_factory(args)
     callbacks = callback_factory(args)
 
     accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
     data_module = MyDataModule(args)
-    model_lightning = MyLightningModel(args, data_module.n_classes)
+    model_lightning = MyLightningModel(args, data_module.n_classes, exp_name)
 
     strategy = "auto"
     # if args.gpu_strategy == 'dp':

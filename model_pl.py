@@ -13,15 +13,17 @@ from optimizer import optimizer_factory, scheduler_factory
 class MyLightningModel(pl.LightningModule):
     """Lightning model"""
 
-    def __init__(self, args, n_classes):
+    def __init__(self, args, n_classes, exp_names):
         """constructor
 
         Args:
             args (argparse): args
             n_classes (int): number of categories
+            exp_name (str): experiment name of comet.ml
         """
         super().__init__()
         self.args = args
+        self.exp_name = exp_names
 
         self.model = model_factory(args, n_classes)
 
@@ -51,25 +53,19 @@ class MyLightningModel(pl.LightningModule):
             callback or List[callback]: callback(s)
         """
 
+        save_checkpoint_dir = os.path.join(self.args.save_checkpoint_dir, self.exp_name)
         if self.global_rank == 0:
-            save_checkpoint_dir = os.path.join(
-                self.args.save_checkpoint_dir,
-                self.loggers[0].experiment.project_name.replace(" ", "_"),
-                self.loggers[0].experiment.name.replace(" ", "_"),
-            )
             os.makedirs(save_checkpoint_dir, exist_ok=True)
 
-            checkpoint_callback = ModelCheckpoint(
-                dirpath=save_checkpoint_dir,
-                monitor="val_top1",
-                mode="max",  # larger is better
-                save_top_k=2,
-                filename="epoch{epoch}_step{step}_acc={val_top1:.2f}",
-                auto_insert_metric_name=False,
-            )
-            return checkpoint_callback
-        else:
-            return None
+        checkpoint_callback = ModelCheckpoint(
+            dirpath=save_checkpoint_dir,
+            monitor="val_top1",
+            mode="max",  # larger is better
+            save_top_k=2,
+            filename="epoch{epoch}_step{step}_acc={val_top1:.2f}",
+            auto_insert_metric_name=False,
+        )
+        return checkpoint_callback
 
     def training_step(self, batch, batch_idx):
         """training loop for one batch (not for one epoch)
