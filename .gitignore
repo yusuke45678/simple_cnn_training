@@ -5,3 +5,6 @@ tf_logs/
 downloaded_data/
 pretrained_models/
 dataset/
+data/
+models/
+.hypothesis/
