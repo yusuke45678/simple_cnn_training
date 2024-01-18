@@ -1,19 +1,41 @@
 {
-    //
-    // editor setting
-    //
+    "python.defaultInterpreterPath": "/usr/bin/python",
+    "[python]": {
+        // "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.formatOnType": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "never"
+        }
+    },
+    "python.poetryPath": "/usr/local/bin/poetry",
+    "python.testing.pytestPath": "/usr/local/bin/pytest",
     "editor.renderWhitespace": "boundary",
     "trailing-spaces.trimOnSave": true,
+    "files.autoSave": "onFocusChange",
     "files.insertFinalNewline": true,
-    // "editor.formatOnType": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.rulers": [
         80,
-        100,
-        120
+        88
     ],
     "extensions.closeExtensionDetailsOnViewChange": true,
-    "files.autoSave": "onFocusChange",
+    "extensions.ignoreRecommendations": false,
     "notebook.lineNumbers": "on",
+    //
+    "[markdown]": {
+        "editor.defaultFormatter": "vscode.markdown-language-features"
+    },
+    "markdownlint.config": {
+        "default": true,
+        "MD033": false
+    },
+    "markdown.extension.tableFormatter.normalizeIndentation": true,
+    //
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
 }
