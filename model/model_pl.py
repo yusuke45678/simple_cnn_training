@@ -1,13 +1,13 @@
 import os
 
-import torch.nn as nn
+from torch import nn
 
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import ModelCheckpoint
 
 from utils import accuracy
 from model import model_factory
-from optimizer import optimizer_factory, scheduler_factory
+from setup import optimizer_factory, scheduler_factory
 
 
 class MyLightningModel(pl.LightningModule):

@@ -3,12 +3,13 @@ from pathlib import Path
 import itertools
 
 import torch
-from torch.utils.data import DataLoader
-from pytorchvideo.data import labeled_video_dataset
 from torch.utils.data import (
+    DataLoader,
     SequentialSampler,
     RandomSampler,
 )
+
+from pytorchvideo.data import labeled_video_dataset
 from pytorchvideo.data.clip_sampling import (
     RandomClipSampler,
     ConstantClipsPerVideoSampler,

@@ -2,15 +2,14 @@ import argparse
 
 
 class CustomFormatter(
-    argparse.ArgumentDefaultsHelpFormatter, argparse.MetavarTypeHelpFormatter
+    argparse.ArgumentDefaultsHelpFormatter,
+    argparse.MetavarTypeHelpFormatter
 ):
     """show default values of argparse.
     see
     https://stackoverflow.com/questions/18462610/argumentparser-epilog-and-description-formatting-in-conjunction-with-argumentdef
     for details.
     """
-
-    pass
 
 
 def get_args():
@@ -20,7 +19,8 @@ def get_args():
         args: object of command line arguments
     """
     parser = argparse.ArgumentParser(
-        description="simple CNN model", formatter_class=CustomFormatter
+        description="simple CNN model",
+        formatter_class=CustomFormatter
     )
 
     # dataset
@@ -218,7 +218,7 @@ def get_args():
         help="dir to save checkpoint files.",
     )
     parser.add_argument(
-        "--resume_from_checkpoint",
+        "--checkpoint_to_resume",
         type=str,
         default=None,
         help="path to the checkpoint file to resume from.",

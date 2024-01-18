@@ -1,52 +1,89 @@
 import torch
-import torch.nn as nn
+from torch import nn
 from tqdm import tqdm
 
 from args import get_args
-from dataset import dataset_facory
-from model import model_factory
-from optimizer import optimizer_factory, scheduler_factory
-from logger import logger_factory
-from train import train, val
-from utils import save_to_checkpoint, load_from_checkpoint
+from dataset import dataloader_factory, DatasetInfo
+from model import model_factory, ModelInfo
+from setup import (
+    optimizer_factory,
+    OptimizerInfo,
+    scheduler_factory,
+    SchedulerInfo
+)
+from logger import logger_factory, LoggerInfo
+from train import train_one_epoch, TrainInfo
+from val import val
+from utils import (
+    save_to_checkpoint,
+    save_model_to_comet,
+    load_from_checkpoint,
+)
 
 
 def main():
+
     args = get_args()
 
-    experiment = logger_factory(args)
+    experiment = logger_factory(LoggerInfo(
+        logged_params=vars(args),
+        model_name=args.model,
+        disable_logging=args.disable_comet
+    ))
 
-    train_loader, val_loader, n_classes = dataset_facory(args)
+    train_loader, val_loader, n_classes = \
+        dataloader_factory(DatasetInfo(
+            command_line_args=args,
+            dataset_name=args.dataset_name
+        ))
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = model_factory(args, n_classes)
-    model = model.to(device)
+    model = model_factory(ModelInfo(
+        model_name=args.model,
+        use_pretrained=args.use_pretrained,
+        torch_home=args.torch_home,
+        n_classes=n_classes,
+        device=device,
+        gpu_strategy=args.gpu_strategy
+    ))
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optimizer_factory(args, model)
-    scheduler = scheduler_factory(args, optimizer)
+
+    optimizer = optimizer_factory(OptimizerInfo(
+        optimizer_name=args.optimizer,
+        lr=args.lr,
+        weight_decay=args.weight_decay,
+        momentum=args.momentum,
+        betas=args.betas,
+        model_params=model.parameter()
+    ))
+    scheduler = scheduler_factory(SchedulerInfo(
+        optimizer=optimizer,
+        use_scheduler=args.use_scheduler
+    ))
 
     global_step = 1
     start_epoch = 0
+    train_info = TrainInfo(
+        grad_accum_interval=args.grad_accum,
+        log_interval_steps=args.log_interval_steps
+    )
 
-    if args.resume_from_checkpoint:
+    if args.checkpoint_to_resume:
         (
             start_epoch,
             global_step,
             model,
             optimizer,
             scheduler,
-        ) = load_from_checkpoint(args, model, optimizer, scheduler, device)
+        ) = load_from_checkpoint(args.checkpoint_to_resume, model, optimizer, scheduler, device)
 
-    if args.gpu_strategy == "dp":
-        model = nn.DataParallel(model)
+    with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as progress_bar_epoch:
+        for current_epoch in progress_bar_epoch:
+            progress_bar_epoch.set_description(f"[Epoch {current_epoch}]")
 
-    with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as pbar_epoch:
-        for current_epoch in pbar_epoch:
-            pbar_epoch.set_description(f"[Epoch {current_epoch}]")
-
-            global_step = train(
+            global_step = train_one_epoch(
                 model,
                 criterion,
                 optimizer,
@@ -55,7 +92,7 @@ def main():
                 global_step,
                 current_epoch,
                 experiment,
-                args,
+                train_info
             )
 
             if (
@@ -70,21 +107,26 @@ def main():
                     global_step,
                     current_epoch,
                     experiment,
-                    args,
                 )
 
-                save_to_checkpoint(
-                    args,
+                checkpoint_dict = save_to_checkpoint(
+                    args.save_checkpoint_dir,
                     current_epoch,
                     global_step,
                     val_top1,
+                    # model if not args.gpu_strategy == "dp" else model.module,
                     model,
                     optimizer,
                     scheduler,
-                    experiment,
+                    experiment
+                )
+                save_model_to_comet(
+                    checkpoint_dict,
+                    args.model_name,
+                    experiment
                 )
 
-            if args.use_scheduler:
+            if scheduler:
                 scheduler.update()
 
 

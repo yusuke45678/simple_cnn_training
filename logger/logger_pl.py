@@ -2,7 +2,7 @@ from datetime import datetime
 from lightning.pytorch.loggers import CometLogger, TensorBoardLogger
 
 
-def logger_factory(args):
+def logger_factory_pl(args):
     """generating two loggers.
     - comet logger for cloud logging
     - tensorboard logger for local logging (in case of network lost)
