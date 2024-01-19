@@ -13,7 +13,7 @@ from model import ModelInfo
 
 
 @dataclass
-class ModelOutput():
+class ModelOutput:
     loss: Optional[torch.Tensor]
     logits: torch.Tensor
 

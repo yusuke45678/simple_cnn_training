@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 import torch
 
-from model import X3D, ResNet50, ResNet18
+from model import X3D, ResNet50, ResNet18, BaseModel
 
 
 @dataclass
@@ -17,7 +17,7 @@ class ModelInfo:
 
 def model_factory(
         model_info: ModelInfo
-) -> torch.nn:
+) -> BaseModel:
     """model factory
 
     model_info:
