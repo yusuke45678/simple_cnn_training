@@ -2,7 +2,7 @@ import torch
 from tqdm import tqdm
 
 from args import get_args
-from dataset import dataloader_factory, DatasetInfo
+from dataset import dataloader_factory, DataloaderInfo
 from model import model_factory, ModelInfo
 from setup import (
     optimizer_factory, OptimizerInfo,
@@ -29,7 +29,7 @@ def main():
     ))
 
     train_loader, val_loader, n_classes = \
-        dataloader_factory(DatasetInfo(
+        dataloader_factory(DataloaderInfo(
             command_line_args=args,
             dataset_name=args.dataset_name
         ))

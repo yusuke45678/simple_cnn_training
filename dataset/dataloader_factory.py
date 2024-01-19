@@ -8,23 +8,25 @@ from dataset import (
     ImageFolderInfo,
     video_folder,
     transform_image,
-    transform_video
+    TransformImageInfo,
+    transform_video,
+    TransformVideoInfo,
 )
 
 
 @dataclass
-class DatasetInfo:
+class DataloaderInfo:
     command_line_args: argparse.Namespace
     dataset_name: str
 
 
 def dataloader_factory(
-    dataset_info: DatasetInfo
+    dataloader_info: DataloaderInfo
 ):
-    """dataset factory
+    """dataloader factory
 
     Args:
-        dataset_info (DatasetInfo): information for dataset factory
+        dataloader_info (DataloaderInfo): information for dataset factory
 
     Raises:
         ValueError: invalide dataset name given by command line
@@ -34,10 +36,11 @@ def dataloader_factory(
         torch.utils.data.DataLoader: validation set loader
         int: number of classes
     """
-    args = dataset_info.command_line_args
+    args = dataloader_info.command_line_args
 
-    if dataset_info.dataset_name == "CIFAR10":
-        train_transform, val_transform = transform_image()
+    if dataloader_info.dataset_name == "CIFAR10":
+        train_transform, val_transform = \
+            transform_image(TransformImageInfo())
         train_loader, val_loader, n_classes = \
             cifar10(Cifar10Info(
                 root=args.root,
@@ -47,8 +50,9 @@ def dataloader_factory(
                 val_transform=val_transform
             ))
 
-    elif dataset_info.dataset_name == "ImageFolder":
-        train_transform, val_transform = transform_image()
+    elif dataloader_info.dataset_name == "ImageFolder":
+        train_transform, val_transform = \
+            transform_image(TransformImageInfo())
         train_loader, val_loader, n_classes = \
             image_folder(ImageFolderInfo(
                 root=args.root,
@@ -60,12 +64,14 @@ def dataloader_factory(
                 val_transform=val_transform
             ))
 
-    elif dataset_info.dataset_name == "VideoFolder":
+    elif dataloader_info.dataset_name == "VideoFolder":
         train_transform, val_transform = \
-            transform_video(dataset_info.command_line_args)
+            transform_video(TransformVideoInfo(
+                frames_per_clip=args.frames_per_clip
+            ))
         train_loader, val_loader, n_classes = \
             video_folder(
-                dataset_info.command_line_args,
+                dataloader_info.command_line_args,
                 train_transform,
                 val_transform
             )
