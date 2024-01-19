@@ -19,7 +19,7 @@ def train_one_epoch(
     loader: torch.utils.data.DataLoader,
     global_step: int,
     current_epoch: int,
-    experiment: comet_ml.Experiment,
+    logger: comet_ml.Experiment,
     train_info: TrainInfo
 ) -> int:
     """training loop for one epoch
@@ -30,7 +30,7 @@ def train_one_epoch(
         loader (torch.utils.data.DataLoader): training dataset loader
         global_step (int): current step from the beginning
         current_epoch (int): current epoch
-        experiment (comet_ml.Experiment): comet logger
+        logger (comet_ml.Experiment): comet logger
         train_info (TrainInfo): information for training
 
     Returns:
@@ -70,7 +70,7 @@ def train_one_epoch(
                 progress_bar_step.set_postfix_str(
                     train_meter.get_set_postfix_str(global_step)
                 )
-                experiment.log_metrics(
+                logger.log_metrics(
                     train_meter.get_step_metrics_dict(),
                     step=global_step,
                     epoch=current_epoch,
@@ -80,7 +80,7 @@ def train_one_epoch(
                 optimizer.step()
                 global_step += 1
 
-    experiment.log_metrics(
+    logger.log_metrics(
         train_meter.get_epoch_metrics_dict(),
         step=global_step,
         epoch=current_epoch,

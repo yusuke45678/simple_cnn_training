@@ -10,7 +10,8 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
         },
         {
             "name": "debug bs=32, GPU=0,1,2 resume",

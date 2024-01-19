@@ -12,9 +12,9 @@ def save_to_checkpoint(
     model: torch.nn,
     optimizer: torch.optim,
     scheduler: torch.optim.lr_scheduler,
-    experiment: comet_ml.Experiment,
+    experiment_logger: comet_ml.Experiment,
 ) -> dict:
-    """save checkpoint file
+    """save checkpoint to file
 
     Args:
         save_checkpoint_dir: path to dir where checkpoint is saved
@@ -24,13 +24,13 @@ def save_to_checkpoint(
         model (torch.nn): CNN model
         optimizer (torch.optim): optimizer
         scheduler (torch.optim.lr_scheduler): scheduler
-        experiment (comet_ml.Experiment): comet logger
+        experiment_logger (comet_ml.Experiment): comet logger
     """
 
     save_checkpoint_dir = os.path.join(
         save_checkpoint_dir,
-        experiment.project_name.replace(" ", "_"),
-        experiment.name.replace(" ", "_"),
+        experiment_logger.project_name.replace(" ", "_"),
+        experiment_logger.name.replace(" ", "_"),
     )
     os.makedirs(save_checkpoint_dir, exist_ok=True)
 
@@ -55,17 +55,17 @@ def save_to_checkpoint(
 def save_to_comet(
     checkpoint_dict: dict,
     log_model_name: str,
-    experiment: comet_ml.Experiment,
+    experiment_logger: comet_ml.Experiment,
 ):
     """save checkpoint to comet
 
     Args:
         checkpoint_dict (dict): checkpoint dictionary
         log_model_name (str): logged model name
-        experiment (comet_ml.Experiment): comet logger
+        experiment_logger (comet_ml.Experiment): comet logger
     """
     # see https://www.comet.com/docs/v2/integrations/ml-frameworks/pytorch/#saving-a-model
-    log_model(experiment, checkpoint_dict, model_name=log_model_name)
+    log_model(experiment_logger, checkpoint_dict, model_name=log_model_name)
 
 
 def load_from_checkpoint(
@@ -75,10 +75,11 @@ def load_from_checkpoint(
     scheduler: torch.optim.lr_scheduler,
     device: torch.device
 ) -> None:
-    """load from checkpoint file
+    """load from checkpoint file or online comet_ml
 
     Args:
-        checkpoint_to_resume (str): path to checkpoint to resume
+        checkpoint_to_resume (str): path to checkpoint to resume.
+            if it starts with "experiment:" then load from comet_ml instead of local file
         model (torch.nn): CNN model
         optimizer (torch.optim): optimizer
         scheduler (torch.optim.lr_scheduler): scheduler

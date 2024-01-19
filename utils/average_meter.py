@@ -10,12 +10,18 @@ class AverageMeter(object):
     """
 
     def __init__(self):
+        """average meter
+        """
         self.value = 0
         self.avg = 0
         self.sum = 0
         self.count = 0
 
-    def update(self, value: float | torch.Tensor, n: int = 1):
+    def update(
+        self,
+        value: float | torch.Tensor,
+        n: int = 1
+    ):
         """update the statistics
 
         Args:
@@ -31,11 +37,21 @@ class AverageMeter(object):
 
 
 class AvgMeterLossTopk:
+    """average meter set for loss and top1/top5
+
+    """
+
     def __init__(
         self,
-        mode_name: Literal["train", "val"],
+        mode_name: Literal['train', 'val'],
         topk: Tuple[int] = (1, 5)
     ):
+        """a set of average meters for loss and topk
+
+        Args:
+            mode_name (Literal['train', 'val']): prefix
+            topk (Tuple[int], optional): specifying (1, 5) logs top1 and top5. Defaults to (1, 5).
+        """
         self.mode_name = mode_name
         self.topk = topk
         self.loss_meter = AverageMeter()
@@ -49,11 +65,21 @@ class AvgMeterLossTopk:
         topk_value: Tuple[float | torch.Tensor],
         batch_size: int = 1
     ):
+        """update average meters with statistics of a single batch
+
+        Args:
+            loss (float | torch.Tensor): a batch loss
+            topk_value (Tuple[float | torch.Tensor]): a batch topk values
+            batch_size (int, optional): batch size for the loss. Defaults to 1.
+        """
         self.loss_meter.update(loss, batch_size)
         for meter, value in zip(self.topk_meter, topk_value):
             meter.update(value, batch_size)
 
-    def get_set_postfix_str(self, global_step: int) -> str:
+    def get_set_postfix_str(
+            self,
+            global_step: int
+    ) -> str:
         """generate string for tqdm pbar.set_postfix_str
 
         Args:

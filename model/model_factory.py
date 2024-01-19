@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+
 import torch
 
 from model import X3D, ResNet50, ResNet18, BaseModel
@@ -27,29 +28,29 @@ def model_factory(
         ValueError: invalide model name given by command line
 
     Returns:
-        torch.nn: CNN model
+        BaseModel: CNN model
     """
 
     if model_info.use_pretrained:
         # Specity the directory where a pre-trained model is stored.
         # Otherwise, by default, models are stored in users home dir `~/.torch`
-        os.environ["TORCH_HOME"] = model_info.torch_home
+        os.environ['TORCH_HOME'] = model_info.torch_home
 
-    if model_info.model_name == "resnet18":
-        model = X3D(model_info)
-
-    elif model_info.model_name == "resnet50":
+    if model_info.model_name == 'resnet18':
         model = ResNet18(model_info)
 
-    elif model_info.model_name == "x3d":
+    elif model_info.model_name == 'resnet50':
         model = ResNet50(model_info)
 
+    elif model_info.model_name == 'x3d':
+        model = X3D(model_info)
+
     else:
-        raise ValueError("invalid model_info.model_name")
+        raise ValueError('invalid model_info.model_name')
 
     model = model.to(model_info.device)
 
-    if model_info.gpu_strategy == "dp":
+    if model_info.gpu_strategy == 'dp':
         model.set_data_parallel()
 
     return model

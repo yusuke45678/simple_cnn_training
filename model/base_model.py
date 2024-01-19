@@ -48,7 +48,7 @@ class BaseModel():
     def get_model(self) -> nn.Module:
         return self.model
 
-    def set_model(self, model: Self) -> None:
+    def set_model(self, model: nn.Module) -> None:
         self.model = model
 
 

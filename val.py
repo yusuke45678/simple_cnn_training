@@ -19,7 +19,7 @@ def validation(
     loader: torch.utils.data.DataLoader,
     global_step: int,
     current_epoch: int,
-    experiment: comet_ml.Experiment,
+    logger: comet_ml.Experiment,
 ) -> Tuple[float, float]:
     """validation for the current model
 
@@ -28,7 +28,7 @@ def validation(
         loader(torch.utils.data.DataLoader): validation dataset loader
         global_step(int): current step from the beginning
         current_epoch(int): current epoch
-        experiment(comet_ml.Experiment): comet logger
+        logger(comet_ml.Experiment): comet logger
 
     Returns:
         ValidationOutput: val loss and val top1
@@ -60,7 +60,7 @@ def validation(
                 val_meter.get_set_postfix_str(global_step)
             )
 
-    experiment.log_metrics(
+    logger.log_metrics(
         val_meter.get_epoch_metrics_dict(),
         step=global_step,
         epoch=current_epoch,

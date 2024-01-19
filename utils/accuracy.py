@@ -2,7 +2,11 @@ import torch
 from typing import Tuple
 
 
-def accuracy(output: torch.Tensor, target: torch.Tensor, topk: Tuple[int] = (1,)):
+def accuracy(
+    output: torch.Tensor,
+    target: torch.Tensor,
+    topk: Tuple[int] = (1,)
+) -> float | list[float]:
     """Computes the accuracy over the k top predictions for the specified values of k
     https://github.com/pytorch/examples/blob/cedca7729fef11c91e28099a0e45d7e98d03b66d/imagenet/main.py#L411
 
@@ -15,7 +19,7 @@ def accuracy(output: torch.Tensor, target: torch.Tensor, topk: Tuple[int] = (1,)
                 topk=(1,5) returns list of [top1, top5]
 
     Returns:
-        int or List[int]: top-k accuracy
+        float or List[float]: top1 accuracy, or list of top-k accuracy values
     """
     assert topk[0] == 1, "topk[0] should be top1"
     assert len(topk) >= 1

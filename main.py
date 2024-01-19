@@ -22,7 +22,7 @@ def main():
 
     args = get_args()
 
-    experiment = logger_factory(LoggerInfo(
+    logger = logger_factory(LoggerInfo(
         logged_params=vars(args),
         model_name=args.model,
         disable_logging=args.disable_comet
@@ -67,7 +67,7 @@ def main():
         (
             start_epoch,
             global_step,
-            model,
+            loaded_model,
             optimizer,
             scheduler,
         ) = load_from_checkpoint(
@@ -77,6 +77,7 @@ def main():
             scheduler,
             model.device
         )
+        model.set_model(loaded_model)
 
     with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as progress_bar_epoch:
         for current_epoch in progress_bar_epoch:
@@ -88,7 +89,7 @@ def main():
                 train_loader,
                 global_step,
                 current_epoch,
-                experiment,
+                logger,
                 train_info
             )
 
@@ -101,7 +102,7 @@ def main():
                     val_loader,
                     global_step,
                     current_epoch,
-                    experiment,
+                    logger,
                 )
 
                 checkpoint_dict = save_to_checkpoint(
@@ -113,12 +114,12 @@ def main():
                     model.get_model(),
                     optimizer,
                     scheduler,
-                    experiment
+                    logger
                 )
                 save_to_comet(
                     checkpoint_dict,
                     args.model_name,
-                    experiment
+                    logger
                 )
 
             if scheduler:
