@@ -1,6 +1,8 @@
 import os
-from pathlib import Path
 import itertools
+from pathlib import Path
+from typing import Tuple, Any
+from dataclasses import dataclass
 
 import torch
 from torch.utils.data import (
@@ -9,49 +11,77 @@ from torch.utils.data import (
     RandomSampler,
 )
 
+from torchvision import transforms
+
 from pytorchvideo.data import labeled_video_dataset
 from pytorchvideo.data.clip_sampling import (
     RandomClipSampler,
     ConstantClipsPerVideoSampler,
 )
 
+from video_folder_info import VideoFolderInfo
 
-def collate_for_video(batch):
-    ret = torch.utils.data.default_collate(batch)
-    return ret['video'], ret['label']
+@dataclass
+class VideoFolderInfo:
+    root: str
+    train_dir: str
+    val_dir: str
+    batch_size: int
+    num_workers: int
+    train_transform: transforms
+    val_transform: transforms
+    clip_duration: float
+    clips_per_video: int
 
 
-def video_folder(args, train_transform, val_transform):
+def collate_for_video(batch: Any) -> Tuple[Any]:
+    batch_dict = torch.utils.data.default_collate(batch)
+    return batch_dict['video'], batch_dict['label']
 
-    root_train = os.path.join(args.root, args.train_dir)
-    root_val = os.path.join(args.root, args.val_dir)
-    assert os.path.exists(root_train) and os.path.isdir(root_train)
-    assert os.path.exists(root_val) and os.path.isdir(root_val)
+
+def video_folder(
+        video_folder_info: VideoFolderInfo
+) -> Tuple[DataLoader, DataLoader, int]:
+    """creating dataloaders for videos in folders by pytorchvideo
+
+    Args:
+        video_folder_info (VideoFolderInfo): information for dataloaders
+
+    Returns:
+        DataLoader: train dataloader
+        DataLoader: val dataloader
+        int: number of classes
+    """
+
+    root_train_dir = os.path.join(video_folder_info.root, video_folder_info.train_dir)
+    root_val_dir = os.path.join(video_folder_info.root, video_folder_info.val_dir)
+    assert os.path.exists(root_train_dir) and os.path.isdir(root_train_dir)
+    assert os.path.exists(root_val_dir) and os.path.isdir(root_val_dir)
 
     train_dataset = labeled_video_dataset(
-        data_path=root_train,
+        data_path=root_train_dir,
         clip_sampler=RandomClipSampler(
-            clip_duration=args.clip_duration,
+            clip_duration=video_folder_info.clip_duration,
         ),
         video_sampler=RandomSampler,
-        transform=train_transform,
+        transform=video_folder_info.train_transform,
         decode_audio=False,
         decoder="pyav",
     )
     val_dataset = labeled_video_dataset(
-        data_path=root_val,
+        data_path=root_val_dir,
         clip_sampler=ConstantClipsPerVideoSampler(
-            clip_duration=args.clip_duration,
-            clips_per_video=args.clips_per_video
+            clip_duration=video_folder_info.clip_duration,
+            clips_per_video=video_folder_info.clips_per_video
         ),
         video_sampler=SequentialSampler,
-        transform=val_transform,
+        transform=video_folder_info.val_transform,
         decode_audio=False,
         decoder="pyav",
     )
 
-    train_dataset.classes = sorted([d.name for d in Path(root_train).iterdir()])
-    val_dataset.classes = sorted([d.name for d in Path(root_val).iterdir()])
+    train_dataset.classes = sorted([d.name for d in Path(root_train_dir).iterdir()])
+    val_dataset.classes = sorted([d.name for d in Path(root_val_dir).iterdir()])
     assert train_dataset.classes == val_dataset.classes
 
     train_dataset.n_classes = len(train_dataset.classes)
@@ -60,16 +90,16 @@ def video_folder(args, train_transform, val_transform):
 
     train_loader = DataLoader(
         LimitDataset(train_dataset),
-        batch_size=args.batch_size,
+        batch_size=video_folder_info.batch_size,
         drop_last=True,
-        num_workers=args.num_workers,
+        num_workers=video_folder_info.num_workers,
         collate_fn=collate_for_video,
     )
     val_loader = DataLoader(
         LimitDataset(val_dataset),
-        batch_size=args.batch_size,
+        batch_size=video_folder_info.batch_size,
         drop_last=False,
-        num_workers=args.num_workers,
+        num_workers=video_folder_info.num_workers,
         collate_fn=collate_for_video,
     )
 

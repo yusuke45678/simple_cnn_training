@@ -59,7 +59,7 @@ def transform_video(args):
     return train_transform, val_transform
 
 
-def transform_image(args):
+def transform_image():
     """transform for images
 
     Args:
