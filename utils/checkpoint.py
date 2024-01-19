@@ -52,7 +52,7 @@ def save_to_checkpoint(
     return checkpoint_dict
 
 
-def save_model_to_comet(
+def save_to_comet(
     checkpoint_dict: dict,
     log_model_name: str,
     experiment: comet_ml.Experiment,

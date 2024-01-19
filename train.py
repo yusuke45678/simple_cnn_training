@@ -4,6 +4,7 @@ import comet_ml
 from dataclasses import dataclass
 
 from utils import accuracy, AvgMeterLossTopk
+from model import BaseModel
 
 
 @dataclass
@@ -13,11 +14,9 @@ class TrainInfo:
 
 
 def train_one_epoch(
-    model: torch.nn,
-    criterion: torch.nn,
+    model: BaseModel,
     optimizer: torch.optim,
     loader: torch.utils.data.DataLoader,
-    device: torch.device,
     global_step: int,
     current_epoch: int,
     experiment: comet_ml.Experiment,
@@ -26,11 +25,9 @@ def train_one_epoch(
     """training loop for one epoch
 
     Args:
-        model (torch.nn): CNN model
-        criterion (torch.nn): loss function
+        model (BaseModel): CNN model
         optimizer (torch.optim): optimizer
         loader (torch.utils.data.DataLoader): training dataset loader
-        device (torch.device): GPU device
         global_step (int): current step from the beginning
         current_epoch (int): current epoch
         experiment (comet_ml.Experiment): comet logger
@@ -43,6 +40,7 @@ def train_one_epoch(
     train_meter = AvgMeterLossTopk("train")
 
     model.train()
+    device = model.device
 
     with tqdm(enumerate(loader, start=1), total=len(loader), leave=False) as progress_bar_step:
         progress_bar_step.set_description("[train]")
@@ -61,8 +59,8 @@ def train_one_epoch(
             ):
                 optimizer.zero_grad()
 
-            outputs = model(data)
-            loss = criterion(outputs, labels)
+            outputs = model(data, labels=labels)
+            loss = outputs.loss
             loss.backward()
 
             top1, top5 = accuracy(outputs, labels, topk=(1, 5))

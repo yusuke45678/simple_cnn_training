@@ -17,6 +17,8 @@ def accuracy(output: torch.Tensor, target: torch.Tensor, topk: Tuple[int] = (1,)
     Returns:
         int or List[int]: top-k accuracy
     """
+    assert topk[0] == 1, "topk[0] should be top1"
+    assert len(topk) >= 1
 
     with torch.no_grad():
         maxk = max(topk)

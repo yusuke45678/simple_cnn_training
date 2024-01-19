@@ -2,15 +2,21 @@ import torch
 from tqdm import tqdm
 from typing import Tuple
 import comet_ml
+from dataclasses import dataclass
 
-from utils import AverageMeter, accuracy
+from utils import accuracy, AvgMeterLossTopk
+from model import BaseModel
 
 
-def val(
-    model: torch.nn,
-    criterion: torch.nn,
+@dataclass
+class ValidationOutput:
+    loss: float
+    top1: float
+
+
+def validation(
+    model: BaseModel,
     loader: torch.utils.data.DataLoader,
-    device: torch.device,
     global_step: int,
     current_epoch: int,
     experiment: comet_ml.Experiment,
@@ -18,24 +24,20 @@ def val(
     """validation for the current model
 
     Args:
-        model(torch.nn): CNN model
-        criterion(torch.nn loss): loss function
+        model(BaseModel): CNN model
         loader(torch.utils.data.DataLoader): validation dataset loader
-        device(torch.device): GPU device
         global_step(int): current step from the beginning
         current_epoch(int): current epoch
         experiment(comet_ml.Experiment): comet logger
 
     Returns:
-        float: val loss
-        float: val top1
+        ValidationOutput: val loss and val top1
     """
 
-    val_loss = AverageMeter()
-    val_top1 = AverageMeter()
-    val_top5 = AverageMeter()
+    val_meter = AvgMeterLossTopk("val")
 
     model.eval()
+    device = model.device
 
     with torch.no_grad(), \
             tqdm(loader, total=len(loader), leave=False) as progress_bar_step:
@@ -48,28 +50,23 @@ def val(
             labels = labels.to(device)
             batch_size = data.size(0)
 
-            outputs = model(data)
-            loss = criterion(outputs, labels)
+            outputs = model(data, labels=labels)
+            loss = outputs.loss
 
             top1, top5 = accuracy(outputs, labels, topk=(1, 5))
-            val_top1.update(top1, batch_size)
-            val_top5.update(top5, batch_size)
-            val_loss.update(loss, batch_size)
+            val_meter.update(loss, (top1, top5), batch_size)
 
             progress_bar_step.set_postfix_str(
-                f"loss={val_loss.value:6.4e}({val_loss.avg:6.4e}), "
-                f"top1={val_top1.value:6.2f}({val_top1.avg:6.2f}), "
-                f"top5={val_top5.value:6.2f}({val_top5.avg:6.2f})"
+                val_meter.get_set_postfix_str(global_step)
             )
 
     experiment.log_metrics(
-        {
-            "val_loss_epoch": val_loss.avg,
-            "val_top1_epoch": val_top1.avg,
-            "val_top5_epoch": val_top5.avg,
-        },
+        val_meter.get_epoch_metrics_dict(),
         step=global_step,
         epoch=current_epoch,
     )
 
-    return val_loss.avg, val_top1.avg
+    return ValidationOutput(
+        loss=val_meter.loss_meter.avg,
+        top1=val_meter.topk_meter[0].avg  # top1: topk[0] should be 1
+    )

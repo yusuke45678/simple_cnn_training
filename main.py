@@ -1,24 +1,21 @@
 import torch
-from torch import nn
 from tqdm import tqdm
 
 from args import get_args
 from dataset import dataloader_factory, DatasetInfo
 from model import model_factory, ModelInfo
 from setup import (
-    optimizer_factory,
-    OptimizerInfo,
-    scheduler_factory,
-    SchedulerInfo
+    optimizer_factory, OptimizerInfo,
+    scheduler_factory, SchedulerInfo
 )
 from logger import logger_factory, LoggerInfo
-from train import train_one_epoch, TrainInfo
-from val import val
 from utils import (
-    save_to_checkpoint,
-    save_model_to_comet,
+    save_to_checkpoint, save_to_comet,
     load_from_checkpoint,
 )
+
+from train import train_one_epoch, TrainInfo
+from val import validation
 
 
 def main():
@@ -37,18 +34,14 @@ def main():
             dataset_name=args.dataset_name
         ))
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     model = model_factory(ModelInfo(
         model_name=args.model,
         use_pretrained=args.use_pretrained,
         torch_home=args.torch_home,
         n_classes=n_classes,
-        device=device,
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         gpu_strategy=args.gpu_strategy
     ))
-
-    criterion = nn.CrossEntropyLoss()
 
     optimizer = optimizer_factory(OptimizerInfo(
         optimizer_name=args.optimizer,
@@ -56,7 +49,7 @@ def main():
         weight_decay=args.weight_decay,
         momentum=args.momentum,
         betas=args.betas,
-        model_params=model.parameter()
+        model_params=model.get_parameter()
     ))
     scheduler = scheduler_factory(SchedulerInfo(
         optimizer=optimizer,
@@ -77,7 +70,13 @@ def main():
             model,
             optimizer,
             scheduler,
-        ) = load_from_checkpoint(args.checkpoint_to_resume, model, optimizer, scheduler, device)
+        ) = load_from_checkpoint(
+            args.checkpoint_to_resume,
+            model.get_model(),
+            optimizer,
+            scheduler,
+            model.device
+        )
 
     with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as progress_bar_epoch:
         for current_epoch in progress_bar_epoch:
@@ -85,10 +84,8 @@ def main():
 
             global_step = train_one_epoch(
                 model,
-                criterion,
                 optimizer,
                 train_loader,
-                device,
                 global_step,
                 current_epoch,
                 experiment,
@@ -99,11 +96,9 @@ def main():
                 current_epoch % args.val_interval_epochs == 0
                 or current_epoch == args.num_epochs
             ):
-                _, val_top1 = val(
+                val_output = validation(
                     model,
-                    criterion,
                     val_loader,
-                    device,
                     global_step,
                     current_epoch,
                     experiment,
@@ -113,14 +108,14 @@ def main():
                     args.save_checkpoint_dir,
                     current_epoch,
                     global_step,
-                    val_top1,
+                    val_output.top1,
                     # model if not args.gpu_strategy == "dp" else model.module,
-                    model,
+                    model.get_model(),
                     optimizer,
                     scheduler,
                     experiment
                 )
-                save_model_to_comet(
+                save_to_comet(
                     checkpoint_dict,
                     args.model_name,
                     experiment

@@ -25,10 +25,8 @@ def video_folder(args, train_transform, val_transform):
 
     root_train = os.path.join(args.root, args.train_dir)
     root_val = os.path.join(args.root, args.val_dir)
-    assert os.path.exists(root_train)
-    assert os.path.exists(root_val)
-    assert os.path.isdir(root_train)
-    assert os.path.isdir(root_val)
+    assert os.path.exists(root_train) and os.path.isdir(root_train)
+    assert os.path.exists(root_val) and os.path.isdir(root_val)
 
     train_dataset = labeled_video_dataset(
         data_path=root_train,
