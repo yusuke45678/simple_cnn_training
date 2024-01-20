@@ -2,7 +2,8 @@
     "python.defaultInterpreterPath": "/usr/bin/python",
     "[python]": {
         // "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.defaultFormatter": "ms-python.autopep8",
+        // "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.defaultFormatter": "ms-python.mypy-type-checker",
         "editor.formatOnType": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "never"

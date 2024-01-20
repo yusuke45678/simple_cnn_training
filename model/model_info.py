@@ -8,5 +8,5 @@ class ModelInfo:
     use_pretrained: bool = True
     torch_home: str = './'
     n_classes: int = 10
-    device: torch.device = 'cuda'
+    device: torch.device = torch.device('cuda')
     gpu_strategy: str = 'None'

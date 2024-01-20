@@ -1,19 +1,6 @@
 import os
-from dataclasses import dataclass
 
-import torch
-
-from model import X3D, ResNet50, ResNet18, BaseModel
-
-
-@dataclass
-class ModelInfo:
-    model_name: str
-    use_pretrained: bool
-    torch_home: str
-    n_classes: int
-    device: torch.device
-    gpu_strategy: str
+from model import X3D, ResNet50, ResNet18, BaseModel, ModelInfo
 
 
 def model_factory(
