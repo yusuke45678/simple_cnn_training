@@ -31,7 +31,7 @@ class ImageZeroDummyDataset(Dataset):
         return self.dataset_size
 
     def __getitem__(self, index):
-        image = np.zeros((3, self.image_size, self.image_size))
+        image = np.zeros((self.image_size, self.image_size, 3))
         label = index % self.n_classes
         if self.transform:
             image = self.transform(image)

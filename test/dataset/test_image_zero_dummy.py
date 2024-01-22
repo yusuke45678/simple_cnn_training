@@ -8,7 +8,7 @@ from dataset import (
 
 def test_image_zero_dummy():
     batch_size = 8
-    num_workers = 8
+    num_workers = 1
 
     train_transform, _ = \
         transform_image(TransformImageInfo())

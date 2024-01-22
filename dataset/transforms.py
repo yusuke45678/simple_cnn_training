@@ -99,9 +99,9 @@ def transform_image(
 
     train_transform = image_transform.Compose(
         [
+            image_transform.ToTensor(),
             image_transform.RandomResizedCrop(trans_image_info.crop_size),
             image_transform.RandomHorizontalFlip(),
-            image_transform.ToTensor(),
             image_transform.Normalize(
                 [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
             ),
@@ -110,9 +110,9 @@ def transform_image(
 
     val_transform = image_transform.Compose(
         [
+            image_transform.ToTensor(),
             image_transform.Resize(trans_image_info.resize_size),
             image_transform.CenterCrop(trans_image_info.crop_size),
-            image_transform.ToTensor(),
             image_transform.Normalize(
                 [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
             ),
