@@ -7,6 +7,9 @@ from dataset import (
     image_folder,
     ImageFolderInfo,
     video_folder,
+    VideoFolderInfo,
+    image_zero_dummy,
+    ImageZeroDummyInfo,
     transform_image,
     TransformImageInfo,
     transform_video,
@@ -70,14 +73,29 @@ def dataloader_factory(
                 frames_per_clip=args.frames_per_clip
             ))
         train_loader, val_loader, n_classes = \
-            video_folder(
-                dataloader_info.command_line_args,
-                train_transform,
-                val_transform
-            )
+            video_folder(VideoFolderInfo(
+                root=args.root,
+                train_dir=args.train_dir,
+                val_dir=args.val_dir,
+                batch_size=args.batch_size,
+                num_workers=args.num_workers,
+                train_transform=train_transform,
+                val_transform=val_transform,
+                clip_duration=args.clip_duration,
+                clips_per_video=args.clips_per_video
+            ))
+
+    elif dataloader_info.dataset_name == "ImageZeroDummy":
+        train_transform, _ = \
+            transform_image(TransformImageInfo())
+        train_loader, val_loader, n_classes = \
+            image_zero_dummy(ImageZeroDummyInfo(
+                batch_size=args.batch_size,
+                num_workers=args.num_workers,
+                transform=train_transform,
+            ))
 
     else:
         raise ValueError("invalid dataset_name")
-
 
     return train_loader, val_loader, n_classes

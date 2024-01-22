@@ -12,11 +12,11 @@ class CustomFormatter(
     """
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     """generate argparse object
 
     Returns:
-        args: object of command line arguments
+        args (argparse.Namespace): object of command line arguments
     """
     parser = argparse.ArgumentParser(
         description="simple CNN model",
@@ -36,7 +36,7 @@ def get_args():
         "--dataset_name",
         type=str,
         default="CIFAR10",
-        choices=["CIFAR10", "ImageFolder", "VideoFolder"],
+        choices=["CIFAR10", "ImageFolder", "VideoFolder", "ImageZeroDummy"],
         help="name of dataset.",
     )
     parser.add_argument(

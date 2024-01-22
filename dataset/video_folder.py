@@ -19,7 +19,6 @@ from pytorchvideo.data.clip_sampling import (
     ConstantClipsPerVideoSampler,
 )
 
-from video_folder_info import VideoFolderInfo
 
 @dataclass
 class VideoFolderInfo:
@@ -34,7 +33,7 @@ class VideoFolderInfo:
     clips_per_video: int
 
 
-def collate_for_video(batch: Any) -> Tuple[Any]:
+def collate_for_video(batch: Any) -> Tuple[Any, Any]:
     batch_dict = torch.utils.data.default_collate(batch)
     return batch_dict['video'], batch_dict['label']
 

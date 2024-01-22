@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Tuple
 
 import torchvision.transforms as image_transform
 import pytorchvideo.transforms as video_transform
@@ -21,7 +22,7 @@ class TransformImageInfo:
 
 def transform_video(
         trans_video_info: TransformVideoInfo
-    ):
+) -> Tuple[image_transform.Compose, image_transform.Compose]:
     """transform for video clips
 
     Args:
@@ -48,7 +49,7 @@ def transform_video(
                             min_size=trans_video_info.min_shorter_side_size,
                             max_size=trans_video_info.max_shorter_side_size
                         ),
-                        image_transform.RandomCrop(train_transform.crop_size),
+                        image_transform.RandomCrop(trans_video_info.crop_size),
                         image_transform.RandomHorizontalFlip(),
                     ]
                 ),
@@ -86,7 +87,7 @@ def transform_video(
 
 def transform_image(
         trans_image_info: TransformImageInfo
-):
+) -> Tuple[image_transform.Compose, image_transform.Compose]:
     """transform for images
 
     Args:

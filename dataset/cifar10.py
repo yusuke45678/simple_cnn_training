@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
-from torchvision.datasets import CIFAR10
 from torch.utils.data import DataLoader
 from torchvision import transforms
+from torchvision.datasets import CIFAR10
+
 
 @dataclass
 class Cifar10Info():
@@ -11,6 +12,7 @@ class Cifar10Info():
     num_workers: int
     train_transform: transforms
     val_transform: transforms
+
 
 def cifar10(
         cifar10_info: Cifar10Info
