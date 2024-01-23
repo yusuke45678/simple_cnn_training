@@ -1,8 +1,13 @@
 import torch
 from typing import Tuple, Literal
 
+from utils import (
+    GetPostfixStrMixin,
+    GetMetricsDictMixin
+)
 
-class AverageMeter(object):
+
+class AverageMeter:
     """
     Computes and stores the average and current value
     Imported from https://github.com/pytorch/examples/blob/master/imagenet/main.py#L247-L262
@@ -36,7 +41,7 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-class AvgMeterLossTopk:
+class AvgMeterLossTopk(GetPostfixStrMixin, GetMetricsDictMixin):
     """average meter set for loss and top1/top5
 
     """
@@ -55,70 +60,29 @@ class AvgMeterLossTopk:
         self.mode_name = mode_name
         self.topk = topk
         self.loss_meter = AverageMeter()
-        self.topk_meter = []
+        self.topk_meters = []
         for _ in topk:
-            self.topk_meter.append(AverageMeter())
+            self.topk_meters.append(AverageMeter())
 
     def update(
         self,
         loss: float | torch.Tensor,
-        topk_value: Tuple[float, ...] | Tuple[torch.Tensor, ...],
+        topk_values: Tuple[float, ...] | Tuple[torch.Tensor, ...],
         batch_size: int = 1
     ):
         """update average meters with statistics of a single batch
 
         Args:
             loss (float | torch.Tensor): a batch loss
-            topk_value (Tuple[float | torch.Tensor]): a batch topk values
+            topk_values (Tuple[float | torch.Tensor]): a batch topk values
             batch_size (int, optional): batch size for the loss. Defaults to 1.
         """
         self.loss_meter.update(loss, batch_size)
-        for meter, value in zip(self.topk_meter, topk_value):
+        for meter, value in zip(self.topk_meters, topk_values):
             meter.update(value, batch_size)
 
-    def get_set_postfix_str(
-            self,
-            global_step: int
-    ) -> str:
-        """generate string for tqdm pbar.set_postfix_str
+    def get_meters(self):
+        return self.loss_meter, self.topk_meters, self.topk
 
-        Args:
-            global_step (int): global_step
-
-        Returns:
-            str: set_postfix_str string
-        """
-        postfix_str = f"step={global_step:d}, "
-        postfix_str += f"loss={self.loss_meter.value:6.4e}"
-        postfix_str += f"({self.loss_meter.avg:6.4e}), "
-        for meter, k in zip(self.topk_meter, self.topk):
-            postfix_str += f"top{k}={meter.value:6.2f}({meter.avg:6.2f}), "
-        return postfix_str
-
-    def get_step_metrics_dict(self) -> dict:
-        """generate dict of step value statistics
-        for comet_ml.experiment.log_metrics
-
-        Returns:
-            dict: dict to be logged by log_metrics
-        """
-        metrics_dict = {
-            f"{self.mode_name}_loss_step": self.loss_meter.value,
-        }
-        for meter, k in zip(self.topk_meter, self.topk):
-            metrics_dict[f"{self.mode_name}_top{k}_step"] = meter.value
-        return metrics_dict
-
-    def get_epoch_metrics_dict(self) -> dict:
-        """generate dict of epoch avgerage statistics
-        for comet_ml.experiment.log_metrics
-
-        Returns:
-            dict: dict to be logged by log_metrics
-        """
-        metrics_dict = {
-            f"{self.mode_name}_loss_epoch": self.loss_meter.avg,
-        }
-        for meter, k in zip(self.topk_meter, self.topk):
-            metrics_dict[f"{self.mode_name}_top{k}_epoch"] = meter.avg
-        return metrics_dict
+    def get_mode_name(self):
+        return self.mode_name

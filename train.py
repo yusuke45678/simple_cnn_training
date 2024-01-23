@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from tqdm import tqdm
 
 import comet_ml
-import torch
-from torch.optim import lr_scheduler
+from torch.optim.lr_scheduler import LRScheduler
+from torch.optim import Optimizer
+from torch.utils.data import DataLoader
 
 from utils import accuracy, AvgMeterLossTopk
 from model import BaseModel
@@ -24,9 +25,9 @@ class TrainOutput:
 
 def train(
     model: BaseModel,
-    optimizer: torch.optim,
-    scheduler: lr_scheduler,
-    train_loader: torch.utils.data.DataLoader,
+    optimizer: Optimizer,
+    scheduler: LRScheduler,
+    train_loader: DataLoader,
     current_train_step: int,
     current_epoch: int,
     logger: comet_ml.Experiment,
@@ -36,9 +37,9 @@ def train(
 
     Args:
         model (BaseModel): CNN model
-        optimizer (torch.optim): optimizer
-        scheduler (torch.optim.lr_scheduler): learning rate (lr) scheduler
-        loader (torch.utils.data.DataLoader): training dataset loader
+        optimizer (Optimizer): optimizer
+        scheduler (LRScheduler): learning rate (lr) scheduler
+        loader (DataLoader): training dataset loader
         current_train_step (int): current step for training
         current_epoch (int): current epoch
         logger (comet_ml.Experiment): comet logger
@@ -48,7 +49,7 @@ def train(
         TrainOutput: train loss, train top1, steps for training
     """
 
-    train_meter = AvgMeterLossTopk("train")
+    train_meters = AvgMeterLossTopk("train")
 
     model.train()
 
@@ -78,14 +79,14 @@ def train(
             loss.backward()
 
             top1, top5 = accuracy(outputs, labels, topk=(1, 5))
-            train_meter.update(loss, (top1, top5), batch_size)
+            train_meters.update(loss, (top1, top5), batch_size)
 
             if current_train_step % train_config.log_interval_steps == 0:
                 progress_bar_step.set_postfix_str(
-                    train_meter.get_set_postfix_str(current_train_step)
+                    train_meters.get_postfix_str(current_train_step)
                 )
                 logger.log_metrics(
-                    train_meter.get_step_metrics_dict(),
+                    train_meters.get_step_metrics_dict(),
                     step=current_train_step,
                     epoch=current_epoch,
                 )
@@ -97,13 +98,13 @@ def train(
     scheduler.step()
 
     logger.log_metrics(
-        train_meter.get_epoch_metrics_dict(),
+        train_meters.get_epoch_metrics_dict(),
         step=current_train_step,
         epoch=current_epoch,
     )
 
     return TrainOutput(
-        loss=train_meter.loss_meter.avg,
-        top1=train_meter.topk_meter[0].avg,  # top1: topk[0] should be 1
+        loss=train_meters.loss_meter.avg,
+        top1=train_meters.topk_meters[0].avg,  # top1: topk[0] should be 1
         train_step=current_train_step
     )

@@ -1,8 +1,9 @@
-import torch
-from tqdm import tqdm
-from typing import Tuple
-import comet_ml
 from dataclasses import dataclass
+from tqdm import tqdm
+
+import comet_ml
+import torch
+from torch.utils.data import DataLoader
 
 from utils import accuracy, AvgMeterLossTopk
 from model import BaseModel
@@ -17,16 +18,16 @@ class ValidationOutput:
 
 def validation(
     model: BaseModel,
-    val_loader: torch.utils.data.DataLoader,
+    val_loader: DataLoader,
     current_val_step: int,
     current_epoch: int,
     logger: comet_ml.Experiment,
-) -> Tuple[float, float]:
+) -> ValidationOutput:
     """validation for the current model
 
     Args:
         model(BaseModel): CNN model
-        loader(torch.utils.data.DataLoader): validation dataset loader
+        loader(DataLoader): validation dataset loader
         current_val_step(int): current step for validation
         current_epoch(int): current epoch
         logger(comet_ml.Experiment): comet logger
@@ -60,7 +61,7 @@ def validation(
             val_meter.update(loss, (top1, top5), batch_size)
 
             progress_bar_step.set_postfix_str(
-                val_meter.get_set_postfix_str(current_val_step)
+                val_meter.get_postfix_str(current_val_step)
             )
             logger.log_metrics(
                 val_meter.get_step_metrics_dict(),
@@ -77,6 +78,6 @@ def validation(
 
     return ValidationOutput(
         loss=val_meter.loss_meter.avg,
-        top1=val_meter.topk_meter[0].avg,  # top1: topk[0] should be 1
+        top1=val_meter.topk_meters[0].avg,  # top1: topk[0] should be 1
         val_step=current_val_step
     )
