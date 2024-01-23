@@ -15,5 +15,6 @@ class X3D(ClassificationBaseModel):
             head_activation=None,  # removing nn.Softmax
         )
 
+        # removing pretrained head
         in_features = self.model.blocks[5].proj.in_features
         self.model.blocks[5].proj = nn.Linear(in_features, model_config.n_classes)

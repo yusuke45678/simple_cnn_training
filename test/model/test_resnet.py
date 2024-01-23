@@ -62,13 +62,15 @@ def test_resnet_methods(
         device=device,
     ))
 
-    isinstance(model.get_model(), nn.Module)
-    isinstance(model.get_parameters(), nn.Parameter)
+    assert isinstance(model.get_model(), nn.Module)
+    assert isinstance(model.get_parameters(), nn.Parameter)
 
     model.train()
     assert model.model.training
     model.eval()
     assert not model.model.training
+    model.train()
+    assert model.model.training
 
     model.to(torch.device('cpu'))
     assert model.get_device() == torch.device('cpu')
