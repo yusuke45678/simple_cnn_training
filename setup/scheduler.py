@@ -4,14 +4,14 @@ from dataclasses import dataclass
 
 
 @dataclass
-class SchedulerInfo:
+class SchedulerConfig:
     optimizer: torch.optim
     use_scheduler: bool
 
 
-def scheduler_factory(
-        scheduler_info: SchedulerInfo
-):
+def configure_scheduler(
+        scheduler_info: SchedulerConfig
+) -> lr_scheduler:
     """scheduler factory for learning rate
 
     Args:

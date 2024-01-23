@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-import torch
-from torch import nn
 
 from typing import Optional
 try:
@@ -8,8 +6,10 @@ try:
 except ImportError:
     from typing_extensions import Self
 
+import torch
+from torch import nn
 
-from model import ModelInfo
+from model import ModelConfig
 
 
 @dataclass
@@ -20,23 +20,34 @@ class ModelOutput:
 
 class BaseModel():
 
-    def __init__(self, model_info: ModelInfo):
-        self.model_info = model_info
-        self.device = model_info.device
+    def __init__(self, model_config: ModelConfig):
+        self.model_config = model_config
         self.model = nn.Module()  # dummy?
 
-    def train(self) -> None:
+    def train(self) -> Self:
         self.model.train()
+        return self
 
-    def eval(self) -> None:
+    def eval(self) -> Self:
         self.model.eval()
+        return self
 
     def to(self, device: torch.device) -> Self:
         self.model.to(device)
+        self.model_config.deveice = device
         return self
 
-    def get_parameter(self) -> nn.Parameter:
-        return self.model.parameter()
+    def get_device(self) -> torch.device:
+        """get acutual device
+
+        Returns:
+            torch.device: device on which the model is loaded
+        """
+        # https://github.com/pytorch/pytorch/issues/7460
+        return next(self.model.parameters()).device
+
+    def get_parameters(self) -> nn.Parameter:
+        return self.model.parameters()
 
     def set_data_parallel(self) -> Self:
         self.model = nn.DataParallel(self.model)
@@ -54,7 +65,7 @@ class BaseModel():
 
 class ClassificationBaseModel(BaseModel):
 
-    def __init__(self, model_info: ModelInfo):
+    def __init__(self, model_info: ModelConfig):
         super().__init__(model_info)
 
         self.criterion = nn.CrossEntropyLoss()

@@ -4,14 +4,14 @@ from dataclasses import dataclass
 
 
 @dataclass
-class LoggerInfo:
+class LoggerConfig:
     logged_params: dict
     model_name: str
     disable_logging: bool
 
 
-def logger_factory(
-        logger_info: LoggerInfo
+def configure_logger(
+        logger_info: LoggerConfig
 ) -> Experiment:
     """comet logger factory
 

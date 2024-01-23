@@ -7,7 +7,8 @@ from comet_ml.integration.pytorch import log_model, load_model
 def save_to_checkpoint(
     save_checkpoint_dir: str,
     current_epoch: int,
-    global_step: int,
+    current_train_step: int,
+    current_val_step: int,
     acc: float,
     model: torch.nn,
     optimizer: torch.optim,
@@ -19,7 +20,8 @@ def save_to_checkpoint(
     Args:
         save_checkpoint_dir: path to dir where checkpoint is saved
         current_epoch (int): epoch
-        global_step (int): global step counter
+        current_train_step (int): global step counter for training
+        current_val_step (int): global step counter for validation
         acc (float): accuracy (0 to 100)
         model (torch.nn): CNN model
         optimizer (torch.optim): optimizer
@@ -36,13 +38,13 @@ def save_to_checkpoint(
 
     checkpoint_file = os.path.join(
         save_checkpoint_dir,
-        f"epoch{current_epoch}_step{global_step}_acc={acc:.2f}.pt",
+        f"epoch{current_epoch}_step{current_train_step}_acc={acc:.2f}.pt",
     )
 
     checkpoint_dict = {
         "current_epoch": current_epoch,
-        "global_step": global_step,
-        "accuracy": acc,
+        "current_train_step": current_train_step,
+        "current_val_step": current_val_step,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "scheduler_state_dict": scheduler.state_dict() if scheduler else None,
@@ -94,7 +96,8 @@ def load_from_checkpoint(
         checkpoint = torch.load(checkpoint_to_resume, map_location=device)
 
     current_epoch = checkpoint["current_epoch"]
-    global_step = checkpoint["global_step"]
+    current_train_step = checkpoint["current_train_step"]
+    current_val_step = checkpoint["current_val_step"]
     model.load_state_dict(checkpoint["model_state_dict"])
     optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
@@ -102,4 +105,4 @@ def load_from_checkpoint(
     if scheduler:
         scheduler.load_state_dict(scheduler)
 
-    return current_epoch, global_step, model, optimizer, scheduler
+    return current_epoch, current_train_step, current_val_step, model, optimizer, scheduler

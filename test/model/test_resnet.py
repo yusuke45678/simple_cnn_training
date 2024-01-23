@@ -1,22 +1,28 @@
-import random
-import torch
 import pytest
 
-from model import model_factory, ModelInfo, ModelOutput, BaseModel
+import torch
+from torch import nn
+
+from model import configure_model, ModelConfig, ModelOutput, BaseModel
 
 
 @pytest.mark.parametrize('model_name', ['resnet18', 'resnet50'])
 @pytest.mark.parametrize('use_pretrained', [True, False])
-def test_resnet(
+@pytest.mark.parametrize('n_classes', [2, 10])
+@pytest.mark.parametrize('batch_size', [1, 2])
+@pytest.mark.parametrize('crop_size', [224])
+def test_resnet_output(
     model_name,
-    use_pretrained
+    use_pretrained,
+    n_classes,
+    batch_size,
+    crop_size,
 ):
     """test outputs of resnet models"""
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    n_classes = random.choice([2, 10, 100, 1000])
 
-    model = model_factory(ModelInfo(
+    model = configure_model(ModelConfig(
         model_name=model_name,
         n_classes=n_classes,
         use_pretrained=use_pretrained,
@@ -24,10 +30,50 @@ def test_resnet(
     ))
     assert isinstance(model, BaseModel)
 
-    batch_size = random.randint(1, 16)
-    data = torch.rand(batch_size, 3, 224, 224, device=device)  # BCHW
+    data = torch.rand(batch_size, 3, crop_size, crop_size, device=device)  # BCHW
     labels = torch.randint(0, n_classes - 1, (batch_size, ), device=device)
+
     output = model(data, labels)
     assert isinstance(output, ModelOutput)
+
+    assert isinstance(output.logits, torch.Tensor)
     assert output.logits.shape == (batch_size, n_classes)
+
+    assert isinstance(output.loss, torch.Tensor)
     assert output.loss.ndim == 0
+
+
+@pytest.mark.parametrize('model_name', ['resnet18', 'resnet50'])
+@pytest.mark.parametrize('use_pretrained', [True])
+@pytest.mark.parametrize('n_classes', [10])
+def test_resnet_methods(
+    model_name,
+    use_pretrained,
+    n_classes,
+):
+    """test outputs of resnet models"""
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    model = configure_model(ModelConfig(
+        model_name=model_name,
+        n_classes=n_classes,
+        use_pretrained=use_pretrained,
+        device=device,
+    ))
+
+    isinstance(model.get_model(), nn.Module)
+    isinstance(model.get_parameters(), nn.Parameter)
+
+    model.train()
+    assert model.model.training
+    model.eval()
+    assert not model.model.training
+
+    model.to(torch.device('cpu'))
+    assert model.get_device() == torch.device('cpu')
+
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    if device == torch.device('cuda:0'):
+        model.to(device)
+        assert model.get_device() == device

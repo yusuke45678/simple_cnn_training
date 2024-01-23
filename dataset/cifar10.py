@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from torch.utils.data import DataLoader
-from torchvision import transforms
+from torchvision.transforms import v2 as transforms
 from torchvision.datasets import CIFAR10
 
 

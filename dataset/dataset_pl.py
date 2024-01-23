@@ -1,5 +1,5 @@
 import lightning.pytorch as pl
-from dataset import dataloader_factory, DatasetInfo
+from dataset import configure_dataloader, DatasetInfo
 
 
 class MyDataModule(pl.LightningDataModule):
@@ -8,7 +8,7 @@ class MyDataModule(pl.LightningDataModule):
         self.args = args
 
         self.train_loader, self.val_loader, self.n_classes = \
-            dataloader_factory(DatasetInfo(
+            configure_dataloader(DatasetInfo(
                 command_line_args=args,
                 dataset_name=args.dataset_name
             ))

@@ -12,12 +12,13 @@ from model import BaseModel
 class ValidationOutput:
     loss: float
     top1: float
+    val_step: int
 
 
 def validation(
     model: BaseModel,
-    loader: torch.utils.data.DataLoader,
-    global_step: int,
+    val_loader: torch.utils.data.DataLoader,
+    current_val_step: int,
     current_epoch: int,
     logger: comet_ml.Experiment,
 ) -> Tuple[float, float]:
@@ -26,28 +27,30 @@ def validation(
     Args:
         model(BaseModel): CNN model
         loader(torch.utils.data.DataLoader): validation dataset loader
-        global_step(int): current step from the beginning
+        current_val_step(int): current step for validation
         current_epoch(int): current epoch
         logger(comet_ml.Experiment): comet logger
 
     Returns:
-        ValidationOutput: val loss and val top1
+        ValidationOutput: val loss, val top1, steps for validation
     """
 
     val_meter = AvgMeterLossTopk("val")
 
     model.eval()
-    device = model.device
 
-    with torch.no_grad(), \
-            tqdm(loader, total=len(loader), leave=False) as progress_bar_step:
+    with torch.no_grad(), tqdm(
+        val_loader,
+        total=len(val_loader),
+        leave=False
+    ) as progress_bar_step:
         progress_bar_step.set_description("[val]")
 
         for batch in progress_bar_step:
             data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
 
-            data = data.to(device)
-            labels = labels.to(device)
+            data = data.to(model.get_device())
+            labels = labels.to(model.get_device())
             batch_size = data.size(0)
 
             outputs = model(data, labels=labels)
@@ -57,16 +60,23 @@ def validation(
             val_meter.update(loss, (top1, top5), batch_size)
 
             progress_bar_step.set_postfix_str(
-                val_meter.get_set_postfix_str(global_step)
+                val_meter.get_set_postfix_str(current_val_step)
             )
+            logger.log_metrics(
+                val_meter.get_step_metrics_dict(),
+                step=current_val_step,
+                epoch=current_epoch,
+            )
+            current_val_step += 1
 
     logger.log_metrics(
         val_meter.get_epoch_metrics_dict(),
-        step=global_step,
+        step=current_val_step,
         epoch=current_epoch,
     )
 
     return ValidationOutput(
         loss=val_meter.loss_meter.avg,
-        top1=val_meter.topk_meter[0].avg  # top1: topk[0] should be 1
+        top1=val_meter.topk_meter[0].avg,  # top1: topk[0] should be 1
+        val_step=current_val_step
     )

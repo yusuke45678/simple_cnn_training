@@ -19,7 +19,7 @@ def get_args() -> argparse.Namespace:
         args (argparse.Namespace): object of command line arguments
     """
     parser = argparse.ArgumentParser(
-        description="simple CNN model",
+        description="simple image/video classification",
         formatter_class=CustomFormatter
     )
 
@@ -36,7 +36,7 @@ def get_args() -> argparse.Namespace:
         "--dataset_name",
         type=str,
         default="CIFAR10",
-        choices=["CIFAR10", "ImageFolder", "VideoFolder", "ImageZeroDummy"],
+        choices=["CIFAR10", "ImageFolder", "VideoFolder", "ZeroImages"],
         help="name of dataset.",
     )
     parser.add_argument(
@@ -64,11 +64,11 @@ def get_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "-m",
-        "--model",
+        "--model_name",
         type=str,
         default="resnet18",
         choices=["resnet18", "resnet50", "x3d"],
-        help="CNN model.",
+        help="name of the model",
     )
     parser.add_argument(
         "--use_pretrained",

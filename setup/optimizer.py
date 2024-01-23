@@ -5,7 +5,7 @@ import torch
 
 
 @dataclass
-class OptimizerInfo:
+class OptimizerConfig:
     optimizer_name: str
     lr: float
     weight_decay: float
@@ -14,8 +14,8 @@ class OptimizerInfo:
     model_params: Iterator[torch.nn.parameter.Parameter]
 
 
-def optimizer_factory(
-        optimizer_info: OptimizerInfo
+def configure_optimizer(
+        optimizer_info: OptimizerConfig
 ):
     """optimizer factory
 

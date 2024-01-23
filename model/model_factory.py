@@ -1,10 +1,10 @@
 import os
 
-from model import X3D, ResNet50, ResNet18, BaseModel, ModelInfo
+from model import X3D, ResNet50, ResNet18, BaseModel, ModelConfig
 
 
-def model_factory(
-        model_info: ModelInfo
+def configure_model(
+        model_info: ModelConfig
 ) -> BaseModel:
     """model factory
 
@@ -15,7 +15,7 @@ def model_factory(
         ValueError: invalide model name given by command line
 
     Returns:
-        BaseModel: CNN model
+        BaseModel: model
     """
 
     if model_info.use_pretrained:

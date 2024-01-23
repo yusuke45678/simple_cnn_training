@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import argparse
 
+from torch.utils.data import DataLoader
+
 from dataset import (
     cifar10,
     Cifar10Info,
@@ -8,8 +10,8 @@ from dataset import (
     ImageFolderInfo,
     video_folder,
     VideoFolderInfo,
-    image_zero_dummy,
-    ImageZeroDummyInfo,
+    zero_images,
+    ZeroImageInfo,
     transform_image,
     TransformImageInfo,
     transform_video,
@@ -18,13 +20,20 @@ from dataset import (
 
 
 @dataclass
-class DataloaderInfo:
+class DataloaderConfig:
     command_line_args: argparse.Namespace
     dataset_name: str
 
 
-def dataloader_factory(
-    dataloader_info: DataloaderInfo
+@dataclass
+class DataloadersInfo:
+    train_loader: DataLoader
+    val_loader: DataLoader
+    n_classes: int
+
+
+def configure_dataloader(
+    dataloader_info: DataloaderConfig
 ):
     """dataloader factory
 
@@ -85,11 +94,11 @@ def dataloader_factory(
                 clips_per_video=args.clips_per_video
             ))
 
-    elif dataloader_info.dataset_name == "ImageZeroDummy":
+    elif dataloader_info.dataset_name == "ZeroImages":
         train_transform, _ = \
             transform_image(TransformImageInfo())
         train_loader, val_loader, n_classes = \
-            image_zero_dummy(ImageZeroDummyInfo(
+            zero_images(ZeroImageInfo(
                 batch_size=args.batch_size,
                 num_workers=args.num_workers,
                 transform=train_transform,
@@ -98,4 +107,8 @@ def dataloader_factory(
     else:
         raise ValueError("invalid dataset_name")
 
-    return train_loader, val_loader, n_classes
+    return DataloadersInfo(
+        train_loader=train_loader,
+        val_loader=val_loader,
+        n_classes=n_classes
+    )

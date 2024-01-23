@@ -6,8 +6,8 @@ import lightning.pytorch as pl
 from lightning.pytorch.callbacks import ModelCheckpoint
 
 from utils import accuracy
-from model import model_factory
-from setup import optimizer_factory, scheduler_factory
+from model import configure_model
+from setup import configure_optimizer, configure_scheduler
 
 
 class MyLightningModel(pl.LightningModule):
@@ -25,7 +25,7 @@ class MyLightningModel(pl.LightningModule):
         self.args = args
         self.exp_name = exp_names
 
-        self.model = model_factory(args, n_classes)
+        self.model = configure_model(args, n_classes)
 
         self.criterion = nn.CrossEntropyLoss()
 
@@ -38,8 +38,8 @@ class MyLightningModel(pl.LightningModule):
             optim or dict: optimizer, or dict
         """
 
-        optimizer = optimizer_factory(self.args, self.model)
-        scheduler = scheduler_factory(self.args, optimizer)
+        optimizer = configure_optimizer(self.args, self.model)
+        scheduler = configure_scheduler(self.args, optimizer)
 
         if scheduler:
             return {"optimizer": optimizer, "lr_scheduler": scheduler}

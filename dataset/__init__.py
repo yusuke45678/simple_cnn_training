@@ -1,12 +1,12 @@
 from .cifar10 import cifar10, Cifar10Info
 from .image_folder import image_folder, ImageFolderInfo
 from .video_folder import video_folder, VideoFolderInfo
-from .image_zero_dummy import image_zero_dummy, ImageZeroDummyInfo
+from .zero_images import zero_images, ZeroImageInfo
 from .transforms import (
     transform_image, TransformImageInfo,
     transform_video, TransformVideoInfo,
 )
-from .dataloader_factory import dataloader_factory, DataloaderInfo
+from .dataloader_factory import configure_dataloader, DataloaderConfig
 # from .dataset_pl import MyDataModule
 
 __all__ = [
@@ -16,13 +16,13 @@ __all__ = [
     'ImageFolderInfo',
     'video_folder',
     'VideoFolderInfo',
-    'image_zero_dummy',
-    'ImageZeroDummyInfo',
+    'zero_images',
+    'ZeroImageInfo',
     'transform_image',
     'TransformImageInfo',
     'transform_video',
     'TransformVideoInfo',
-    'dataloader_factory',
-    'DataloaderInfo',
+    'configure_dataloader',
+    'DataloaderConfig',
     # 'MyDataModule'
 ]

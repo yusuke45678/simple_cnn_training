@@ -8,32 +8,32 @@ from torchvision.models import (
     ResNet18_Weights,
 )
 
-from model import ModelInfo, ClassificationBaseModel
+from model import ModelConfig, ClassificationBaseModel
 
 
 class ResNet18(ClassificationBaseModel):
 
-    def __init__(self, model_info: ModelInfo):
-        super().__init__(model_info)
+    def __init__(self, model_config: ModelConfig):
+        super().__init__(model_config)
 
-        weights = ResNet18_Weights.IMAGENET1K_V1 if self.model_info.use_pretrained else None
+        weights = ResNet18_Weights.IMAGENET1K_V1 if model_config.use_pretrained else None
         self.model = resnet18(weights=weights)
 
         self.model.fc = nn.Linear(
             self.model.fc.in_features,
-            self.model_info.n_classes
+            model_config.n_classes
         )
 
 
 class ResNet50(ClassificationBaseModel):
 
-    def __init__(self, model_info: ModelInfo):
-        super().__init__(model_info)
+    def __init__(self, model_config: ModelConfig):
+        super().__init__(model_config)
 
-        weights = ResNet50_Weights.IMAGENET1K_V1 if self.model_info.use_pretrained else None
+        weights = ResNet50_Weights.IMAGENET1K_V1 if model_config.use_pretrained else None
         self.model = resnet50(weights=weights)
 
         self.model.fc = nn.Linear(
             self.model.fc.in_features,
-            self.model_info.n_classes
+            model_config.n_classes
         )

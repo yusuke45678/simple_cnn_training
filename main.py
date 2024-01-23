@@ -2,19 +2,19 @@ import torch
 from tqdm import tqdm
 
 from args import get_args
-from dataset import dataloader_factory, DataloaderInfo
-from model import model_factory, ModelInfo
+from dataset import configure_dataloader, DataloaderConfig
+from model import configure_model, ModelConfig
 from setup import (
-    optimizer_factory, OptimizerInfo,
-    scheduler_factory, SchedulerInfo
+    configure_optimizer, OptimizerConfig,
+    configure_scheduler, SchedulerConfig
 )
-from logger import logger_factory, LoggerInfo
+from logger import configure_logger, LoggerConfig
 from utils import (
     save_to_checkpoint, save_to_comet,
     load_from_checkpoint,
 )
 
-from train import train_one_epoch, TrainInfo
+from train import train, TrainConfig
 from val import validation
 
 
@@ -22,28 +22,27 @@ def main():
 
     args = get_args()
 
-    logger = logger_factory(LoggerInfo(
+    logger = configure_logger(LoggerConfig(
         logged_params=vars(args),
-        model_name=args.model,
+        model_name=args.model_name,
         disable_logging=args.disable_comet
     ))
 
-    train_loader, val_loader, n_classes = \
-        dataloader_factory(DataloaderInfo(
-            command_line_args=args,
-            dataset_name=args.dataset_name
-        ))
+    dataloaders = configure_dataloader(DataloaderConfig(
+        command_line_args=args,
+        dataset_name=args.dataset_name
+    ))
 
-    model = model_factory(ModelInfo(
-        model_name=args.model,
+    model = configure_model(ModelConfig(
+        model_name=args.model_name,
         use_pretrained=args.use_pretrained,
         torch_home=args.torch_home,
-        n_classes=n_classes,
+        n_classes=dataloaders.n_classes,
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         gpu_strategy=args.gpu_strategy
     ))
 
-    optimizer = optimizer_factory(OptimizerInfo(
+    optimizer = configure_optimizer(OptimizerConfig(
         optimizer_name=args.optimizer,
         lr=args.lr,
         weight_decay=args.weight_decay,
@@ -51,14 +50,12 @@ def main():
         betas=args.betas,
         model_params=model.get_parameter()
     ))
-    scheduler = scheduler_factory(SchedulerInfo(
+    scheduler = configure_scheduler(SchedulerConfig(
         optimizer=optimizer,
         use_scheduler=args.use_scheduler
     ))
 
-    global_step = 1
-    start_epoch = 0
-    train_info = TrainInfo(
+    train_config = TrainConfig(
         grad_accum_interval=args.grad_accum,
         log_interval_steps=args.log_interval_steps
     )
@@ -66,7 +63,8 @@ def main():
     if args.checkpoint_to_resume:
         (
             start_epoch,
-            global_step,
+            current_train_step,
+            current_val_step,
             loaded_model,
             optimizer,
             scheduler,
@@ -78,20 +76,26 @@ def main():
             model.device
         )
         model.set_model(loaded_model)
+    else:
+        current_train_step = 1
+        current_val_step = 1
+        start_epoch = 0
 
     with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as progress_bar_epoch:
         for current_epoch in progress_bar_epoch:
             progress_bar_epoch.set_description(f"[Epoch {current_epoch}]")
 
-            global_step = train_one_epoch(
+            train_output = train(
                 model,
                 optimizer,
-                train_loader,
-                global_step,
+                scheduler,
+                dataloaders.train_loader,
+                current_train_step,
                 current_epoch,
                 logger,
-                train_info
+                train_config
             )
+            current_train_step = train_output.train_step
 
             if (
                 current_epoch % args.val_interval_epochs == 0
@@ -99,18 +103,19 @@ def main():
             ):
                 val_output = validation(
                     model,
-                    val_loader,
-                    global_step,
+                    dataloaders.val_loader,
+                    current_val_step,
                     current_epoch,
                     logger,
                 )
+                current_val_step = val_output.val_step
 
                 checkpoint_dict = save_to_checkpoint(
                     args.save_checkpoint_dir,
                     current_epoch,
-                    global_step,
+                    current_train_step,
+                    current_val_step,
                     val_output.top1,
-                    # model if not args.gpu_strategy == "dp" else model.module,
                     model.get_model(),
                     optimizer,
                     scheduler,

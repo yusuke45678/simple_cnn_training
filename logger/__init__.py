@@ -1,8 +1,8 @@
-from .logger import logger_factory, LoggerInfo
+from .logger import configure_logger, LoggerConfig
 from .logger_pl import logger_factory_pl
 
 __all__ = [
-    'logger_factory',
-    'LoggerInfo',
+    'configure_logger',
+    'LoggerConfig',
     'logger_factory_pl'
 ]

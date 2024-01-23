@@ -3,7 +3,7 @@ import torch
 
 
 @dataclass
-class ModelInfo:
+class ModelConfig:
     model_name: str = 'resnet18'
     use_pretrained: bool = True
     torch_home: str = './'

@@ -1,61 +1,76 @@
-import torch
-from tqdm import tqdm
-import comet_ml
 from dataclasses import dataclass
+from tqdm import tqdm
+
+import comet_ml
+import torch
+from torch.optim import lr_scheduler
 
 from utils import accuracy, AvgMeterLossTopk
 from model import BaseModel
 
 
 @dataclass
-class TrainInfo:
+class TrainConfig:
     grad_accum_interval: int
     log_interval_steps: int
 
 
-def train_one_epoch(
+@dataclass
+class TrainOutput:
+    loss: float
+    top1: float
+    train_step: int
+
+
+def train(
     model: BaseModel,
     optimizer: torch.optim,
-    loader: torch.utils.data.DataLoader,
-    global_step: int,
+    scheduler: lr_scheduler,
+    train_loader: torch.utils.data.DataLoader,
+    current_train_step: int,
     current_epoch: int,
     logger: comet_ml.Experiment,
-    train_info: TrainInfo
-) -> int:
+    train_config: TrainConfig
+) -> TrainOutput:
     """training loop for one epoch
 
     Args:
         model (BaseModel): CNN model
         optimizer (torch.optim): optimizer
+        scheduler (torch.optim.lr_scheduler): learning rate (lr) scheduler
         loader (torch.utils.data.DataLoader): training dataset loader
-        global_step (int): current step from the beginning
+        current_train_step (int): current step for training
         current_epoch (int): current epoch
         logger (comet_ml.Experiment): comet logger
-        train_info (TrainInfo): information for training
+        train_config
+ (TrainInfo): information for training
 
     Returns:
-        int: global_step
+        TrainOutput: train loss, train top1, steps for training
     """
 
     train_meter = AvgMeterLossTopk("train")
 
     model.train()
-    device = model.device
 
-    with tqdm(enumerate(loader, start=1), total=len(loader), leave=False) as progress_bar_step:
+    with tqdm(
+            enumerate(train_loader, start=1),
+            total=len(train_loader),
+            leave=False
+    ) as progress_bar_step:
         progress_bar_step.set_description("[train]")
 
         for batch_index, batch in progress_bar_step:
 
             data, labels = batch  # (BCHW, B) for images or (BCTHW, B) for videos
 
-            data = data.to(device)
-            labels = labels.to(device)
+            data = data.to(model.get_device())
+            labels = labels.to(model.get_device())
             batch_size = data.size(0)
 
             if (
-                train_info.grad_accum_interval == 1
-                or batch_index % train_info.grad_accum_interval == 1
+                train_config.grad_accum_interval == 1
+                or batch_index % train_config.grad_accum_interval == 1
             ):
                 optimizer.zero_grad()
 
@@ -66,24 +81,30 @@ def train_one_epoch(
             top1, top5 = accuracy(outputs, labels, topk=(1, 5))
             train_meter.update(loss, (top1, top5), batch_size)
 
-            if global_step % train_info.log_interval_steps == 0:
+            if current_train_step % train_config.log_interval_steps == 0:
                 progress_bar_step.set_postfix_str(
-                    train_meter.get_set_postfix_str(global_step)
+                    train_meter.get_set_postfix_str(current_train_step)
                 )
                 logger.log_metrics(
                     train_meter.get_step_metrics_dict(),
-                    step=global_step,
+                    step=current_train_step,
                     epoch=current_epoch,
                 )
 
-            if batch_index % train_info.grad_accum_interval == 0:
+            if batch_index % train_config.grad_accum_interval == 0:
                 optimizer.step()
-                global_step += 1
+                current_train_step += 1
+
+    scheduler.step()
 
     logger.log_metrics(
         train_meter.get_epoch_metrics_dict(),
-        step=global_step,
+        step=current_train_step,
         epoch=current_epoch,
     )
 
-    return global_step
+    return TrainOutput(
+        loss=train_meter.loss_meter.avg,
+        top1=train_meter.topk_meter[0].avg,  # top1: topk[0] should be 1
+        train_step=current_train_step
+    )

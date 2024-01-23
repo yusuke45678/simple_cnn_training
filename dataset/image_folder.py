@@ -4,7 +4,7 @@ from typing import Tuple
 
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
-from torchvision import transforms
+from torchvision.transforms import v2 as transforms
 
 
 @dataclass

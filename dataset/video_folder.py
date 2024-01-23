@@ -11,7 +11,7 @@ from torch.utils.data import (
     RandomSampler,
 )
 
-from torchvision import transforms
+from torchvision.transforms import v2 as transforms
 
 from pytorchvideo.data import labeled_video_dataset
 from pytorchvideo.data.clip_sampling import (
