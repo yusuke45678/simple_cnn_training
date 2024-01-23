@@ -2,15 +2,12 @@
     "python.defaultInterpreterPath": "/usr/bin/python",
     "[python]": {
         // "editor.defaultFormatter": "ms-python.black-formatter",
-        // "editor.defaultFormatter": "ms-python.autopep8",
         "editor.defaultFormatter": "ms-python.autopep8",
         "editor.formatOnType": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "never"
         }
     },
-    "python.poetryPath": "/usr/local/bin/poetry",
-    "python.testing.pytestPath": "/usr/local/bin/pytest",
     "editor.renderWhitespace": "boundary",
     "trailing-spaces.trimOnSave": true,
     "files.autoSave": "onFocusChange",

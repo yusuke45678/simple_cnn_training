@@ -1,18 +1,19 @@
+from typing import Tuple, List
+
 import torch
-from typing import Tuple
 
 
 def accuracy(
     output: torch.Tensor,
     target: torch.Tensor,
-    topk: Tuple[int] = (1,)
-) -> float | list[float]:
+    topk: Tuple[int, ...] = (1,)
+) -> torch.Tensor | List[torch.Tensor]:
     """Computes the accuracy over the k top predictions for the specified values of k
     https://github.com/pytorch/examples/blob/cedca7729fef11c91e28099a0e45d7e98d03b66d/imagenet/main.py#L411
 
     Args:
-        output (torch.tensor): model output of the batch
-        target (torch.tensor): labels of the batch
+        output (torch.Tensor): model output of the batch
+        target (torch.Tensor): labels of the batch
         topk (tuple of int, optional):
             k for computing top-k accuracy. Defaults to (1,).
                 topk=(1,) returns top1

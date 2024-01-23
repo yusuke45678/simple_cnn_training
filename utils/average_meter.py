@@ -44,7 +44,7 @@ class AvgMeterLossTopk:
     def __init__(
         self,
         mode_name: Literal['train', 'val'],
-        topk: Tuple[int] = (1, 5)
+        topk: Tuple[int, ...] = (1, 5)
     ):
         """a set of average meters for loss and topk
 
@@ -62,7 +62,7 @@ class AvgMeterLossTopk:
     def update(
         self,
         loss: float | torch.Tensor,
-        topk_value: Tuple[float | torch.Tensor],
+        topk_value: Tuple[float, ...] | Tuple[torch.Tensor, ...],
         batch_size: int = 1
     ):
         """update average meters with statistics of a single batch

@@ -42,8 +42,7 @@ def train(
         current_train_step (int): current step for training
         current_epoch (int): current epoch
         logger (comet_ml.Experiment): comet logger
-        train_config
- (TrainInfo): information for training
+        train_config (TrainInfo): information for training
 
     Returns:
         TrainOutput: train loss, train top1, steps for training
