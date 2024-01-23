@@ -48,7 +48,7 @@ def main():
         weight_decay=args.weight_decay,
         momentum=args.momentum,
         betas=args.betas,
-        model_params=model.get_parameter()
+        model_params=model.get_parameters()
     ))
     scheduler = configure_scheduler(SchedulerConfig(
         optimizer=optimizer,
@@ -73,7 +73,7 @@ def main():
             model.get_model(),
             optimizer,
             scheduler,
-            model.device
+            model.get_device()
         )
         model.set_model(loaded_model)
     else:
