@@ -1,7 +1,13 @@
-import torch
 import os
+from typing import Tuple, Optional
+
 import comet_ml
 from comet_ml.integration.pytorch import log_model, load_model
+
+import torch
+from torch import nn
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
 
 
 def save_to_checkpoint(
@@ -10,9 +16,9 @@ def save_to_checkpoint(
     current_train_step: int,
     current_val_step: int,
     acc: float,
-    model: torch.nn,
-    optimizer: torch.optim,
-    scheduler: torch.optim.lr_scheduler,
+    model: nn.Module,
+    optimizer: Optimizer,
+    scheduler: LRScheduler,
     experiment_logger: comet_ml.Experiment,
 ) -> dict:
     """save checkpoint to file
@@ -72,11 +78,11 @@ def save_to_comet(
 
 def load_from_checkpoint(
     checkpoint_to_resume: str,
-    model: torch.nn,
-    optimizer: torch.optim,
-    scheduler: torch.optim.lr_scheduler,
+    model: nn.Module,
+    optimizer: Optimizer,
+    scheduler: Optional[LRScheduler],
     device: torch.device
-) -> None:
+) -> Tuple[int, int, int, nn.Module, Optimizer, Optional[LRScheduler]]:
     """load from checkpoint file or online comet_ml
 
     Args:
@@ -95,14 +101,18 @@ def load_from_checkpoint(
         assert os.path.exists(checkpoint_to_resume)
         checkpoint = torch.load(checkpoint_to_resume, map_location=device)
 
-    current_epoch = checkpoint["current_epoch"]
-    current_train_step = checkpoint["current_train_step"]
-    current_val_step = checkpoint["current_val_step"]
+    current_epoch: int = checkpoint["current_epoch"]
+    current_train_step: int = checkpoint["current_train_step"]
+    current_val_step: int = checkpoint["current_val_step"]
     model.load_state_dict(checkpoint["model_state_dict"])
     optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-    scheduler = checkpoint["scheduler_state_dict"]
-    if scheduler:
-        scheduler.load_state_dict(scheduler)
+    # scheduler_dict = checkpoint["scheduler_state_dict"]
+    # if scheduler_dict:
+    #     scheduler.load_state_dict(scheduler_dict)
+    if scheduler and "scheduler_state_dict" in checkpoint.keys():
+        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+    else:
+        scheduler = None
 
     return current_epoch, current_train_step, current_val_step, model, optimizer, scheduler

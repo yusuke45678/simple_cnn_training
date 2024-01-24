@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 
-from args import get_args
+from args import ArgParse
 from dataset import configure_dataloader, DataloaderConfig
 from model import configure_model, ModelConfig
 from setup import (
@@ -20,7 +20,7 @@ from val import validation
 
 def main():
 
-    args = get_args()
+    args = ArgParse.get()
 
     logger = configure_logger(LoggerConfig(
         logged_params=vars(args),

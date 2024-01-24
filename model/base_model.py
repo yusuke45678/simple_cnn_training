@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from typing import Optional
+from typing import Optional, Iterator
 try:
-    from typing import Self
+    from typing import Self  # type: ignore
 except ImportError:
     from typing_extensions import Self
 
@@ -34,7 +34,7 @@ class BaseModel():
 
     def to(self, device: torch.device) -> Self:
         self.model.to(device)
-        self.model_config.deveice = device
+        self.model_config.device = device
         return self
 
     def get_device(self) -> torch.device:
@@ -46,7 +46,7 @@ class BaseModel():
         # https://github.com/pytorch/pytorch/issues/7460
         return next(self.model.parameters()).device
 
-    def get_parameters(self) -> nn.Parameter:
+    def get_parameters(self) -> Iterator[nn.Parameter]:
         return self.model.parameters()
 
     def set_data_parallel(self) -> Self:

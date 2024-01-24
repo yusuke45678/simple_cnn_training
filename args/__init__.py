@@ -1,5 +1,5 @@
-from .parse_args import get_args
+from .arg_parse import ArgParse
 
 __all__ = [
-    'get_args'
+    'ArgParse'
 ]
