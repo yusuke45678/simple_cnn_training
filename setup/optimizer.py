@@ -38,12 +38,11 @@ def configure_optimizer(
             weight_decay=optimizer_info.weight_decay,
         )
 
-    elif optimizer_info.optimizer_name == "Adam":
+    if optimizer_info.optimizer_name == "Adam":
         return Adam(
             optimizer_info.model_params,
             lr=optimizer_info.lr,
             weight_decay=optimizer_info.weight_decay,
         )
 
-    else:
-        raise ValueError("invalid args.optimizer")
+    raise ValueError("invalid optimizer_name")

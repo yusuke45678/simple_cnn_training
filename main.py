@@ -47,7 +47,6 @@ def main():
         lr=args.lr,
         weight_decay=args.weight_decay,
         momentum=args.momentum,
-        betas=args.betas,
         model_params=model.get_parameters()
     ))
     scheduler = configure_scheduler(SchedulerConfig(

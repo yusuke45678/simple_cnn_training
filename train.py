@@ -78,7 +78,7 @@ def train(
             loss = outputs.loss
             loss.backward()
 
-            top1, top5 = accuracy(outputs, labels, topk=(1, 5))
+            top1, top5 = accuracy(outputs.logits, labels, topk=(1, 5))
             train_meters.update(loss, (top1, top5), batch_size)
 
             if current_train_step % train_config.log_interval_steps == 0:

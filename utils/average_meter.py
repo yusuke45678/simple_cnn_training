@@ -1,9 +1,9 @@
 import torch
 from typing import Tuple, Literal
 
-from utils import (
+from utils.mixin import (
     GetPostfixStrMixin,
-    GetMetricsDictMixin
+    GetMetricsDictMixin,
 )
 
 
@@ -60,9 +60,7 @@ class AvgMeterLossTopk(GetPostfixStrMixin, GetMetricsDictMixin):
         self.mode_name = mode_name
         self.topk = topk
         self.loss_meter = AverageMeter()
-        self.topk_meters = []
-        for _ in topk:
-            self.topk_meters.append(AverageMeter())
+        self.topk_meters = [AverageMeter() for _ in topk]
 
     def update(
         self,
@@ -74,7 +72,7 @@ class AvgMeterLossTopk(GetPostfixStrMixin, GetMetricsDictMixin):
 
         Args:
             loss (float | torch.Tensor): a batch loss
-            topk_values (Tuple[float | torch.Tensor]): a batch topk values
+            topk_values (Tuple[float, ...] | Tuple[torch.Tensor, ...]): a batch topk values
             batch_size (int, optional): batch size for the loss. Defaults to 1.
         """
         self.loss_meter.update(loss, batch_size)

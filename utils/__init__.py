@@ -1,7 +1,6 @@
-from .average_meter import AverageMeter, AvgMeterLossTopk
-from .average_meter_mixin import (
-    GetPostfixStrMixin,
-    GetMetricsDictMixin,
+from .average_meter import (
+    AverageMeter,
+    AvgMeterLossTopk,
 )
 from .accuracy import accuracy
 from .checkpoint import (
@@ -13,8 +12,6 @@ from .checkpoint import (
 __all__ = [
     'AverageMeter',
     'AvgMeterLossTopk',
-    'GetPostfixStrMixin',
-    'GetMetricsDictMixin',
     'accuracy',
     'save_to_checkpoint',
     'save_to_comet',

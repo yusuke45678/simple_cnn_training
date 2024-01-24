@@ -30,7 +30,7 @@
                 "32",
                 "-e",
                 "5",
-                // "--disable_comet", // "--no_comet",
+                "--disable_comet", // "--no_comet",
                 "--val_interval_epochs",
                 "1",
                 // "--resume_from_checkpoint",
@@ -54,7 +54,8 @@
                 "-b",
                 "32",
                 "-e",
-                "5"
+                "5",
+                "--disable_comet", // "--no_comet",
             ]
         },
         {
@@ -69,12 +70,13 @@
             },
             "args": [
                 "-w",
-                "64",
+                "2",
                 "-b",
                 "128",
                 "-e",
                 "5",
-                "--single_gpu"
+                "--disable_comet", // "--no_comet",
+                "--single_gpu",
             ]
         },
         {

@@ -28,8 +28,8 @@ def configure_scheduler(
     if scheduler_info.use_scheduler:
         return StepLR(
             scheduler_info.optimizer,
-            step_size=7,
-            gamma=0.1
+            step_size=10,  # every 10 epoch
+            gamma=0.1  # lr = lr * 0.1
         )
-    else:
-        return None
+
+    return None

@@ -148,13 +148,6 @@ class ArgParse:
             "--weight_decay", type=float, default=5e-4, help="weight decay."
         )
         parser.add_argument(
-            "--betas",
-            nargs="+",
-            type=float,
-            default=[0.9, 0.999],
-            help="betas of Adam.",
-        )
-        parser.add_argument(
             "--use_scheduler",
             dest="use_scheduler",
             action="store_true",

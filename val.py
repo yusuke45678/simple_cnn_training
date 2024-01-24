@@ -57,7 +57,7 @@ def validation(
             outputs = model(data, labels=labels)
             loss = outputs.loss
 
-            top1, top5 = accuracy(outputs, labels, topk=(1, 5))
+            top1, top5 = accuracy(outputs.logits, labels, topk=(1, 5))
             val_meter.update(loss, (top1, top5), batch_size)
 
             progress_bar_step.set_postfix_str(

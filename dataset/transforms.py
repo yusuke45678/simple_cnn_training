@@ -101,7 +101,7 @@ def transform_image(
     train_transform = image_transform.Compose([
         image_transform.ToImage(),  # HWC ndarray --> CHW tensor (Image)
         image_transform.ToDtype(torch.float32, scale=True),  # [0,255] --> [0,1]
-        image_transform.RandomResizedCrop(trans_image_info.crop_size),
+        image_transform.RandomResizedCrop(trans_image_info.crop_size, antialias=True),
         image_transform.RandomHorizontalFlip(),
         image_transform.Normalize(
             [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
@@ -111,7 +111,7 @@ def transform_image(
     val_transform = image_transform.Compose([
         image_transform.ToImage(),
         image_transform.ToDtype(torch.float32, scale=True),
-        image_transform.Resize(trans_image_info.resize_size),
+        image_transform.Resize(trans_image_info.resize_size, antialias=True),
         image_transform.CenterCrop(trans_image_info.crop_size),
         image_transform.Normalize(
             [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
