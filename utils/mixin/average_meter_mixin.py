@@ -1,31 +1,5 @@
 
 
-class GetPostfixStrMixin:
-
-    def get_meters(self):
-        raise NotImplementedError
-
-    def get_postfix_str(
-            self,
-            global_step: int
-    ) -> str:
-        """generate string for tqdm pbar.set_postfix_str
-
-        Args:
-            global_step (int): global_step
-
-        Returns:
-            str: set_postfix_str string
-        """
-        loss_meter, topk_meter, topk = self.get_meters()
-        postfix_str = f"step={global_step:d}, "
-        postfix_str += f"loss={loss_meter.value:6.4e}"
-        postfix_str += f"({loss_meter.avg:6.4e}), "
-        for meter, k in zip(topk_meter, topk):
-            postfix_str += f"top{k}={meter.value:6.2f}({meter.avg:6.2f}), "
-        return postfix_str
-
-
 class GetMetricsDictMixin:
 
     def get_meters(self):

@@ -1,11 +1,14 @@
 from dataclasses import dataclass
-from tqdm import tqdm
 
 import comet_ml
 import torch
 from torch.utils.data import DataLoader
 
-from utils import accuracy, AvgMeterLossTopk
+from utils import (
+    accuracy,
+    AvgMeterLossTopk,
+    TqdmLossTopK,
+)
 from model import BaseModel
 
 
@@ -40,7 +43,7 @@ def validation(
 
     model.eval()
 
-    with torch.no_grad(), tqdm(
+    with torch.no_grad(), TqdmLossTopK(
         val_loader,
         total=len(val_loader),
         leave=False
@@ -57,11 +60,11 @@ def validation(
             outputs = model(data, labels=labels)
             loss = outputs.loss
 
-            top1, top5 = accuracy(outputs.logits, labels, topk=(1, 5))
-            val_meter.update(loss, (top1, top5), batch_size)
+            val_topk = accuracy(outputs.logits, labels, topk=(1, 5))
+            val_meter.update(loss, val_topk, batch_size)
 
-            progress_bar_step.set_postfix_str(
-                val_meter.get_postfix_str(current_val_step)
+            progress_bar_step.set_postfix_str_loss_topk(
+                current_val_step, loss, val_topk
             )
             logger.log_metrics(
                 val_meter.get_step_metrics_dict(),

@@ -2,7 +2,6 @@ import torch
 from typing import Tuple, Literal
 
 from utils.mixin import (
-    GetPostfixStrMixin,
     GetMetricsDictMixin,
 )
 
@@ -41,7 +40,7 @@ class AverageMeter:
         self.avg = self.sum / self.count
 
 
-class AvgMeterLossTopk(GetPostfixStrMixin, GetMetricsDictMixin):
+class AvgMeterLossTopk(GetMetricsDictMixin):
     """average meter set for loss and top1/top5
 
     """
@@ -77,7 +76,7 @@ class AvgMeterLossTopk(GetPostfixStrMixin, GetMetricsDictMixin):
         """
         self.loss_meter.update(loss, batch_size)
         for meter, value in zip(self.topk_meters, topk_values):
-            meter.update(value, batch_size)
+            meter.update(value, batch_size)  # type: ignore[arg-type]
 
     def get_meters(self):
         return self.loss_meter, self.topk_meters, self.topk

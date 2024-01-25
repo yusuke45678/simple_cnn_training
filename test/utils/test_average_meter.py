@@ -29,7 +29,7 @@ def test_average_meter(
 
 
 @pytest.mark.parametrize(
-    'loss_list,topk_list,loss_avg,topk_avg_list,step,postfix_str', [
+    'loss_list,topk_list,loss_avg,topk_avg_list', [
         (
             (9.0, 10.0, 11.0),
             (
@@ -39,13 +39,6 @@ def test_average_meter(
             ),
             10.0,
             (2.0, 3.0),
-            100,
-            (
-                'step=100, '
-                'loss=1.1000e+01(1.0000e+01), '
-                'top1=  3.00(  2.00), '
-                'top5=  4.00(  3.00), '
-            )
         )
     ])
 def test_average_meters_loss_topk(
@@ -53,8 +46,6 @@ def test_average_meters_loss_topk(
     topk_list,
     loss_avg,
     topk_avg_list,
-    step,
-    postfix_str
 ):
     meters = AvgMeterLossTopk('train')
     for loss, topk in zip(loss_list, topk_list):
@@ -65,5 +56,3 @@ def test_average_meters_loss_topk(
 
     for meter, avg in zip(meters.topk_meters, topk_avg_list):
         assert meter.avg == avg
-
-    assert meters.get_postfix_str(step) == postfix_str

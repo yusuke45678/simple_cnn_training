@@ -126,9 +126,6 @@ def main():
                     logger
                 )
 
-            if scheduler:
-                scheduler.update()
-
 
 if __name__ == "__main__":
     main()

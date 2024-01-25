@@ -24,13 +24,13 @@ def configure_model(
         os.environ['TORCH_HOME'] = model_info.torch_home
 
     if model_info.model_name == 'resnet18':
-        model = ResNet18(model_info)
+        model = ResNet18(model_info)  # type: ignore[assignment]
 
     elif model_info.model_name == 'resnet50':
-        model = ResNet50(model_info)
+        model = ResNet50(model_info)  # type: ignore[assignment]
 
     elif model_info.model_name == 'x3d':
-        model = X3D(model_info)
+        model = X3D(model_info)  # type: ignore[assignment]
 
     else:
         raise ValueError('invalid model_info.model_name')

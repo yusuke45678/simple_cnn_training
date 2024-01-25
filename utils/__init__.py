@@ -8,6 +8,7 @@ from .checkpoint import (
     save_to_comet,
     load_from_checkpoint,
 )
+from .tqdm_loss_topk import TqdmLossTopK
 
 __all__ = [
     'AverageMeter',
@@ -16,4 +17,5 @@ __all__ = [
     'save_to_checkpoint',
     'save_to_comet',
     'load_from_checkpoint',
+    'TqdmLossTopK'
 ]

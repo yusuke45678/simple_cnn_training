@@ -1,12 +1,15 @@
 from dataclasses import dataclass
-from tqdm import tqdm
 
 import comet_ml
 from torch.optim.lr_scheduler import LRScheduler
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
-from utils import accuracy, AvgMeterLossTopk
+from utils import (
+    accuracy,
+    AvgMeterLossTopk,
+    TqdmLossTopK,
+)
 from model import BaseModel
 
 
@@ -53,7 +56,7 @@ def train(
 
     model.train()
 
-    with tqdm(
+    with TqdmLossTopK(
             enumerate(train_loader, start=1),
             total=len(train_loader),
             leave=False
@@ -78,12 +81,12 @@ def train(
             loss = outputs.loss
             loss.backward()
 
-            top1, top5 = accuracy(outputs.logits, labels, topk=(1, 5))
-            train_meters.update(loss, (top1, top5), batch_size)
+            train_topk = accuracy(outputs.logits, labels, topk=(1, 5))
+            train_meters.update(loss, train_topk, batch_size)
 
             if current_train_step % train_config.log_interval_steps == 0:
-                progress_bar_step.set_postfix_str(
-                    train_meters.get_postfix_str(current_train_step)
+                progress_bar_step.set_postfix_str_loss_topk(
+                    current_train_step, loss, train_topk
                 )
                 logger.log_metrics(
                     train_meters.get_step_metrics_dict(),
@@ -95,7 +98,8 @@ def train(
                 optimizer.step()
                 current_train_step += 1
 
-    scheduler.step()
+    if scheduler:
+        scheduler.step()
 
     logger.log_metrics(
         train_meters.get_epoch_metrics_dict(),
