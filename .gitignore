@@ -6,3 +6,5 @@ downloaded_data/
 pretrained_models/
 .hypothesis/
 hub/
+.mypy_cache/
+.pytest_cache/

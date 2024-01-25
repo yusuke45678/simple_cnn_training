@@ -27,12 +27,12 @@ class ABNResNet50(ClassificationBaseModel):
     ) -> ModelOutput:
         logits_x, logits_ax, _ = self.model(pixel_values)
 
-        if labels is not None:
-            loss_x = self.criterion(logits_x, labels)
-            loss_ax = self.criterion(logits_ax, labels)
-            loss = loss_x + loss_ax
-        else:
-            loss = None
+        if labels is None:
+            return ModelOutput(logits=logits_x)
+
+        loss_x = self.criterion(logits_x, labels)
+        loss_ax = self.criterion(logits_ax, labels)
+        loss = loss_x + loss_ax
 
         return ModelOutput(
             logits=logits_x,

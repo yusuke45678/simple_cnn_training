@@ -15,7 +15,7 @@ from model import ModelConfig
 @dataclass
 class ModelOutput:
     logits: torch.Tensor
-    loss: Optional[torch.Tensor]
+    loss: Optional[torch.Tensor] = None
 
 
 class BaseModel():
@@ -77,7 +77,10 @@ class ClassificationBaseModel(BaseModel):
     ) -> ModelOutput:
         logits = self.model(pixel_values)
 
-        loss = self.criterion(logits, labels) if labels is not None else None
+        if labels is None:
+            return ModelOutput(logits=logits)
+
+        loss = self.criterion(logits, labels)
 
         return ModelOutput(
             logits=logits,

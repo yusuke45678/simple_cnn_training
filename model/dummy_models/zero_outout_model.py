@@ -33,9 +33,9 @@ class ZeroOutputModel(ClassificationBaseModel):
         )
 
         if labels is None:
-            dummy_loss = None
-        else:
-            dummy_loss = torch.tensor([0.0], requires_grad=True).to(device)[0]
+            return ModelOutput(logits=dummy_logits)
+
+        dummy_loss = torch.tensor([0.0], requires_grad=True).to(device)[0]
 
         return ModelOutput(
             logits=dummy_logits,
