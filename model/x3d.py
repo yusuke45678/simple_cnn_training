@@ -8,7 +8,7 @@ class X3D(ClassificationBaseModel):
     def __init__(self, model_config: ModelConfig):
         super().__init__(model_config)
         self.prepare_model()
-        self.remove_pretrained_head()
+        self.replace_pretrained_head()
 
     def prepare_model(self):
         self.model = torch.hub.load(
@@ -18,7 +18,7 @@ class X3D(ClassificationBaseModel):
             head_activation=None,  # removing nn.Softmax
         )
 
-    def remove_pretrained_head(self):
+    def replace_pretrained_head(self):
         in_features = self.model.blocks[5].proj.in_features
         self.model.blocks[5].proj = nn.Linear(
             in_features,
