@@ -7,6 +7,7 @@ from model import (
     ResNet18,
     ABNResNet50,
     X3DM,
+    ViTb,
 )
 
 
@@ -38,6 +39,9 @@ def configure_model(
 
     elif model_info.model_name == 'abn_r50':
         model = ABNResNet50(model_info)  # type: ignore[assignment]
+
+    elif model_info.model_name == 'vit_b':
+        model = ViTb(model_info)  # type: ignore[assignment]
 
     elif model_info.model_name == 'x3d':
         model = X3DM(model_info)  # type: ignore[assignment]

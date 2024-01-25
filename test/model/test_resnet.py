@@ -42,6 +42,15 @@ def test_resnet_output(
     assert isinstance(output.loss, torch.Tensor)
     assert output.loss.ndim == 0
 
+    # no labels
+    output = model(data)
+    assert isinstance(output, ModelOutput)
+
+    assert isinstance(output.logits, torch.Tensor)
+    assert output.logits.shape == (batch_size, n_classes)
+
+    assert output.loss is None
+
 
 @pytest.mark.parametrize('model_name', ['resnet18', 'resnet50'])
 @pytest.mark.parametrize('use_pretrained', [True])

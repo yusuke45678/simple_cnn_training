@@ -6,19 +6,19 @@ from torch import nn
 from model import configure_model, ModelConfig, ModelOutput, BaseModel
 
 
-@pytest.mark.parametrize('model_name', ['abn_r50'])
+@pytest.mark.parametrize('model_name', ['vit_b'])
 @pytest.mark.parametrize('use_pretrained', [True, False])
 @pytest.mark.parametrize('n_classes', [2, 10])
 @pytest.mark.parametrize('batch_size', [1, 2])
 @pytest.mark.parametrize('crop_size', [224])
-def test_abn_output(
+def test_vit_b_output(
     model_name,
     use_pretrained,
     n_classes,
     batch_size,
     crop_size,
 ):
-    """test outputs of abn models"""
+    """test outputs of ViT-b models"""
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -52,15 +52,15 @@ def test_abn_output(
     assert output.loss is None
 
 
-@pytest.mark.parametrize('model_name', ['abn_r50'])
+@pytest.mark.parametrize('model_name', ['vit_b'])
 @pytest.mark.parametrize('use_pretrained', [True])
 @pytest.mark.parametrize('n_classes', [10])
-def test_abn_methods(
+def test_vit_b_methods(
     model_name,
     use_pretrained,
     n_classes,
 ):
-    """test outputs of abs models"""
+    """test outputs of ViT-b models"""
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
