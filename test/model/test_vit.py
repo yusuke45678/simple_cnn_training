@@ -18,8 +18,6 @@ def test_vit_b_output(
     batch_size,
     crop_size,
 ):
-    """test outputs of ViT-b models"""
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     model = configure_model(ModelConfig(
@@ -60,8 +58,6 @@ def test_vit_b_methods(
     use_pretrained,
     n_classes,
 ):
-    """test outputs of ViT-b models"""
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     model = configure_model(ModelConfig(

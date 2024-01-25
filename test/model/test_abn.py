@@ -18,8 +18,6 @@ def test_abn_output(
     batch_size,
     crop_size,
 ):
-    """test outputs of abn models"""
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     model = configure_model(ModelConfig(
@@ -60,8 +58,6 @@ def test_abn_methods(
     use_pretrained,
     n_classes,
 ):
-    """test outputs of abs models"""
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     model = configure_model(ModelConfig(
