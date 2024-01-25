@@ -8,6 +8,7 @@ from model import (
     ABNResNet50,
     X3DM,
     ViTb,
+    ZeroOutputModel,
 )
 
 
@@ -45,6 +46,9 @@ def configure_model(
 
     elif model_info.model_name == 'x3d':
         model = X3DM(model_info)  # type: ignore[assignment]
+
+    elif model_info.model_name == 'zero_output_dummy':
+        model = ZeroOutputModel(model_info)  # type: ignore[assignment]
 
     else:
         raise ValueError('invalid model_info.model_name')
