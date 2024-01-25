@@ -4,7 +4,7 @@ from .base_model import (
     BaseModel,
     ClassificationBaseModel
 )
-from .x3d import X3D
+from .x3d import X3DM
 from .resnet import ResNet18, ResNet50   # pylint: disable=import-error
 from .abn import ABNResNet50
 from .model_factory import configure_model
@@ -16,7 +16,7 @@ __all__ = [
     'ModelOutput',
     'BaseModel',
     'ClassificationBaseModel',
-    'X3D',
+    'X3DM',
     'ResNet18',
     'ResNet50',
     'ABNResNet50',

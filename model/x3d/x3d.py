@@ -4,7 +4,7 @@ from torch import nn
 from model import ModelConfig, ClassificationBaseModel
 
 
-class X3D(ClassificationBaseModel):
+class X3DM(ClassificationBaseModel):
 
     def __init__(self, model_config: ModelConfig):
         super().__init__(model_config)

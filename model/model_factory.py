@@ -6,7 +6,7 @@ from model import (
     ResNet50,
     ResNet18,
     ABNResNet50,
-    X3D,
+    X3DM,
 )
 
 
@@ -40,7 +40,7 @@ def configure_model(
         model = ABNResNet50(model_info)  # type: ignore[assignment]
 
     elif model_info.model_name == 'x3d':
-        model = X3D(model_info)  # type: ignore[assignment]
+        model = X3DM(model_info)  # type: ignore[assignment]
 
     else:
         raise ValueError('invalid model_info.model_name')
