@@ -88,3 +88,34 @@ def test_zero_output_methods(
     if device == torch.device('cuda:0'):
         model.to(device)
         assert model.get_device() == device
+
+
+@pytest.mark.parametrize('model_name', ['zero_output_dummy'])
+@pytest.mark.parametrize('use_pretrained', [True, False])
+@pytest.mark.parametrize('n_classes', [2, 10])
+@pytest.mark.parametrize('batch_size', [1, 2])
+@pytest.mark.parametrize('crop_size', [224])
+def test_zero_output_loss_backward(
+    model_name,
+    use_pretrained,
+    n_classes,
+    batch_size,
+    crop_size,
+):
+    """test outputs of abn models"""
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    model = configure_model(ModelConfig(
+        model_name=model_name,
+        n_classes=n_classes,
+        use_pretrained=use_pretrained,
+        device=device,
+    ))
+    assert isinstance(model, BaseModel)
+
+    data = torch.rand(batch_size, 3, crop_size, crop_size, device=device)  # BCHW
+    labels = torch.randint(0, n_classes - 1, (batch_size, ), device=device)
+
+    output = model(data, labels)
+    output.loss.backward()

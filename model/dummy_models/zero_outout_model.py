@@ -1,11 +1,20 @@
 from typing import Optional
 
 import torch
+from torch import nn
 
-from model import ClassificationBaseModel, ModelOutput
+from model import ModelConfig, ClassificationBaseModel, ModelOutput
 
 
 class ZeroOutputModel(ClassificationBaseModel):
+
+    def __init__(self, model_config: ModelConfig):
+        super().__init__(model_config)
+
+        self.model = nn.Linear(
+            1,
+            self.model_config.n_classes
+        )
 
     def __call__(
         self,
@@ -26,7 +35,7 @@ class ZeroOutputModel(ClassificationBaseModel):
         if labels is None:
             dummy_loss = None
         else:
-            dummy_loss = torch.Tensor([0.0]).to(device)[0]
+            dummy_loss = torch.tensor([0.0], requires_grad=True).to(device)[0]
 
         return ModelOutput(
             logits=dummy_logits,
