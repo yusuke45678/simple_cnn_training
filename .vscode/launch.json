@@ -14,7 +14,7 @@
             "justMyCode": false,
         },
         {
-            "name": "debug bs=32, GPU=0,1,2 resume",
+            "name": "debug bs=32, GPU=0,1,2",
             "type": "python",
             "request": "launch",
             "program": "main.py",
@@ -30,7 +30,7 @@
                 "32",
                 "-e",
                 "5",
-                "--disable_comet", // "--no_comet",
+                // "--disable_comet", // "--no_comet",
                 "--val_interval_epochs",
                 "1",
                 // "--resume_from_checkpoint",
