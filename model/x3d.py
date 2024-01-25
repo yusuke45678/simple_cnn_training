@@ -7,14 +7,20 @@ class X3D(ClassificationBaseModel):
 
     def __init__(self, model_config: ModelConfig):
         super().__init__(model_config)
+        self.prepare_model()
+        self.remove_pretrained_head()
 
+    def prepare_model(self):
         self.model = torch.hub.load(
             "facebookresearch/pytorchvideo",
             "x3d_m",
-            pretrained=model_config.use_pretrained,
+            pretrained=self.model_config.use_pretrained,
             head_activation=None,  # removing nn.Softmax
         )
 
-        # removing pretrained head
+    def remove_pretrained_head(self):
         in_features = self.model.blocks[5].proj.in_features
-        self.model.blocks[5].proj = nn.Linear(in_features, model_config.n_classes)
+        self.model.blocks[5].proj = nn.Linear(
+            in_features,
+            self.model_config.n_classes
+        )

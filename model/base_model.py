@@ -14,15 +14,15 @@ from model import ModelConfig
 
 @dataclass
 class ModelOutput:
-    loss: Optional[torch.Tensor]
     logits: torch.Tensor
+    loss: Optional[torch.Tensor]
 
 
 class BaseModel():
 
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
-        self.model = nn.Module()  # dummy?
+        self.model = nn.Module()  # dummy
 
     def train(self) -> Self:
         self.model.train()
@@ -77,10 +77,7 @@ class ClassificationBaseModel(BaseModel):
     ) -> ModelOutput:
         logits = self.model(pixel_values)
 
-        loss = None
-        if labels is not None:
-            labels = labels.to(logits.device)
-            loss = self.criterion(logits, labels)
+        loss = self.criterion(logits, labels) if labels else None
 
         return ModelOutput(
             logits=logits,
