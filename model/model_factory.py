@@ -1,6 +1,13 @@
 import os
 
-from model import X3D, ResNet50, ResNet18, BaseModel, ModelConfig
+from model import (
+    BaseModel,
+    ModelConfig,
+    ResNet50,
+    ResNet18,
+    ABNResNet50,
+    X3D,
+)
 
 
 def configure_model(
@@ -28,6 +35,9 @@ def configure_model(
 
     elif model_info.model_name == 'resnet50':
         model = ResNet50(model_info)  # type: ignore[assignment]
+
+    elif model_info.model_name == 'abn_r50':
+        model = ABNResNet50(model_info)  # type: ignore[assignment]
 
     elif model_info.model_name == 'x3d':
         model = X3D(model_info)  # type: ignore[assignment]

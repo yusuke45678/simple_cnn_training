@@ -18,6 +18,11 @@ from train import train, TrainConfig
 from val import validation
 
 
+class TqdmEpoch(tqdm):
+    def __init__(self, start_epoch: int, num_epochs: int):
+        super().__init__(range(start_epoch + 1, num_epochs + 1))
+
+
 def main():
 
     args = ArgParse.get()
@@ -80,7 +85,7 @@ def main():
         current_val_step = 1
         start_epoch = 0
 
-    with tqdm(range(start_epoch + 1, args.num_epochs + 1)) as progress_bar_epoch:
+    with TqdmEpoch(start_epoch, args.num_epochs) as progress_bar_epoch:
         for current_epoch in progress_bar_epoch:
             progress_bar_epoch.set_description(f"[Epoch {current_epoch}]")
 

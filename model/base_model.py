@@ -77,7 +77,7 @@ class ClassificationBaseModel(BaseModel):
     ) -> ModelOutput:
         logits = self.model(pixel_values)
 
-        loss = self.criterion(logits, labels) if labels else None
+        loss = self.criterion(logits, labels) if labels is not None else None
 
         return ModelOutput(
             logits=logits,
