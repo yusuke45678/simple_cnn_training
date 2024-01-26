@@ -12,6 +12,15 @@ from model import (
 )
 
 
+def set_torch_home(
+    model_info: ModelConfig
+) -> None:
+    """Specity the directory where a pre-trained model is stored.
+    Otherwise, by default, models are stored in users home dir `~/.torch`
+    """
+    os.environ['TORCH_HOME'] = model_info.torch_home
+
+
 def configure_model(
         model_info: ModelConfig
 ) -> BaseModel:
@@ -28,9 +37,7 @@ def configure_model(
     """
 
     if model_info.use_pretrained:
-        # Specity the directory where a pre-trained model is stored.
-        # Otherwise, by default, models are stored in users home dir `~/.torch`
-        os.environ['TORCH_HOME'] = model_info.torch_home
+        set_torch_home(model_info)
 
     if model_info.model_name == 'resnet18':
         model = ResNet18(model_info)  # type: ignore[assignment]

@@ -22,7 +22,10 @@ class BaseModel():
 
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
-        self.model = nn.Module()  # dummy
+        self.model = self.__create_dummy_model()
+
+    def __create_dummy_model(self) -> nn.Module:
+        return nn.Module()
 
     def train(self) -> Self:
         self.model.train()
@@ -43,7 +46,7 @@ class BaseModel():
         Returns:
             torch.device: device on which the model is loaded
         """
-        # https://github.com/pytorch/pytorch/issues/7460
+        # taken from https://github.com/pytorch/pytorch/issues/7460
         return next(self.model.parameters()).device
 
     def get_parameters(self) -> Iterator[nn.Parameter]:
