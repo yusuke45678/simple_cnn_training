@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from utils import (
-    accuracy,
+    compute_topk_accuracy,
     AvgMeterLossTopk,
     TqdmLossTopK,
 )
@@ -46,9 +46,10 @@ def validation(
     with torch.no_grad(), TqdmLossTopK(
         val_loader,
         total=len(val_loader),
-        leave=False
+        leave=False,
+        unit='step',
     ) as progress_bar_step:
-        progress_bar_step.set_description("[val]")
+        progress_bar_step.set_description("[val      ]")
 
         for batch in progress_bar_step:
             data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
@@ -60,7 +61,7 @@ def validation(
             outputs = model(data, labels=labels)
             loss = outputs.loss
 
-            val_topk = accuracy(outputs.logits, labels, topk=(1, 5))
+            val_topk = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))
             val_meter.update(loss, val_topk, batch_size)
 
             progress_bar_step.set_postfix_str_loss_topk(

@@ -5,7 +5,7 @@ from torch import nn
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import ModelCheckpoint
 
-from utils import accuracy
+from utils import compute_topk_accuracy
 from model import configure_model
 from setup import configure_optimizer, configure_scheduler
 
@@ -85,7 +85,7 @@ class MyLightningModel(pl.LightningModule):
 
         outputs = self.model(data)
         loss = self.criterion(outputs, labels)
-        top1, top5 = accuracy(outputs, labels, topk=(1, 5))
+        top1, top5 = compute_topk_accuracy(outputs, labels, topk=(1, 5))
 
         self.log_dict(
             {
@@ -132,7 +132,7 @@ class MyLightningModel(pl.LightningModule):
 
         outputs = self.model(data)
         loss = self.criterion(outputs, labels)
-        top1, top5 = accuracy(outputs, labels, topk=(1, 5))
+        top1, top5 = compute_topk_accuracy(outputs, labels, topk=(1, 5))
 
         self.log_dict(
             {

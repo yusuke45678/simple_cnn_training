@@ -6,7 +6,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from utils import (
-    accuracy,
+    compute_topk_accuracy,
     AvgMeterLossTopk,
     TqdmLossTopK,
 )
@@ -59,9 +59,10 @@ def train(
     with TqdmLossTopK(
             enumerate(train_loader, start=1),
             total=len(train_loader),
-            leave=False
+            leave=False,
+            unit='step',
     ) as progress_bar_step:
-        progress_bar_step.set_description("[train]")
+        progress_bar_step.set_description("[train    ]")
 
         for batch_index, batch in progress_bar_step:
 
@@ -81,7 +82,7 @@ def train(
             loss = outputs.loss
             loss.backward()
 
-            train_topk = accuracy(outputs.logits, labels, topk=(1, 5))
+            train_topk = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))
             train_meters.update(loss, train_topk, batch_size)
 
             if current_train_step % train_config.log_interval_steps == 0:
@@ -98,8 +99,7 @@ def train(
                 optimizer.step()
                 current_train_step += 1
 
-    if scheduler:
-        scheduler.step()
+    scheduler.step()
 
     logger.log_metrics(
         train_meters.get_epoch_metrics_dict(),

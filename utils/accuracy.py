@@ -3,7 +3,7 @@ from typing import Tuple
 import torch
 
 
-def accuracy(
+def compute_topk_accuracy(
     logits: torch.Tensor,
     labels: torch.Tensor,
     topk: Tuple[int, ...] = (1,)

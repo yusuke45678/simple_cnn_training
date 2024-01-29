@@ -1,5 +1,6 @@
 import torch
 from tqdm import tqdm
+import argparse
 
 from args import ArgParse
 from dataset import configure_dataloader, DataloaderConfig
@@ -19,13 +20,21 @@ from val import validation
 
 
 class TqdmEpoch(tqdm):
-    def __init__(self, start_epoch: int, num_epochs: int):
-        super().__init__(range(start_epoch + 1, num_epochs + 1))
+    def __init__(self, start_epoch: int, num_epochs: int, *args, **kwargs):
+        super().__init__(
+            range(start_epoch + 1, num_epochs + 1), *args, **kwargs
+        )
 
 
-def main():
+def prepare_training(args: argparse.Namespace):
+    """prepare training objects from args
 
-    args = ArgParse.get()
+    Args:
+        args (argparse.Namespace): command line argmentrs
+
+    Returns:
+        a set of training objects
+    """
 
     logger = configure_logger(LoggerConfig(
         logged_params=vars(args),
@@ -85,9 +94,40 @@ def main():
         current_val_step = 1
         start_epoch = 0
 
-    with TqdmEpoch(start_epoch, args.num_epochs) as progress_bar_epoch:
+    return (
+        logger,
+        dataloaders,
+        model,
+        optimizer,
+        scheduler,
+        train_config,
+        current_train_step,
+        current_val_step,
+        start_epoch,
+    )
+
+
+def main():
+
+    args = ArgParse.get()
+
+    (
+        logger,
+        dataloaders,
+        model,
+        optimizer,
+        scheduler,
+        train_config,
+        current_train_step,
+        current_val_step,
+        start_epoch,
+    ) = prepare_training(args)
+
+    with TqdmEpoch(
+        start_epoch, args.num_epochs, unit='epoch',
+    ) as progress_bar_epoch:
         for current_epoch in progress_bar_epoch:
-            progress_bar_epoch.set_description(f"[Epoch {current_epoch}]")
+            progress_bar_epoch.set_description(f"[epoch {current_epoch:03d}]")
 
             train_output = train(
                 model,

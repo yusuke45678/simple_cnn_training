@@ -53,7 +53,7 @@ def save_to_checkpoint(
         "current_val_step": current_val_step,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
-        "scheduler_state_dict": scheduler.state_dict() if scheduler else None,
+        "scheduler_state_dict": scheduler.state_dict(),
     }
     torch.save(checkpoint_dict, checkpoint_file)
 
@@ -80,9 +80,9 @@ def load_from_checkpoint(
     checkpoint_to_resume: str,
     model: nn.Module,
     optimizer: Optimizer,
-    scheduler: Optional[LRScheduler],
+    scheduler: LRScheduler,
     device: torch.device
-) -> Tuple[int, int, int, nn.Module, Optimizer, Optional[LRScheduler]]:
+) -> Tuple[int, int, int, nn.Module, Optimizer, LRScheduler]:
     """load from checkpoint file or online comet_ml
 
     Args:
@@ -106,13 +106,6 @@ def load_from_checkpoint(
     current_val_step: int = checkpoint["current_val_step"]
     model.load_state_dict(checkpoint["model_state_dict"])
     optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-
-    # scheduler_dict = checkpoint["scheduler_state_dict"]
-    # if scheduler_dict:
-    #     scheduler.load_state_dict(scheduler_dict)
-    if scheduler and "scheduler_state_dict" in checkpoint.keys():
-        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
-    else:
-        scheduler = None
+    scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
 
     return current_epoch, current_train_step, current_val_step, model, optimizer, scheduler

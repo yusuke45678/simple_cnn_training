@@ -4,7 +4,8 @@ from typing import Optional
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import (
     LRScheduler,
-    StepLR
+    StepLR,
+    ConstantLR,
 )
 
 
@@ -32,4 +33,9 @@ def configure_scheduler(
             gamma=0.1  # lr = lr * 0.1
         )
 
-    return None
+    # dummy schedular that doesn't change lr because of factor=1.0
+    return ConstantLR(
+        scheduler_info.optimizer,
+        factor=1.0,
+        total_iters=65535,  # dummy max
+    )

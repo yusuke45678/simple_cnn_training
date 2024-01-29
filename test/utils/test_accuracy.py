@@ -2,7 +2,7 @@ import pytest
 
 from torch import Tensor
 
-from utils import accuracy
+from utils import compute_topk_accuracy
 
 
 @pytest.mark.parametrize(
@@ -46,5 +46,5 @@ def test_accuracy(
     topk,
     gt_acc,
 ):
-    acc = accuracy(logits, labels, topk=topk)
+    acc = compute_topk_accuracy(logits, labels, topk=topk)
     assert acc == gt_acc

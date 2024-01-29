@@ -5,8 +5,8 @@ from tqdm import tqdm
 
 class TqdmLossTopK(tqdm):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.postfix_str = ""
 
     def set_postfix_str_loss_topk(
@@ -18,12 +18,13 @@ class TqdmLossTopK(tqdm):
     ) -> str:
         assert len(topk) == len(topk_values)
 
+        self.postfix_str = ""
         self.add_step(global_step)
         self.add_loss(loss)
         self.add_topk(topk_values, topk)
 
         self.set_postfix_str(self.postfix_str)
-        return self.postfix_str
+        return self.postfix_str  # type: ignore[no-any-return]
 
     def add_step(self, step: int) -> None:
         self.postfix_str += f"step={step:d}, "
