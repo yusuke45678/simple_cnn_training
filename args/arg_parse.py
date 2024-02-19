@@ -130,11 +130,11 @@ class ArgParse:
 
         # optimizer
         parser.add_argument(
-            "--optimizer",
+            "--optimizer_name",
             type=str,
             default="SGD",
             choices=["SGD", "Adam"],
-            help="optimizer.",
+            help="optimizer name.",
         )
         parser.add_argument(
             "--grad_accum",
