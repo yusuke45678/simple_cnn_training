@@ -5,7 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "debug bs=32, GPU=0,1,2 resume",
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+        },
+        {
+            "name": "debug bs=32, GPU=0,1,2",
             "type": "python",
             "request": "launch",
             "program": "main.py",
@@ -45,7 +54,8 @@
                 "-b",
                 "32",
                 "-e",
-                "5"
+                "5",
+                "--disable_comet", // "--no_comet",
             ]
         },
         {
@@ -60,12 +70,13 @@
             },
             "args": [
                 "-w",
-                "64",
+                "2",
                 "-b",
                 "128",
                 "-e",
                 "5",
-                "--single_gpu"
+                "--disable_comet", // "--no_comet",
+                "--single_gpu",
             ]
         },
         {
