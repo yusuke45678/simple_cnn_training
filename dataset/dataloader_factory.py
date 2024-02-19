@@ -20,37 +20,39 @@ from dataset import (
 
 
 @dataclass
-class DataloaderConfig:
-    command_line_args: argparse.Namespace
-    dataset_name: str
-
-
-@dataclass
 class DataloadersInfo:
+    """DataloadersInfo
+
+        train_loader (torch.utils.data.DataLoader): training set loader
+        val_loader (torch.utils.data.DataLoader): validation set loader
+        n_classes (int): number of classes
+    """
     train_loader: DataLoader
     val_loader: DataLoader
     n_classes: int
 
 
 def configure_dataloader(
-    dataloader_info: DataloaderConfig
+    command_line_args: argparse.Namespace,
+    dataset_name: str,
 ):
     """dataloader factory
 
     Args:
-        dataloader_info (DataloaderInfo): information for dataset factory
+        command_line_args (argparse.Namespace): command line args
+        dataset_name (str): dataset name.
+            either of ["CIFAR10", "ImageFolder", "VideoFolder", "ZeroImages"]
 
     Raises:
-        ValueError: invalide dataset name given by command line
+        ValueError: invalid dataset_name is given
 
     Returns:
-        torch.utils.data.DataLoader: training set loader
-        torch.utils.data.DataLoader: validation set loader
-        int: number of classes
+        (DataloadersInfo): dataset information
     """
-    args = dataloader_info.command_line_args
 
-    if dataloader_info.dataset_name == "CIFAR10":
+    args = command_line_args
+
+    if dataset_name == "CIFAR10":
         train_transform, val_transform = \
             transform_image(TransformImageInfo())
         train_loader, val_loader, n_classes = \
@@ -62,7 +64,7 @@ def configure_dataloader(
                 val_transform=val_transform
             ))
 
-    elif dataloader_info.dataset_name == "ImageFolder":
+    elif dataset_name == "ImageFolder":
         train_transform, val_transform = \
             transform_image(TransformImageInfo())
         train_loader, val_loader, n_classes = \
@@ -76,7 +78,7 @@ def configure_dataloader(
                 val_transform=val_transform
             ))
 
-    elif dataloader_info.dataset_name == "VideoFolder":
+    elif dataset_name == "VideoFolder":
         train_transform, val_transform = \
             transform_video(TransformVideoInfo(
                 frames_per_clip=args.frames_per_clip
@@ -94,7 +96,7 @@ def configure_dataloader(
                 clips_per_video=args.clips_per_video
             ))
 
-    elif dataloader_info.dataset_name == "ZeroImages":
+    elif dataset_name == "ZeroImages":
         train_transform, _ = \
             transform_image(TransformImageInfo())
         train_loader, val_loader, n_classes = \

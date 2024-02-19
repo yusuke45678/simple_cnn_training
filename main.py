@@ -3,13 +3,11 @@ from tqdm import tqdm
 import argparse
 
 from args import ArgParse
-from dataset import configure_dataloader, DataloaderConfig
+from dataset import configure_dataloader
 from model import configure_model, ModelConfig
-from setup import (
-    configure_optimizer, OptimizerConfig,
-    configure_scheduler, SchedulerConfig
-)
-from logger import configure_logger, LoggerConfig
+from setup import configure_optimizer, configure_scheduler
+
+from logger import configure_logger
 from utils import (
     save_to_checkpoint, save_to_comet,
     load_from_checkpoint,
@@ -20,7 +18,12 @@ from val import validation
 
 
 class TqdmEpoch(tqdm):
-    def __init__(self, start_epoch: int, num_epochs: int, *args, **kwargs):
+    def __init__(
+            self,
+            start_epoch: int,
+            num_epochs: int,
+            *args,
+            **kwargs):
         super().__init__(
             range(start_epoch + 1, num_epochs + 1), *args, **kwargs
         )
@@ -36,16 +39,16 @@ def prepare_training(args: argparse.Namespace):
         a set of training objects
     """
 
-    logger = configure_logger(LoggerConfig(
+    logger = configure_logger(
         logged_params=vars(args),
         model_name=args.model_name,
-        disable_logging=args.disable_comet
-    ))
+        disable_logging=args.disable_comet,
+    )
 
-    dataloaders = configure_dataloader(DataloaderConfig(
+    dataloaders = configure_dataloader(
         command_line_args=args,
-        dataset_name=args.dataset_name
-    ))
+        dataset_name=args.dataset_name,
+    )
 
     model = configure_model(ModelConfig(
         model_name=args.model_name,
@@ -56,17 +59,17 @@ def prepare_training(args: argparse.Namespace):
         gpu_strategy=args.gpu_strategy
     ))
 
-    optimizer = configure_optimizer(OptimizerConfig(
-        optimizer_name=args.optimizer,
+    optimizer = configure_optimizer(
+        optimizer_name=args.optimizer_name,
         lr=args.lr,
         weight_decay=args.weight_decay,
         momentum=args.momentum,
         model_params=model.get_parameters()
-    ))
-    scheduler = configure_scheduler(SchedulerConfig(
+    )
+    scheduler = configure_scheduler(
         optimizer=optimizer,
         use_scheduler=args.use_scheduler
-    ))
+    )
 
     train_config = TrainConfig(
         grad_accum_interval=args.grad_accum,

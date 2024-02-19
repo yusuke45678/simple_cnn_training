@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import (
     LRScheduler,
@@ -8,31 +6,28 @@ from torch.optim.lr_scheduler import (
 )
 
 
-@dataclass
-class SchedulerConfig:
-    optimizer: Optimizer
-    use_scheduler: bool
-
-
 def configure_scheduler(
-        scheduler_info: SchedulerConfig
+    optimizer: Optimizer,
+    use_scheduler: bool,
 ) -> LRScheduler:
-    """scheduler factory for learning rate
+    """_summary_
 
     Args:
-        scheduler_info (SchedulerInfo): information for scheduler
+        optimizer (Optimizer): _description_
+        use_scheduler (bool): flag if scheduler is used.
+            Use StepLR if True, or dummy_scheduler (no lr scheduling) if False.
 
     Returns:
         LRScheduler: learning rate scheduler
     """
-    if scheduler_info.use_scheduler:
+    if use_scheduler:
         return StepLR(
-            scheduler_info.optimizer,
+            optimizer,
             step_size=10,  # every 10 epoch
             gamma=0.1  # lr = lr * 0.1
         )
 
-    return dummy_scheduler(scheduler_info.optimizer)
+    return dummy_scheduler(optimizer)
 
 
 def dummy_scheduler(optimizer) -> LRScheduler:
