@@ -1,3 +1,4 @@
+from typing import Literal
 from dataclasses import dataclass
 import argparse
 
@@ -32,16 +33,19 @@ class DataloadersInfo:
     n_classes: int
 
 
+SupportedDatasets = Literal["CIFAR10", "ImageFolder", "VideoFolder", "ZeroImages"]
+
+
 def configure_dataloader(
     command_line_args: argparse.Namespace,
-    dataset_name: str,
+    dataset_name: SupportedDatasets,
 ):
     """dataloader factory
 
     Args:
         command_line_args (argparse.Namespace): command line args
-        dataset_name (str): dataset name.
-            either of ["CIFAR10", "ImageFolder", "VideoFolder", "ZeroImages"]
+        dataset_name (SupportedDatasets): dataset name (str).
+            ["CIFAR10", "ImageFolder", "VideoFolder", "ZeroImages"]
 
     Raises:
         ValueError: invalid dataset_name is given

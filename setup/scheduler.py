@@ -10,10 +10,10 @@ def configure_scheduler(
     optimizer: Optimizer,
     use_scheduler: bool,
 ) -> LRScheduler:
-    """_summary_
+    """scheduler factory
 
     Args:
-        optimizer (Optimizer): _description_
+        optimizer (Optimizer): optimizer
         use_scheduler (bool): flag if scheduler is used.
             Use StepLR if True, or dummy_scheduler (no lr scheduling) if False.
 

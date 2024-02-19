@@ -1,4 +1,4 @@
-from .model_info import ModelConfig
+from .model_config import ModelConfig
 from .base_model import (
     ModelOutput,
     BaseModel,

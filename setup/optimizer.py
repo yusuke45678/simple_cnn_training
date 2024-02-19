@@ -1,12 +1,14 @@
-from typing import Iterator
+from typing import Iterator, Literal
 
 from torch.nn.parameter import Parameter
 from torch.optim import Optimizer
 from torch.optim import SGD, Adam
 
+SupportedOptimizers = Literal["SGD", "Adam"]
+
 
 def configure_optimizer(
-    optimizer_name: str,
+    optimizer_name: SupportedOptimizers,
     model_params: Iterator[Parameter],
     lr: float,
     weight_decay: float,
@@ -15,7 +17,8 @@ def configure_optimizer(
     """optimizer factory
 
     Args:
-        optimizer_name (str): optimizer name. either of "SGD" and "Adam".
+        optimizer_name (SupportedOptimizers): optimizer name (str).
+            ["SGD", "Adam"]
         model_params (Iterator[Parameter]): model parameters.
             Typically "model.get_parameters()"
         lr (float): learning rate.
