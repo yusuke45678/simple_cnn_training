@@ -8,8 +8,6 @@
             "source.organizeImports": "never"
         }
     },
-    "python.poetryPath": "/usr/local/bin/poetry",
-    "python.testing.pytestPath": "/usr/local/bin/pytest",
     "editor.renderWhitespace": "boundary",
     "trailing-spaces.trimOnSave": true,
     "files.autoSave": "onFocusChange",
@@ -38,4 +36,9 @@
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
+    "python.testing.pytestArgs": [
+        "test"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
 }

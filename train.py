@@ -1,176 +1,114 @@
-import torch
-from tqdm import tqdm
-from utils import AverageMeter, accuracy
-from typing import Tuple
+from dataclasses import dataclass
+
+import comet_ml
+from torch.optim.lr_scheduler import LRScheduler
+from torch.optim import Optimizer
+from torch.utils.data import DataLoader
+
+from utils import (
+    compute_topk_accuracy,
+    AvgMeterLossTopk,
+    TqdmLossTopK,
+)
+from model import BaseModel
 
 
-def val(
-    model,
-    criterion,
-    loader,
-    device,
-    global_step: int,
-    current_epoch: int,
-    experiment,
-    args,
-) -> Tuple[float, float]:
-    """validation for the current model
+@dataclass
+class TrainConfig:
+    grad_accum_interval: int
+    log_interval_steps: int
 
-    Args:
-        model(torch.nn): CNN model
-        criterion(torch.nn loss): loss function
-        loader(torch.utils.data.DataLoader): validation dataset loader
-        device(torch.device): GPU device
-        global_step(int): current step from the beginning
-        current_epoch(int): current epoch
-        experiment(comet_ml.Experiment): comet logger
 
-    Returns:
-        float: val loss
-        float: val top1
-    """
-
-    val_loss = AverageMeter()
-    val_top1 = AverageMeter()
-    val_top5 = AverageMeter()
-
-    model.eval()
-
-    with torch.no_grad(), tqdm(loader, total=len(loader), leave=False) as pbar_loss:
-        pbar_loss.set_description("[val]")
-        for batch in pbar_loss:
-            data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
-
-            data = data.to(device)
-            labels = labels.to(device)
-            batch_size = data.size(0)
-
-            outputs = model(data)
-            loss = criterion(outputs, labels)
-
-            top1, top5 = accuracy(outputs, labels, topk=(1, 5))
-            val_top1.update(top1, batch_size)
-            val_top5.update(top5, batch_size)
-            val_loss.update(loss, batch_size)
-
-            pbar_loss.set_postfix_str(
-                "loss={:6.4e}({:6.4e}), "
-                "top1={:6.2f}({:6.2f}), "
-                "top5={:6.2f}({:6.2f})".format(
-                    val_loss.value,
-                    val_loss.avg,
-                    val_top1.value,
-                    val_top1.avg,
-                    val_top5.value,
-                    val_top5.avg,
-                )
-            )
-
-    experiment.log_metrics(
-        {
-            "val_loss_epoch": val_loss.avg,
-            "val_top1_epoch": val_top1.avg,
-            "val_top5_epoch": val_top5.avg,
-        },
-        step=global_step,
-        epoch=current_epoch,
-    )
-
-    return val_loss.avg, val_top1.avg
+@dataclass
+class TrainOutput:
+    loss: float
+    top1: float
+    train_step: int
 
 
 def train(
-    model,
-    criterion,
-    optimizer,
-    loader,
-    device,
-    global_step: int,
+    model: BaseModel,
+    optimizer: Optimizer,
+    scheduler: LRScheduler,
+    train_loader: DataLoader,
+    current_train_step: int,
     current_epoch: int,
-    experiment,
-    args,
-) -> int:
+    logger: comet_ml.Experiment,
+    train_config: TrainConfig
+) -> TrainOutput:
     """training loop for one epoch
 
     Args:
-        model (torch.nn): CNN model
-        criterion (torch.nn loss): loss function
-        optimizer (torch.optim): optimizer
-        loader (torch.utils.data.DataLoader): training dataset loader
-        device (torch.device): GPU device
-        global_step (int): current step from the beginning
+        model (BaseModel): CNN model
+        optimizer (Optimizer): optimizer
+        scheduler (LRScheduler): learning rate (lr) scheduler
+        loader (DataLoader): training dataset loader
+        current_train_step (int): current step for training
         current_epoch (int): current epoch
-        experiment (comet_ml.Experiment): comet logger
-        args (argparse): args
+        logger (comet_ml.Experiment): comet logger
+        train_config (TrainInfo): information for training
 
     Returns:
-        int: global_step
+        TrainOutput: train loss, train top1, steps for training
     """
 
-    train_loss = AverageMeter()
-    train_top1 = AverageMeter()
-    train_top5 = AverageMeter()
+    train_meters = AvgMeterLossTopk("train")
 
     model.train()
 
-    with tqdm(enumerate(loader, start=1), total=len(loader), leave=False) as pbar_loss:
-        pbar_loss.set_description("[train]")
-        for batch_index, batch in pbar_loss:
-            data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
+    with TqdmLossTopK(
+            enumerate(train_loader, start=1),
+            total=len(train_loader),
+            leave=False,
+            unit='step',
+    ) as progress_bar_step:
+        progress_bar_step.set_description("[train    ]")
 
-            data = data.to(device)
-            labels = labels.to(device)
+        for batch_index, batch in progress_bar_step:
+
+            data, labels = batch  # (BCHW, B) for images or (BCTHW, B) for videos
+
+            data = data.to(model.get_device())
+            labels = labels.to(model.get_device())
             batch_size = data.size(0)
 
-            if args.grad_accum == 1 or batch_index % args.grad_accum == 1:
+            if (
+                train_config.grad_accum_interval == 1
+                or batch_index % train_config.grad_accum_interval == 1
+            ):
                 optimizer.zero_grad()
 
-            outputs = model(data)
-            loss = criterion(outputs, labels)
+            outputs = model(data, labels=labels)
+            loss = outputs.loss
             loss.backward()
 
-            top1, top5 = accuracy(outputs, labels, topk=(1, 5))
-            train_top1.update(top1, batch_size)
-            train_top5.update(top5, batch_size)
-            train_loss.update(loss, batch_size)
+            train_topk = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))
+            train_meters.update(loss, train_topk, batch_size)
 
-            if global_step % args.log_interval_steps == 0:
-                pbar_loss.set_postfix_str(
-                    "step={:d}, "
-                    "loss={:6.4e}({:6.4e}), "
-                    "top1={:6.2f}({:6.2f}), "
-                    "top5={:6.2f}({:6.2f})".format(
-                        global_step,
-                        train_loss.value,
-                        train_loss.avg,
-                        train_top1.value,
-                        train_top1.avg,
-                        train_top5.value,
-                        train_top5.avg,
-                    )
+            if current_train_step % train_config.log_interval_steps == 0:
+                progress_bar_step.set_postfix_str_loss_topk(
+                    current_train_step, loss, train_topk
                 )
-                experiment.log_metrics(
-                    {
-                        "train_loss_step": train_loss.value,
-                        "train_top1_step": train_top1.value,
-                        "train_top5_step": train_top5.value,
-                    },
-                    step=global_step,
+                logger.log_metrics(
+                    train_meters.get_step_metrics_dict(),
+                    step=current_train_step,
                     epoch=current_epoch,
                 )
 
-            if batch_index % args.grad_accum == 0:
+            if batch_index % train_config.grad_accum_interval == 0:
                 optimizer.step()
-                global_step += 1
+                current_train_step += 1
 
-    experiment.log_metrics(
-        {
-            "train_loss_epoch": train_loss.avg,
-            "train_top1_epoch": train_top1.avg,
-            "train_top5_epoch": train_top5.avg,
-        },
-        step=global_step,
+    scheduler.step()
+
+    logger.log_metrics(
+        train_meters.get_epoch_metrics_dict(),
+        step=current_train_step,
         epoch=current_epoch,
     )
 
-    return global_step
+    return TrainOutput(
+        loss=train_meters.loss_meter.avg,
+        top1=train_meters.topk_meters[0].avg,  # top1: topk[0] should be 1
+        train_step=current_train_step
+    )
