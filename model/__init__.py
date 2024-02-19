@@ -12,8 +12,6 @@ from .dummy_models import ZeroOutputModel
 
 from .model_factory import configure_model
 
-# from .model_pl import MyLightningModel
-
 
 __all__ = [
     'ModelConfig',
@@ -27,5 +25,4 @@ __all__ = [
     'ViTb',
     'ZeroOutputModel',
     'configure_model',
-    # 'MyLightningModel',
 ]
