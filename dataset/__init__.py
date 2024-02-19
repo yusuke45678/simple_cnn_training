@@ -6,7 +6,7 @@ from .transforms import (
     transform_image, TransformImageInfo,
     transform_video, TransformVideoInfo,
 )
-from .dataloader_factory import configure_dataloader, DataloaderConfig
+from .dataloader_factory import configure_dataloader
 # from .dataset_pl import MyDataModule
 
 __all__ = [
@@ -23,6 +23,5 @@ __all__ = [
     'transform_video',
     'TransformVideoInfo',
     'configure_dataloader',
-    'DataloaderConfig',
     # 'MyDataModule'
 ]
