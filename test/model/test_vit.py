@@ -24,8 +24,8 @@ def test_vit_b_output(
         model_name=model_name,
         n_classes=n_classes,
         use_pretrained=use_pretrained,
-        device=device,
     ))
+    model.to(device)
     assert isinstance(model, BaseModel)
 
     data = torch.rand(batch_size, 3, crop_size, crop_size, device=device)  # BCHW
@@ -64,8 +64,9 @@ def test_vit_b_methods(
         model_name=model_name,
         n_classes=n_classes,
         use_pretrained=use_pretrained,
-        device=device,
     ))
+    model.to(device)
+    assert isinstance(model, BaseModel)
 
     assert isinstance(model.get_model(), nn.Module)
     assert isinstance(next(model.parameters()), nn.Parameter)

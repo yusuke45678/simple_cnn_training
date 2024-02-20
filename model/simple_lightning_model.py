@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import torch
 from torch.nn import functional as F
 
 import lightning.pytorch as pl
@@ -49,8 +48,6 @@ class SimpleLightningModel(pl.LightningModule):
             use_pretrained=self.args.use_pretrained,
             torch_home=self.args.torch_home,
             n_classes=n_classes,
-            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-            gpu_strategy="None"  # do not use strategy here, instead use strategy for pl.Trainer()
         ))
 
         # https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#save-hyperparameters
@@ -105,7 +102,7 @@ class SimpleLightningModel(pl.LightningModule):
         return F.softmax(self.model(data, labels).logits)
 
     def named_modules(self, memo=None, prefix='', remove_duplicate=True):
-        return self.model.named_modules(memo=None, prefix='', remove_duplicate=True)
+        return self.model.named_modules(memo=memo, prefix=prefix, remove_duplicate=remove_duplicate)
 
     def log_train_loss_top15(self, loss, top1, top5, batch_size):
         # https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#train-epoch-level-metrics

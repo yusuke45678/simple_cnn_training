@@ -37,7 +37,6 @@ class BaseModel():
 
     def to(self, device: torch.device) -> Self:
         self.model.to(device)
-        self.model_config.device = device
         return self
 
     def get_device(self) -> torch.device:
@@ -50,7 +49,7 @@ class BaseModel():
         return next(self.model.parameters()).device
 
     def named_modules(self, memo=None, prefix='', remove_duplicate=True):
-        return self.model.named_modules(memo=None, prefix='', remove_duplicate=True)
+        return self.model.named_modules(memo=memo, prefix=prefix, remove_duplicate=remove_duplicate)
 
     def parameters(self) -> Iterator[nn.Parameter]:
         return self.model.parameters()
