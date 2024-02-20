@@ -60,9 +60,4 @@ def configure_model(
     else:
         raise ValueError('invalid model_info.model_name')
 
-    model = model.to(model_info.device)
-
-    if model_info.gpu_strategy == 'dp':
-        model.set_data_parallel()
-
     return model

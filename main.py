@@ -50,14 +50,17 @@ def prepare_training(args: argparse.Namespace):
         dataset_name=args.dataset_name,
     )
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     model = configure_model(ModelConfig(
         model_name=args.model_name,
         use_pretrained=args.use_pretrained,
         torch_home=args.torch_home,
         n_classes=dataloaders.n_classes,
-        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-        gpu_strategy=args.gpu_strategy
     ))
+    model = model.to(device)
+    if args.gpu_strategy == 'dp':
+        model.set_data_parallel()
 
     optimizer = configure_optimizer(
         optimizer_name=args.optimizer_name,
