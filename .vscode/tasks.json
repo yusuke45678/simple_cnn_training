@@ -107,7 +107,30 @@
             ]
         },
         {
-            "label": "pl bs=64, GPU=0,1 dp",
+            "label": "pl bs=64, 1GPU(0)",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0"
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-w",
+                "24",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--val_interval_epochs",
+                "1",
+                "--log_interval_steps",
+                "20",
+            ]
+        },
+        {
+            "label": "pl bs=64, 2GPU(0,1)",
             "type": "shell",
             "options": {
                 "env": {
@@ -127,10 +150,6 @@
                 "1",
                 "--log_interval_steps",
                 "20",
-                // "--use_dp",
-                // "--single_gpu",
-                "--gpu_strategy",
-                "dp",
             ]
         },
         {
