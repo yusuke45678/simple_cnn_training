@@ -70,7 +70,7 @@ class ArgParse:
             "--model_name",
             type=str,
             default="resnet18",
-            choices=["resnet18", "resnet50", "x3d"],
+            choices=["resnet18", "resnet50", "x3d", "abn_r50", "vit_b", "zero_output_dummy"],
             help="name of the model",
         )
         parser.add_argument(
@@ -161,6 +161,14 @@ class ArgParse:
         )
         parser.set_defaults(use_scheduler=False)
 
+        # GPU strategy
+        parser.add_argument(
+            "--use_ddp",
+            dest="gpu_strategy",
+            action="store_const",
+            const="ddp",
+            help="use multi GPUs with distributed data parallel",
+        )
         parser.add_argument(
             "--use_dp",
             dest="gpu_strategy",

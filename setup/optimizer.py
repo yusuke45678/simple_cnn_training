@@ -20,7 +20,7 @@ def configure_optimizer(
         optimizer_name (SupportedOptimizers): optimizer name (str).
             ["SGD", "Adam"]
         model_params (Iterator[Parameter]): model parameters.
-            Typically "model.get_parameters()"
+            Typically "model.parameters()"
         lr (float): learning rate.
         weight_decay (float): weight decay
         momentum (float, optional): momentum. Defaults to 0.9.

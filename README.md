@@ -84,7 +84,7 @@ python3 main_pl.py -h
   --tf_log_dir str      dir to TensorBoard log files. (default: ./tf_logs/)
   --save_checkpoint_dir str
                         dir to save checkpoint files. (default: ./log)
-  --resume_from_checkpoint str
+  --checkpoint_to_resume str
                         path to the checkpoint file to resume from. (default: None)
   --disable_comet, --no_comet
                         do not use comet.ml (default: use comet) (default: False)

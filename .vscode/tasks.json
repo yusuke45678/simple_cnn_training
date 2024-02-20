@@ -103,7 +103,7 @@
                 "1",
                 "--log_interval_steps",
                 "20",
-                "--disable_comet",
+                // "--disable_comet",
             ]
         },
         {
@@ -125,10 +125,47 @@
                 "5",
                 "--val_interval_epochs",
                 "1",
+                "--log_interval_steps",
+                "20",
                 // "--use_dp",
                 // "--single_gpu",
                 "--gpu_strategy",
                 "dp",
+            ]
+        },
+        {
+            "label": "pl bs64 w64 2GPU(4,5) ddp ImageFolder vit_b",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "4,5,6,7",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "--model_name",
+                "vit_b",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "64",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-5",
+                "--gpu_strategy",
+                "ddp",
+                "--gpus",
+                "2",
+                "--log_interval_steps",
+                "20",
             ]
         },
         {
@@ -150,8 +187,12 @@
                 "5",
                 "--val_interval_epochs",
                 "1",
+                "--log_interval_steps",
+                "20",
                 "--gpu_strategy",
                 "ddp",
+                "--gpus",
+                "3",
             ]
         },
         {

@@ -49,7 +49,10 @@ class BaseModel():
         # taken from https://github.com/pytorch/pytorch/issues/7460
         return next(self.model.parameters()).device
 
-    def get_parameters(self) -> Iterator[nn.Parameter]:
+    def named_modules(self, memo=None, prefix='', remove_duplicate=True):
+        return self.model.named_modules(memo=None, prefix='', remove_duplicate=True)
+
+    def parameters(self) -> Iterator[nn.Parameter]:
         return self.model.parameters()
 
     def set_data_parallel(self) -> Self:

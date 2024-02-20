@@ -68,7 +68,7 @@ def test_abn_methods(
     ))
 
     assert isinstance(model.get_model(), nn.Module)
-    assert isinstance(next(model.get_parameters()), nn.Parameter)
+    assert isinstance(next(model.parameters()), nn.Parameter)
 
     model.train()
     assert model.model.training

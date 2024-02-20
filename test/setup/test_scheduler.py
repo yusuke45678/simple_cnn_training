@@ -17,7 +17,7 @@ def optimizer(
         lr=lr,
         weight_decay=weight_decay,
         momentum=momentum,
-        model_params=model.get_parameters()
+        model_params=model.parameters()
     )
     return optimizer_for_test
 

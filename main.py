@@ -64,7 +64,7 @@ def prepare_training(args: argparse.Namespace):
         lr=args.lr,
         weight_decay=args.weight_decay,
         momentum=args.momentum,
-        model_params=model.get_parameters()
+        model_params=model.parameters()
     )
     scheduler = configure_scheduler(
         optimizer=optimizer,

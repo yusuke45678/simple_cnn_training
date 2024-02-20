@@ -7,4 +7,6 @@ ignore =
     VNE001,
     ; W503:line break before binary operator'
     W503,
+    ; N812: lowwercase '***' imported as non lowercase
+    N812,
 max-line-length = 120

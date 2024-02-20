@@ -1,36 +1,39 @@
+from typing import Tuple
 from datetime import datetime
-from lightning.pytorch.loggers import CometLogger, TensorBoardLogger
+
+from comet_ml import Experiment
+from lightning.pytorch.loggers import CometLogger
 
 
-def logger_factory_pl(args):
-    """generating two loggers.
-    - comet logger for cloud logging
-    - tensorboard logger for local logging (in case of network lost)
+def configure_logger_pl(
+        model_name: str,
+        disable_logging: bool,
+        save_dir: str,
+) -> Tuple[Experiment, str]:
+    """comet logger factory
 
     Args:
-        args (argparse): args
+        model_name (str): modelname to be added as a tag of comet experiment
+        disable_logging (bool): disable comet Experiment object
+        save_dir (str): dir to save comet log
 
     Returns:
-        Tuple[lightning.pytorch.loggers]: loggers
+        comet_ml.Experiment: logger
         str: experiment name of comet.ml
     """
 
     exp_name = datetime.now().strftime("%Y-%m-%d_%H:%M:%S:%f")
+    exp_name = exp_name.replace(" ", "_")
 
-    # logger[0]
+    # Use ./.comet.config and ~/.comet.config
+    # to specify API key, workspace and project name.
+    # DO NOT put API key in the code!
     comet_logger = CometLogger(
-        # Use ./.comet.config and ~/.comet.config
-        # to specify API key, workspace and project name.
-        # DO NOT put API key in the code!
-        save_dir=args.comet_log_dir,
+        save_dir=save_dir,
         experiment_name=exp_name,
         parse_args=True,
-        disabled=args.disable_comet,
+        disabled=disable_logging,
     )
-    comet_logger.experiment.add_tag(args.model)
+    comet_logger.experiment.add_tag(model_name)
 
-    # logger[1]
-    tb_logger = TensorBoardLogger(save_dir=args.tf_log_dir, name=exp_name)
-
-    exp_name = exp_name.replace(" ", "_")
-    return (comet_logger, tb_logger), exp_name
+    return comet_logger, exp_name

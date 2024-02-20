@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -15,13 +15,14 @@
         },
         {
             "name": "debug bs=32, GPU=0,1,2",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0,1,2"
+                "CUDA_VISIBLE_DEVICES": "0,1,2",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-w",
@@ -33,20 +34,21 @@
                 // "--disable_comet", // "--no_comet",
                 "--val_interval_epochs",
                 "1",
-                // "--resume_from_checkpoint",
+                // "--checkpoint_to_resume",
                 // "./log/epoch3_steps2344_acc70.51.pt"
                 // "experiment://xxxxxxxxxxxxxxxxxxxxxxxx/resnet18"
             ]
         },
         {
             "name": "debug bs=32, GPU=2,3",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "2,3"
+                "CUDA_VISIBLE_DEVICES": "2,3",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-w",
@@ -60,13 +62,14 @@
         },
         {
             "name": "debug bs=128, GPU=3",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
+                "CUDA_VISIBLE_DEVICES": "0",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-w",
@@ -81,13 +84,14 @@
         },
         {
             "name": "debug bs=256, 2GPUs, Adam, ImageFolder",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0,1"
+                "CUDA_VISIBLE_DEVICES": "0,1",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",
@@ -108,14 +112,15 @@
         },
         {
             "name": "bs64 w64 1GPU(0) ImageFolder",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "justMyCode": false,
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
+                "CUDA_VISIBLE_DEVICES": "0",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",
@@ -141,14 +146,15 @@
         },
         {
             "name": "pl bs64 w64 1GPU(1) ImageFolder",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "justMyCode": false,
             "env": {
-                "CUDA_VISIBLE_DEVICES": "1"
+                "CUDA_VISIBLE_DEVICES": "1",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",
@@ -173,14 +179,90 @@
             ]
         },
         {
+            "name": "pl bs64 w64 1GPU(0,1,2) ImageFolder vit_b",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main_pl.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0,1,2",
+                // "CUDA_LAUNCH_BLOCKING": "1",
+            },
+            "args": [
+                "--model_name",
+                "vit_b",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "64",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-5",
+                "--gpus",
+                "1",
+                "--log_interval_steps",
+                "20",
+                // "--disable_comet",
+            ]
+        },
+        {
+            "name": "pl bs64 w64 2GPU(4,5) ddp ImageFolder vit_b",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main_pl.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "4,5,6,7",
+                // "CUDA_LAUNCH_BLOCKING": "1",
+                "TORCH_DISTRIBUTED_DEBUG": "DETAIL", // or "INFO"
+            },
+            "args": [
+                "--model_name",
+                "vit_b",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "64",
+                "-b",
+                "64",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "-lr",
+                "1e-5",
+                "--gpu_strategy",
+                "ddp",
+                "--gpus",
+                "2",
+                "--log_interval_steps",
+                "20",
+                // "--disable_comet",
+            ]
+        },
+        {
             "name": "debug bs=24 w=24 GPU3 video x3d",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0,1,2"
+                "CUDA_VISIBLE_DEVICES": "0,1,2",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",
@@ -214,13 +296,14 @@
         },
         {
             "name": "pl bs=16 w=24 GPU2 dp video x3d",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0,1"
+                "CUDA_VISIBLE_DEVICES": "0,1",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",
@@ -254,13 +337,14 @@
         },
         {
             "name": "pl bs=8 w=12 GPU2 ddp video x3d",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
                 "CUDA_VISIBLE_DEVICES": "0,1",
+                // "CUDA_LAUNCH_BLOCKING": "1",
                 "TORCH_DISTRIBUTED_DEBUG": "DETAIL", // or "INFO"
             },
             "args": [
@@ -295,13 +379,14 @@
         },
         {
             "name": "pl bs=8 w=4 GPU6 ddp video x3d",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
                 "CUDA_VISIBLE_DEVICES": "2,3,4,5,6,7",
+                // "CUDA_LAUNCH_BLOCKING": "1",
                 "TORCH_DISTRIBUTED_DEBUG": "DETAIL", // or "INFO"
             },
             "args": [
@@ -336,14 +421,15 @@
         },
         {
             "name": "debug bs=8 w=24 GPU1 video x3d",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "justMyCode": false,
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
+                "CUDA_VISIBLE_DEVICES": "0",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",
@@ -378,13 +464,14 @@
         },
         {
             "name": "debug bs=8 w=24 GPU1 image r50 ImageFolder",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "1"
+                "CUDA_VISIBLE_DEVICES": "1",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",
@@ -409,13 +496,14 @@
         },
         {
             "name": "pl bs=64, GPU=0,1 dp",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0,1"
+                "CUDA_VISIBLE_DEVICES": "0,1",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-w",
@@ -430,19 +518,20 @@
                 // "--single_gpu",
                 "--gpu_strategy",
                 "dp",
-                // "--resume_from_checkpoint",
+                // "--checkpoint_to_resume",
                 // "./log/epoch3_steps2344_acc70.51.pt"
             ]
         },
         {
             "name": "pl bs=64, GPU=0,1,2 ddp",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0,1,2"
+                "CUDA_VISIBLE_DEVICES": "0,1,2",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-w",
@@ -457,19 +546,20 @@
                 "ddp",
                 "--gpus",
                 "3",
-                "--resume_from_checkpoint",
+                "--checkpoint_to_resume",
                 "./log/epoch9_steps2275_acc=68.24.ckpt"
             ]
         },
         {
             "name": "pl tmux bs=8 w=8 1GPU(3) x3d",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main_pl.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "3"
+                "CUDA_VISIBLE_DEVICES": "3",
+                // "CUDA_LAUNCH_BLOCKING": "1",
             },
             "args": [
                 "-d",

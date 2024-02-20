@@ -6,8 +6,8 @@ from .transforms import (
     transform_image, TransformImageInfo,
     transform_video, TransformVideoInfo,
 )
-from .dataloader_factory import configure_dataloader
-# from .dataset_pl import MyDataModule
+from .dataloader_factory import configure_dataloader, DataloadersInfo
+from .dataset_pl import TrainValDataModule
 
 __all__ = [
     'cifar10',
@@ -23,5 +23,6 @@ __all__ = [
     'transform_video',
     'TransformVideoInfo',
     'configure_dataloader',
-    # 'MyDataModule'
+    'DataloadersInfo',
+    'TrainValDataModule'
 ]
