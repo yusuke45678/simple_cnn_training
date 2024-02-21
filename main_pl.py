@@ -1,19 +1,13 @@
-# from typing import Literal
 
-
-# import torch
 import lightning.pytorch as pl
 from lightning.pytorch.plugins import TorchSyncBatchNorm
 
 
 from args import ArgParse
 from logger import configure_logger_pl
-# from callback import configure_callbacks
+from callback import configure_callbacks
 from dataset import TrainValDataModule
 from model import SimpleLightningModel
-
-
-# SupportedStrategy = Literal["auto", "dp", "ddp"]
 
 
 def main():
@@ -24,8 +18,6 @@ def main():
         disable_logging=args.disable_comet,
         save_dir=args.comet_log_dir,
     )
-    # callbacks = configure_callbacks()
-
     data_module = TrainValDataModule(
         command_line_args=args,
         dataset_name=args.dataset_name,
@@ -36,29 +28,25 @@ def main():
         exp_name=exp_name
     )
 
-    # strategy: SupportedStrategy = "auto"
-    # if args.gpu_strategy == 'dp':
-    #     strategy = 'dp'
-    # if args.gpu_strategy == "ddp":
-    #     strategy = "ddp"
+    callbacks = configure_callbacks()
 
     # https://lightning.ai/docs/pytorch/stable/common/trainer.html
     # https://lightning.ai/docs/pytorch/stable/common/trainer.html#trainer-flags
     trainer = pl.Trainer(
-        # devices=args.gpus,
-        # accelerator="auto",
-        # strategy=strategy,
+        devices=args.devices,
+        accelerator="gpu",
+        strategy="auto",
         max_epochs=args.num_epochs,
         logger=loggers,
         log_every_n_steps=args.log_interval_steps,
         accumulate_grad_batches=args.grad_accum,
         num_sanity_val_steps=0,
-        # precision=16,  # for FP16 training
+        precision="16-true",  # for FP16 training
         # fast_dev_run=True, # only for debug
-        # fast_dev_run=5, # only for debug
-        # limit_train_batches=5, # only for debug
-        # limit_val_batches=5, # only for debug
-        # callbacks=callbacks,
+        # fast_dev_run=5,  # only for debug
+        # limit_train_batches=15,  # only for debug
+        # limit_val_batches=15,  # only for debug
+        callbacks=callbacks,
         plugins=[TorchSyncBatchNorm()],
         # profiler="simple",
     )

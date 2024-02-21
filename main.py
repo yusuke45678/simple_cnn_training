@@ -59,7 +59,7 @@ def prepare_training(args: argparse.Namespace):
         n_classes=dataloaders.n_classes,
     ))
     model = model.to(device)
-    if args.gpu_strategy == 'dp':
+    if args.use_dp:
         model.set_data_parallel()
 
     optimizer = configure_optimizer(

@@ -4,28 +4,23 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "run main.py",
+            "label": "main.py help",
             "type": "shell",
             "command": "python",
             "args": [
                 "main.py",
-                "-w",
-                "24",
-                "-b",
-                "8",
-                "-e",
-                "5"
+                "-h"
             ]
         },
         {
-            "label": "run main.py, bs=256, 2GPUs, Adam, ImageFolder",
+            "label": "main.py 1GPU(0)",
             "type": "shell",
+            "command": "python",
             "options": {
                 "env": {
-                    "CUDA_VISIBLE_DEVICES": "2,3"
+                    "CUDA_VISIBLE_DEVICES": "0",
                 },
             },
-            "command": "python",
             "args": [
                 "main.py",
                 "-d",
@@ -33,21 +28,25 @@
                 "-r",
                 "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
                 "-w",
-                "64",
+                "16",
                 "-b",
-                "256",
+                "64",
                 "-e",
                 "5",
                 "--optimizer",
                 "Adam",
+                "--log_interval_steps",
+                "10",
+                // "--checkpoint_to_resume",
+                // "./log/epoch3_steps2344_acc70.51.pt"
             ]
         },
         {
-            "label": "bs64 w64 1GPU(0) ImageFolder",
+            "label": "main.py 1GPU(1)",
             "type": "shell",
             "options": {
                 "env": {
-                    "CUDA_VISIBLE_DEVICES": "0"
+                    "CUDA_VISIBLE_DEVICES": "1",
                 },
             },
             "command": "python",
@@ -58,28 +57,244 @@
                 "-r",
                 "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
                 "-w",
-                "64",
+                "16",
                 "-b",
                 "64",
                 "-e",
-                "10",
+                "5",
                 "--optimizer",
                 "Adam",
-                "-lr",
-                "1e-5",
-                "--gpus",
-                "1",
                 "--log_interval_steps",
-                "20",
+                "10",
+            ]
+        },
+        {
+            "label": "main.py 1GPU(0,1)",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0,1",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "16",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main.py 2GPU(0,1) dp",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0,1",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "16",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--use_dp",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main.py 3GPU(0,1,2) dp",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0,1,2",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "16",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--use_dp",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main_pl.py 1GPU(0)",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "16",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main_pl.py 1GPU(1)",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "1",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "16",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main_pl.py 2GPU(0,1) ddp",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0,1",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "8",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main_pl.py 3GPU(0,1,2) ddp",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0,1,2",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "5",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main_pl.py 2GPU(0,1,2) ddp",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0,1,2",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main_pl.py",
+                "-d",
+                "ImageFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
+                "-w",
+                "8",
+                "-b",
+                "64",
+                "-e",
+                "5",
+                "--optimizer",
+                "Adam",
+                "--log_interval_steps",
+                "10",
                 "--disable_comet",
+                "--devices",
+                "0,2"
             ]
         },
         {
-            "label": "pl bs64 w64 1GPU(1) ImageFolder",
+            "label": "main_pl.py 4GPU(0,2,4,6) of 8GPUs ddp",
             "type": "shell",
             "options": {
                 "env": {
-                    "CUDA_VISIBLE_DEVICES": "1"
+                    // "CUDA_VISIBLE_DEVICES": "0,1,2",
                 },
             },
             "command": "python",
@@ -90,409 +305,18 @@
                 "-r",
                 "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
                 "-w",
-                "64",
+                "8",
                 "-b",
                 "64",
                 "-e",
-                "10",
+                "5",
                 "--optimizer",
                 "Adam",
-                "-lr",
-                "1e-5",
-                "--gpus",
-                "1",
                 "--log_interval_steps",
-                "20",
-                // "--disable_comet",
-            ]
-        },
-        {
-            "label": "pl bs=64, 1GPU(0)",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "0"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "-w",
-                "24",
-                "-b",
-                "64",
-                "-e",
-                "5",
-                "--val_interval_epochs",
-                "1",
-                "--log_interval_steps",
-                "20",
-            ]
-        },
-        {
-            "label": "pl bs=64, 2GPU(0,1)",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "0,1"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "-w",
-                "24",
-                "-b",
-                "64",
-                "-e",
-                "5",
-                "--val_interval_epochs",
-                "1",
-                "--log_interval_steps",
-                "20",
-            ]
-        },
-        {
-            "label": "pl bs64 w64 2GPU(4,5) ddp ImageFolder vit_b",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "4,5,6,7",
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "--model_name",
-                "vit_b",
-                "-d",
-                "ImageFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
-                "-w",
-                "64",
-                "-b",
-                "64",
-                "-e",
                 "10",
-                "--optimizer",
-                "Adam",
-                "-lr",
-                "1e-5",
-                "--gpu_strategy",
-                "ddp",
-                "--gpus",
-                "2",
-                "--log_interval_steps",
-                "20",
-            ]
-        },
-        {
-            "label": "pl bs=64, GPU=0,1,2 ddp",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "0,1,2"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "-w",
-                "24",
-                "-b",
-                "64",
-                "-e",
-                "5",
-                "--val_interval_epochs",
-                "1",
-                "--log_interval_steps",
-                "20",
-                "--gpu_strategy",
-                "ddp",
-                "--gpus",
-                "3",
-            ]
-        },
-        {
-            "label": "bs=8 w=24 GPU1 video x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "0"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "24",
-                "-b",
-                "8",
-                // "--grad_accum",
-                // "4",
-                "--log_interval_steps",
-                "1",
-                "-e",
-                "5",
-                "--clip_duration",
-                "2.67",
-                "--optimizer",
-                "SGD",
-                "-lr",
-                "1e-4",
-                "--single_gpu",
-                "--gpus",
-                "1",
-                // "--disable_comet",
-            ]
-        },
-        {
-            "label": "tmux bs=8 w=8 1GPU(0) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "0"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
-            ]
-        },
-        {
-            "label": "tmux bs=8 w=8 1GPU(1) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "1"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
-            ]
-        },
-        {
-            "label": "tmux bs=8 w=8 1GPU(2) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "2"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
-            ]
-        },
-        {
-            "label": "tmux bs=8 w=8 1GPU(3) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "3"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
-            ]
-        },
-        {
-            "label": "pl tmux bs=8 w=8 1GPU(0) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "0"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
-            ]
-        },
-        {
-            "label": "pl tmux bs=8 w=8 1GPU(1) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "1"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
-            ]
-        },
-        {
-            "label": "pl tmux bs=8 w=8 1GPU(2) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "2"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
-            ]
-        },
-        {
-            "label": "pl tmux bs=8 w=8 1GPU(3) x3d",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "3"
-                },
-            },
-            "command": "python",
-            "args": [
-                "main_pl.py",
-                "-d",
-                "VideoFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01/",
-                "--val_dir",
-                "test",
-                "--model",
-                "x3d",
-                "-w",
-                "8",
-                "-b",
-                "8",
-                "-e",
-                "50",
-                "--single_gpu",
-                "--gpus",
-                "1",
+                "--disable_comet",
+                "--devices",
+                "0,2,4,6"
             ]
         },
     ]

@@ -126,7 +126,7 @@ class SimpleLightningModel(pl.LightningModule):
             on_step=True,
             on_epoch=True,
             rank_zero_only=False,
-            sync_dist=False,  # do NOT sync log metrics for training
+            sync_dist=True,
             batch_size=batch_size,
         )
 
@@ -138,7 +138,7 @@ class SimpleLightningModel(pl.LightningModule):
             on_step=True,
             on_epoch=True,
             rank_zero_only=False,
-            sync_dist=False,
+            sync_dist=True,
             batch_size=batch_size,
         )
 
