@@ -47,14 +47,14 @@ class ArgParse:
             "--train_dir",
             type=str,
             default="train",
-            help="subdier name of training dataset.",
+            help="subdir name from root for training set.",
         )
         parser.add_argument(
             "-vd",
             "--val_dir",
             type=str,
             default="val",
-            help="subdier name of validation dataset.",
+            help="subdir name from root for validation set.",
         )
 
         # model
@@ -73,6 +73,7 @@ class ArgParse:
             choices=["resnet18", "resnet50", "x3d", "abn_r50", "vit_b", "zero_output_dummy"],
             help="name of the model",
         )
+
         parser.add_argument(
             "--use_pretrained",
             dest="use_pretrained",
@@ -90,7 +91,10 @@ class ArgParse:
 
         # video
         parser.add_argument(
-            "--frames_per_clip", type=int, default=16, help="frames per clip."
+            "--frames_per_clip",
+            type=int,
+            default=16,
+            help="frames per clip."
         )
         parser.add_argument(
             "--clip_duration",
@@ -106,12 +110,26 @@ class ArgParse:
         )
 
         # training
-        parser.add_argument("-b", "--batch_size", type=int, default=8, help="batch size.")
         parser.add_argument(
-            "-w", "--num_workers", type=int, default=2, help="number of workers."
+            "-b",
+            "--batch_size",
+            type=int,
+            default=8,
+            help="batch size."
         )
         parser.add_argument(
-            "-e", "--num_epochs", type=int, default=25, help="number of epochs."
+            "-w",
+            "--num_workers",
+            type=int,
+            default=2,
+            help="number of workers."
+        )
+        parser.add_argument(
+            "-e",
+            "--num_epochs",
+            type=int,
+            default=25,
+            help="number of epochs."
         )
         parser.add_argument(
             "-vi",
@@ -142,10 +160,23 @@ class ArgParse:
             default=1,
             help="steps to accumlate gradients.",
         )
-        parser.add_argument("-lr", type=float, default=1e-4, help="learning rate.")
-        parser.add_argument("--momentum", type=float, default=0.9, help="momentum of SGD.")
         parser.add_argument(
-            "--weight_decay", type=float, default=5e-4, help="weight decay."
+            "-lr",
+            type=float,
+            default=1e-4,
+            help="learning rate."
+        )
+        parser.add_argument(
+            "--momentum",
+            type=float,
+            default=0.9,
+            help="momentum of SGD."
+        )
+        parser.add_argument(
+            "--weight_decay",
+            type=float,
+            default=5e-4,
+            help="weight decay."
         )
         parser.add_argument(
             "--use_scheduler",
@@ -161,43 +192,23 @@ class ArgParse:
         )
         parser.set_defaults(use_scheduler=False)
 
-        # GPU strategy
-        parser.add_argument(
-            "--use_ddp",
-            dest="gpu_strategy",
-            action="store_const",
-            const="ddp",
-            help="use multi GPUs with distributed data parallel",
-        )
+        # multi-GPU strategy
         parser.add_argument(
             "--use_dp",
-            dest="gpu_strategy",
-            action="store_const",
-            const="dp",
-            help="use multi GPUs with data parallel",
+            dest="use_dp",
+            action="store_true",
+            help="GPUs with data parallel (dp); not for lightning",
         )
+        parser.set_defaults(use_dp=False)
+
         parser.add_argument(
-            "--single_gpu",
-            dest="gpu_strategy",
-            action="store_const",
-            const="None",
-            help="use single GPU",
-        )
-        parser.add_argument(
-            "--gpu_strategy",
+            "--gpu_ids",
+            "--devices",
             type=str,
-            default="dp",
-            choices=["None", "dp", "ddp"],
-            help="GPU training strategy. "
-            "None: single GPU. "
-            "dp: Data Parallel (default). "
-            "ddp: Distributed Data Parallel. ",
-        )
-        parser.add_argument(
-            "--gpus",
-            type=int,
-            default=2,
-            help="how many GPUs are used for dp and ddp.",
+            default="-1",
+            help="GPU ID used for ddp strategy (only for lightning)."
+            "\"--devices=0,1\" for 0 and 1, \"--devices=-1\" for all gpus (default).",
+            # https://lightning.ai/docs/pytorch/stable/accelerators/gpu_basic.html#choosing-gpu-devices
         )
 
         # log dirs
@@ -239,11 +250,6 @@ class ArgParse:
         parser.set_defaults(disable_comet=False)
 
         args = parser.parse_args()
-
-        if args.dataset_name in ["CIFAR10", "ImageFolder"]:
-            args.data_type = "image"
-        elif args.dataset_name in ["VideoFolder"]:
-            args.data_type = "video"
 
         print(args)
 
