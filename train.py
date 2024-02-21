@@ -55,6 +55,7 @@ def train(
     train_meters = AvgMeterLossTopk("train")
 
     model.train()
+    device = model.get_device()
 
     with TqdmLossTopK(
             enumerate(train_loader, start=1),
@@ -68,8 +69,8 @@ def train(
 
             data, labels = batch  # (BCHW, B) for images or (BCTHW, B) for videos
 
-            data = data.to(model.get_device())
-            labels = labels.to(model.get_device())
+            data = data.to(device)
+            labels = labels.to(device)
             batch_size = data.size(0)
 
             if (

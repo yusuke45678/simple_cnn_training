@@ -1,13 +1,15 @@
 from dataclasses import dataclass
 
-from typing import Optional, Iterator
+from typing import Optional, Iterator, Any
 try:
     from typing import Self  # type: ignore
 except ImportError:
     from typing_extensions import Self
 
+
 import torch
 from torch import nn
+
 
 from model import ModelConfig
 
@@ -35,9 +37,8 @@ class BaseModel():
         self.model.eval()
         return self
 
-    def to(self, device: torch.device) -> Self:
-        self.model.to(device)
-        self.model_config.device = device
+    def to(self, *args: Any, **kwargs: Any) -> Self:
+        self.model.to(*args, **kwargs)
         return self
 
     def get_device(self) -> torch.device:
@@ -49,7 +50,10 @@ class BaseModel():
         # taken from https://github.com/pytorch/pytorch/issues/7460
         return next(self.model.parameters()).device
 
-    def get_parameters(self) -> Iterator[nn.Parameter]:
+    def named_modules(self, memo=None, prefix='', remove_duplicate=True):
+        return self.model.named_modules(memo=memo, prefix=prefix, remove_duplicate=remove_duplicate)
+
+    def parameters(self) -> Iterator[nn.Parameter]:
         return self.model.parameters()
 
     def set_data_parallel(self) -> Self:

@@ -42,6 +42,7 @@ def validation(
     val_meter = AvgMeterLossTopk("val")
 
     model.eval()
+    device = model.get_device()
 
     with torch.no_grad(), TqdmLossTopK(
         val_loader,
@@ -54,8 +55,8 @@ def validation(
         for batch in progress_bar_step:
             data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
 
-            data = data.to(model.get_device())
-            labels = labels.to(model.get_device())
+            data = data.to(device)
+            labels = labels.to(device)
             batch_size = data.size(0)
 
             outputs = model(data, labels=labels)

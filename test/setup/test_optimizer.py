@@ -21,6 +21,6 @@ def test_optimizer(
         lr=lr,
         weight_decay=weight_decay,
         momentum=momentum,
-        model_params=model.get_parameters()
+        model_params=model.parameters()
     )
     assert isinstance(optimizer, Optimizer)

@@ -16,6 +16,6 @@ def model(
         model_name=model_name,
         n_classes=n_classes,
         use_pretrained=use_pretrained,
-        device=device,
     ))
+    model_for_test.to(device)
     return model_for_test

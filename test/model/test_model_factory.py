@@ -19,8 +19,8 @@ def test_model_factory(
 
     model = configure_model(ModelConfig(
         model_name=model_name,
-        use_pretrained=use_pretrained,
         n_classes=n_classes,
-        device=device
+        use_pretrained=use_pretrained,
     ))
+    model.to(device)
     assert isinstance(model, BaseModel)
