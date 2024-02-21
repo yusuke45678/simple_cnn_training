@@ -1,13 +1,15 @@
 from dataclasses import dataclass
 
-from typing import Optional, Iterator
+from typing import Optional, Iterator, Any
 try:
     from typing import Self  # type: ignore
 except ImportError:
     from typing_extensions import Self
 
+
 import torch
 from torch import nn
+
 
 from model import ModelConfig
 
@@ -35,8 +37,8 @@ class BaseModel():
         self.model.eval()
         return self
 
-    def to(self, device: torch.device) -> Self:
-        self.model.to(device)
+    def to(self, *args: Any, **kwargs: Any) -> Self:
+        self.model.to(*args, **kwargs)
         return self
 
     def get_device(self) -> torch.device:

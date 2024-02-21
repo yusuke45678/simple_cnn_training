@@ -1,8 +1,13 @@
 import argparse
 import os
+from typing import Any
+try:
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing_extensions import Self
+
 
 from torch.nn import functional as F
-
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import ModelCheckpoint
 
@@ -100,6 +105,11 @@ class SimpleLightningModel(pl.LightningModule):
         https://lightning.ai/docs/pytorch/stable/starter/style_guide.html#forward-vs-training-step
         """
         return F.softmax(self.model(data, labels).logits)
+
+    def to(self, *args: Any, **kwargs: Any) -> Self:
+        super().to(*args, **kwargs)
+        self.model.to(*args, **kwargs)
+        return self
 
     def named_modules(self, memo=None, prefix='', remove_duplicate=True):
         return self.model.named_modules(memo=memo, prefix=prefix, remove_duplicate=remove_duplicate)
