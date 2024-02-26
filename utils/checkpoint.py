@@ -1,5 +1,5 @@
 import os
-from typing import Tuple, Optional
+from typing import Tuple
 
 import comet_ml
 from comet_ml.integration.pytorch import log_model, load_model

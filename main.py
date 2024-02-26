@@ -123,6 +123,18 @@ def prepare_training(args: argparse.Namespace):
     )
 
 
+class ValidationChecker:
+    def __init__(self, val_interval_epochs, num_epochs):
+        self.val_interval_epochs = val_interval_epochs
+        self.num_epochs = num_epochs
+
+    def should_validate(self, current_epoch):
+        return (
+            current_epoch % self.val_interval_epochs == 0
+            or current_epoch == self.num_epochs
+        )
+
+
 def main():
 
     args = ArgParse.get()
@@ -138,6 +150,8 @@ def main():
         current_val_step,
         start_epoch,
     ) = prepare_training(args)
+
+    val_checker = ValidationChecker(args.val_interval_epochs, args.num_epochs)
 
     with TqdmEpoch(
         start_epoch, args.num_epochs, unit='epoch',
@@ -157,10 +171,8 @@ def main():
             )
             current_train_step = train_output.train_step
 
-            if (
-                current_epoch % args.val_interval_epochs == 0
-                or current_epoch == args.num_epochs
-            ):
+            if val_checker.should_validate(current_epoch):
+
                 val_output = validation(
                     model,
                     dataloaders.val_loader,
