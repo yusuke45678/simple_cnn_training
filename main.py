@@ -1,10 +1,19 @@
-import torch
-from tqdm import tqdm
 import argparse
+
+from tqdm import tqdm
+
+import torch
+from torch import nn
 
 from args import ArgParse
 from dataset import configure_dataloader
-from model import configure_model, ModelConfig
+from model import (
+    configure_model,
+    ModelConfig,
+    get_device,
+    get_innermodel,
+    set_innermodel,
+)
 from setup import configure_optimizer, configure_scheduler
 
 from logger import configure_logger
@@ -50,7 +59,8 @@ def prepare_training(args: argparse.Namespace):
         dataset_name=args.dataset_name,
     )
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    assert torch.cuda.is_available()
+    device = torch.device("cuda")
 
     model = configure_model(ModelConfig(
         model_name=args.model_name,
@@ -60,7 +70,7 @@ def prepare_training(args: argparse.Namespace):
     ))
     model = model.to(device)
     if args.use_dp:
-        model.set_data_parallel()
+        model = nn.DataParallel(model)  # type: ignore[assignment]
 
     optimizer = configure_optimizer(
         optimizer_name=args.optimizer_name,
@@ -89,12 +99,12 @@ def prepare_training(args: argparse.Namespace):
             scheduler,
         ) = load_from_checkpoint(
             args.checkpoint_to_resume,
-            model.get_model(),
+            get_innermodel(model),
             optimizer,
             scheduler,
-            model.get_device()
+            get_device(model)
         )
-        model.set_model(loaded_model)
+        set_innermodel(model, loaded_model)
     else:
         current_train_step = 1
         current_val_step = 1
@@ -166,7 +176,7 @@ def main():
                     current_train_step,
                     current_val_step,
                     val_output.top1,
-                    model.get_model(),
+                    get_innermodel(model),
                     optimizer,
                     scheduler,
                     logger

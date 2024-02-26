@@ -1,11 +1,5 @@
 from dataclasses import dataclass
-
-from typing import Optional, Iterator, Any
-try:
-    from typing import Self  # type: ignore
-except ImportError:
-    from typing_extensions import Self
-
+from typing import Optional, Any
 
 import torch
 from torch import nn
@@ -20,72 +14,30 @@ class ModelOutput:
     loss: Optional[torch.Tensor] = None
 
 
-class BaseModel():
+class ClassificationBaseModel(nn.Module):
 
     def __init__(self, model_config: ModelConfig):
+        super().__init__()
         self.model_config = model_config
+        self.criterion = nn.CrossEntropyLoss()
+
         self.model = self.__create_dummy_model()
 
     def __create_dummy_model(self) -> nn.Module:
         return nn.Module()
 
-    def train(self) -> Self:
-        self.model.train()
-        return self
-
-    def eval(self) -> Self:
-        self.model.eval()
-        return self
-
-    def to(self, *args: Any, **kwargs: Any) -> Self:
-        self.model.to(*args, **kwargs)
-        return self
-
-    def get_device(self) -> torch.device:
-        """get acutual device
-
-        Returns:
-            torch.device: device on which the model is loaded
-        """
-        # taken from https://github.com/pytorch/pytorch/issues/7460
-        return next(self.model.parameters()).device
-
-    def named_modules(self, memo=None, prefix='', remove_duplicate=True):
-        return self.model.named_modules(memo=memo, prefix=prefix, remove_duplicate=remove_duplicate)
-
-    def parameters(self) -> Iterator[nn.Parameter]:
-        return self.model.parameters()
-
-    def set_data_parallel(self) -> Self:
-        self.model = nn.DataParallel(self.model)
-        return self
-
-    def __call__(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def get_model(self) -> nn.Module:
-        return self.model
-
-    def set_model(self, model: nn.Module) -> None:
-        self.model = model
-
-
-class ClassificationBaseModel(BaseModel):
-
-    def __init__(self, model_info: ModelConfig):
-        super().__init__(model_info)
-
-        self.criterion = nn.CrossEntropyLoss()
-
-    def __call__(
+    def forward(
         self,
         pixel_values: torch.Tensor,
         labels: Optional[torch.Tensor] = None,
     ) -> ModelOutput:
+
         logits = self.model(pixel_values)
 
         if labels is None:
-            return ModelOutput(logits=logits)
+            return ModelOutput(
+                logits=logits
+            )
 
         loss = self.criterion(logits, labels)
 
@@ -93,3 +45,50 @@ class ClassificationBaseModel(BaseModel):
             logits=logits,
             loss=loss
         )
+
+
+def get_device(model: ClassificationBaseModel | nn.DataParallel | nn.Module) -> torch.device | Any:
+    """get acutual device
+    taken from https://github.com/pytorch/pytorch/issues/7460
+
+    Returns:
+        torch.device: device on which the model is loaded
+    """
+
+    if isinstance(model, nn.DataParallel):
+        return next(model.module.parameters()).device
+
+    return next(model.parameters()).device
+
+
+def get_innermodel(model: ClassificationBaseModel | nn.DataParallel) -> nn.Module | Any:
+    """get inner model of ClassificationBaseModel
+
+    Args:
+        model (ClassificationBaseModel | nn.DataParallel):
+            a ClassificationBaseModel instance (or dp of it)
+
+    Returns:
+        nn.Module: inner model
+    """
+    if isinstance(model, nn.DataParallel):
+        return model.module.model
+
+    return model.model
+
+
+def set_innermodel(
+    model: ClassificationBaseModel,
+    innter_model: nn.Module
+) -> ClassificationBaseModel:
+    """set inner model of ClassificationBaseModel
+
+    Args:
+        model (ClassificationBaseModel): a ClassificationBaseModel instance
+        innter_model (nn.Module): an nn.Module instance
+
+    Returns:
+        ClassificationBaseModel: the ClassificationBaseModel instance
+    """
+    model.model = innter_model
+    return model

@@ -20,11 +20,12 @@ class ViTb(ClassificationBaseModel):
             ignore_mismatched_sizes=True
         )
 
-    def __call__(
+    def forward(
         self,
         pixel_values: torch.Tensor,
         labels: Optional[torch.Tensor] = None,
     ) -> ModelOutput:
+
         output = self.model(
             pixel_values=pixel_values,
             labels=labels,

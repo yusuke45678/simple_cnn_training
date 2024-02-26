@@ -10,7 +10,7 @@ from utils import (
     AvgMeterLossTopk,
     TqdmLossTopK,
 )
-from model import BaseModel
+from model import ClassificationBaseModel, get_device
 
 
 @dataclass
@@ -27,7 +27,7 @@ class TrainOutput:
 
 
 def train(
-    model: BaseModel,
+    model: ClassificationBaseModel,
     optimizer: Optimizer,
     scheduler: LRScheduler,
     train_loader: DataLoader,
@@ -39,7 +39,7 @@ def train(
     """training loop for one epoch
 
     Args:
-        model (BaseModel): CNN model
+        model (ClassificationBaseModel): CNN model
         optimizer (Optimizer): optimizer
         scheduler (LRScheduler): learning rate (lr) scheduler
         loader (DataLoader): training dataset loader
@@ -55,7 +55,7 @@ def train(
     train_meters = AvgMeterLossTopk("train")
 
     model.train()
-    device = model.get_device()
+    device = get_device(model)
 
     with TqdmLossTopK(
             enumerate(train_loader, start=1),

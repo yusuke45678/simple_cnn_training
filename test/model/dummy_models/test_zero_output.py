@@ -3,7 +3,14 @@ import pytest
 import torch
 from torch import nn
 
-from model import configure_model, ModelConfig, ModelOutput, BaseModel
+from model import (
+    configure_model,
+    ModelConfig,
+    ModelOutput,
+    ClassificationBaseModel,
+    get_device,
+    get_innermodel,
+)
 
 
 @pytest.mark.parametrize('model_name', ['zero_output_dummy'])
@@ -18,7 +25,8 @@ def test_zero_output_output(
     batch_size,
     crop_size,
 ):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    assert torch.cuda.is_available()
+    device = torch.device("cuda")
 
     model = configure_model(ModelConfig(
         model_name=model_name,
@@ -26,7 +34,7 @@ def test_zero_output_output(
         use_pretrained=use_pretrained,
     ))
     model.to(device)
-    assert isinstance(model, BaseModel)
+    assert isinstance(model, ClassificationBaseModel)
 
     data = torch.rand(batch_size, 3, crop_size, crop_size, device=device)  # BCHW
     labels = torch.randint(0, n_classes - 1, (batch_size, ), device=device)
@@ -58,7 +66,8 @@ def test_zero_output_methods(
     use_pretrained,
     n_classes,
 ):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    assert torch.cuda.is_available()
+    device = torch.device("cuda")
 
     model = configure_model(ModelConfig(
         model_name=model_name,
@@ -66,9 +75,9 @@ def test_zero_output_methods(
         use_pretrained=use_pretrained,
     ))
     model.to(device)
-    assert isinstance(model, BaseModel)
+    assert isinstance(model, ClassificationBaseModel)
 
-    assert isinstance(model.get_model(), nn.Module)
+    assert isinstance(get_innermodel(model), nn.Module)
     assert isinstance(next(model.parameters()), nn.Parameter)
 
     model.train()
@@ -79,12 +88,12 @@ def test_zero_output_methods(
     assert model.model.training
 
     model.to(torch.device('cpu'))
-    assert model.get_device() == torch.device('cpu')
+    assert get_device(model) == torch.device('cpu')
 
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    if device == torch.device('cuda:0'):
-        model.to(device)
-        assert model.get_device() == device
+    assert torch.cuda.is_available()
+    device = torch.device("cuda:0")
+    model.to(device)
+    assert get_device(model) == device
 
 
 @pytest.mark.parametrize('model_name', ['zero_output_dummy'])
@@ -99,7 +108,8 @@ def test_zero_output_loss_backward(
     batch_size,
     crop_size,
 ):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    assert torch.cuda.is_available()
+    device = torch.device("cuda")
 
     model = configure_model(ModelConfig(
         model_name=model_name,
@@ -107,7 +117,7 @@ def test_zero_output_loss_backward(
         use_pretrained=use_pretrained,
     ))
     model.to(device)
-    assert isinstance(model, BaseModel)
+    assert isinstance(model, ClassificationBaseModel)
 
     data = torch.rand(batch_size, 3, crop_size, crop_size, device=device)  # BCHW
     labels = torch.randint(0, n_classes - 1, (batch_size, ), device=device)
