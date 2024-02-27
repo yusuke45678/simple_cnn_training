@@ -101,7 +101,7 @@ def train(
                 optimizer.zero_grad()
 
             outputs = model(data, labels=labels)
-            loss = outputs.loss
+            loss = outputs.loss.mean()  # maen() is only for dp to gather loss
             loss.backward()
 
             train_topk = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))

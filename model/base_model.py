@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import Optional, Any
+from typing import Optional, Any, NamedTuple
 
 import torch
 from torch import nn
@@ -8,8 +7,7 @@ from torch import nn
 from model import ModelConfig
 
 
-@dataclass
-class ModelOutput:
+class ModelOutput(NamedTuple):
     logits: torch.Tensor
     loss: Optional[torch.Tensor] = None
 
