@@ -3,8 +3,6 @@ from .base_model import (
     ModelOutput,
     ClassificationBaseModel,
     get_device,
-    get_innermodel,
-    set_innermodel,
 )
 from .x3d import X3DM
 from .resnet import ResNet18, ResNet50  # pylint: disable=import-error
@@ -22,8 +20,6 @@ __all__ = [
     'ModelOutput',
     'ClassificationBaseModel',
     'get_device',
-    'get_innermodel',
-    'set_innermodel',
     'X3DM',
     'ResNet18',
     'ResNet50',

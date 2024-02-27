@@ -8,7 +8,6 @@ from model import (
     ModelConfig,
     ClassificationBaseModel,
     get_device,
-    get_innermodel,
 )
 
 
@@ -81,7 +80,6 @@ def test_model_methods(
     ))
     model.to(device)
     assert isinstance(model, nn.Module)
-    assert isinstance(get_innermodel(model), nn.Module)
     assert isinstance(next(model.parameters()), nn.Parameter)
 
     model.train()

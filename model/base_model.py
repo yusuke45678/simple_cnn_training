@@ -57,36 +57,3 @@ def get_device(model: ClassificationBaseModel | nn.DataParallel | nn.Module) -> 
         return next(model.module.parameters()).device
 
     return next(model.parameters()).device
-
-
-def get_innermodel(model: ClassificationBaseModel | nn.DataParallel) -> nn.Module | Any:
-    """get inner model of ClassificationBaseModel
-
-    Args:
-        model (ClassificationBaseModel | nn.DataParallel):
-            a ClassificationBaseModel instance (or dp of it)
-
-    Returns:
-        nn.Module: inner model
-    """
-    if isinstance(model, nn.DataParallel):
-        return model.module.model
-
-    return model.model
-
-
-def set_innermodel(
-    model: ClassificationBaseModel,
-    innter_model: nn.Module
-) -> ClassificationBaseModel:
-    """set inner model of ClassificationBaseModel
-
-    Args:
-        model (ClassificationBaseModel): a ClassificationBaseModel instance
-        innter_model (nn.Module): an nn.Module instance
-
-    Returns:
-        ClassificationBaseModel: the ClassificationBaseModel instance
-    """
-    model.model = innter_model
-    return model
