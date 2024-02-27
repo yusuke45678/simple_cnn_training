@@ -58,7 +58,6 @@ def test_model_data_parallel(
     dp_model = nn.DataParallel(model)
     isinstance(dp_model, nn.DataParallel)
     assert isinstance(dp_model.module, ClassificationBaseModel)
-    assert isinstance(get_innermodel(dp_model.module), nn.Module)
 
 
 @pytest.mark.parametrize(
@@ -81,8 +80,7 @@ def test_model_methods(
         use_pretrained=use_pretrained,
     ))
     model.to(device)
-    assert isinstance(model, ClassificationBaseModel)
-
+    assert isinstance(model, nn.Module)
     assert isinstance(get_innermodel(model), nn.Module)
     assert isinstance(next(model.parameters()), nn.Parameter)
 

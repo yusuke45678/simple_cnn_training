@@ -10,9 +10,6 @@ from dataset import configure_dataloader
 from model import (
     configure_model,
     ModelConfig,
-    get_device,
-    get_innermodel,
-    set_innermodel,
 )
 from setup import configure_optimizer, configure_scheduler
 
@@ -94,17 +91,16 @@ def prepare_training(args: argparse.Namespace):
             start_epoch,
             current_train_step,
             current_val_step,
-            loaded_model,
+            model,
             optimizer,
             scheduler,
-        ) = load_from_checkpoint(
+        ) = load_from_checkpoint(  # type: ignore[assignment]
             args.checkpoint_to_resume,
-            get_innermodel(model),
+            model,
             optimizer,
             scheduler,
-            get_device(model)
+            device
         )
-        set_innermodel(model, loaded_model)
     else:
         current_train_step = 1
         current_val_step = 1
@@ -182,13 +178,13 @@ def main():
                 )
                 current_val_step = val_output.val_step
 
-                checkpoint_dict = save_to_checkpoint(
+                checkpoint_dict, _ = save_to_checkpoint(
                     args.save_checkpoint_dir,
                     current_epoch,
                     current_train_step,
                     current_val_step,
                     val_output.top1,
-                    get_innermodel(model),
+                    model,
                     optimizer,
                     scheduler,
                     logger
