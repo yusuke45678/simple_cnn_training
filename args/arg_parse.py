@@ -202,8 +202,8 @@ class ArgParse:
         parser.set_defaults(use_dp=False)
 
         parser.add_argument(
-            "--gpu_ids",
             "--devices",
+            "--gpu_ids",
             type=str,
             default="-1",
             help="GPU ID used for ddp strategy (only for lightning)."

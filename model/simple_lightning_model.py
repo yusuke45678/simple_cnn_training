@@ -1,13 +1,7 @@
 import argparse
 import os
-from typing import Any
-try:
-    from typing import Self  # type: ignore
-except ImportError:
-    from typing_extensions import Self
 
 
-from torch.nn import functional as F
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import ModelCheckpoint
 
@@ -99,21 +93,6 @@ class SimpleLightningModel(pl.LightningModule):
 
         return checkpoint_callbacks
 
-    def forward(self, data, labels):
-        """see
-        https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#forward
-        https://lightning.ai/docs/pytorch/stable/starter/style_guide.html#forward-vs-training-step
-        """
-        return F.softmax(self.model(data, labels).logits)
-
-    def to(self, *args: Any, **kwargs: Any) -> Self:
-        super().to(*args, **kwargs)
-        self.model.to(*args, **kwargs)
-        return self
-
-    def named_modules(self, memo=None, prefix='', remove_duplicate=True):
-        return self.model.named_modules(memo=memo, prefix=prefix, remove_duplicate=remove_duplicate)
-
     def log_train_loss_top15(self, loss, top1, top5, batch_size):
         # https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#train-epoch-level-metrics
         # https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.core.LightningModule.html#lightning.pytorch.core.LightningModule.log_dict
@@ -143,24 +122,36 @@ class SimpleLightningModel(pl.LightningModule):
         )
 
     def training_step(self, batch, batch_idx):
-        """see
-        https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#training-loop
-        https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.core.LightningModule.html#lightning.pytorch.core.LightningModule.training_step
-        """
+        """a single training step for a batch
 
-        # DO NOT USE .to() or model.train() here
+        Args:
+            batch (Tuple[tensor]): a batch of data samples and labels
+                (actual type depends on the dataloader)
+            batch_idx (int): index of the batch in the epoch
+
+        Returns:
+            tensor: loss (used for backward by lightning)
+
+        Note:
+            DO NOT USE .to() or model.train() here
+                (automatically send to multi-GPUs)
+            DO NOT USE loss.backward() here
+                (automatically performed by lightning)
+            see
+                https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#training-loop
+                https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.core.LightningModule.html#lightning.pytorch.core.LightningModule.training_step
+        """
 
         data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
         batch_size = data.size(0)
 
         outputs = self.model(data, labels=labels)
         loss = outputs.loss
-        # DO NOT USE loss.backward() here
 
         top1, top5, *_ = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))
         self.log_train_loss_top15(loss, top1, top5, batch_size)
 
-        return loss  # then loss.backward() will be done automatically by lightning
+        return loss
 
     def log_val_loss_top15(self, loss, top1, top5, batch_size):
         self.log_dict(
@@ -178,9 +169,21 @@ class SimpleLightningModel(pl.LightningModule):
         )
 
     def validation_step(self, batch, batch_idx):
-        """see
-        https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#validation
-        https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.core.LightningModule.html#lightning.pytorch.core.LightningModule.validation_step
+        """a single validation step for a batch
+
+        Args:
+            batch (Tuple[tensor]): a batch of data samples and labels
+                (actual type depends on the dataloader)
+            batch_idx (int): index of the batch in the epoch
+
+        Note:
+            DO NOT USE .to() or model.eval() here
+                (automatically send to multi-GPUs)
+            DO NOT USE with torch.no_grad() here
+                (automatically handled by lightning)
+            see
+                https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#validation
+                https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.core.LightningModule.html#lightning.pytorch.core.LightningModule.validation_step
         """
 
         data, labels = batch  # (BCHW, B) or {'video': BCTHW, 'label': B}
