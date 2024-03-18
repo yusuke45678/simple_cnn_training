@@ -1,8 +1,8 @@
 from .model_config import ModelConfig
 from .base_model import (
     ModelOutput,
-    BaseModel,
-    ClassificationBaseModel
+    ClassificationBaseModel,
+    get_device,
 )
 from .x3d import X3DM
 from .resnet import ResNet18, ResNet50  # pylint: disable=import-error
@@ -18,8 +18,8 @@ from .simple_lightning_model import SimpleLightningModel
 __all__ = [
     'ModelConfig',
     'ModelOutput',
-    'BaseModel',
     'ClassificationBaseModel',
+    'get_device',
     'X3DM',
     'ResNet18',
     'ResNet50',

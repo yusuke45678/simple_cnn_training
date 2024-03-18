@@ -16,7 +16,7 @@ class ZeroOutputModel(ClassificationBaseModel):
             self.model_config.n_classes
         )
 
-    def __call__(
+    def forward(
         self,
         pixel_values: torch.Tensor,
         labels: Optional[torch.Tensor] = None,
@@ -33,9 +33,15 @@ class ZeroOutputModel(ClassificationBaseModel):
         )
 
         if labels is None:
-            return ModelOutput(logits=dummy_logits)
+            return ModelOutput(
+                logits=dummy_logits
+            )
 
-        dummy_loss = torch.tensor([0.0], requires_grad=True).to(device)[0]
+        dummy_loss = torch.tensor(
+            0.0,
+            requires_grad=True,
+            device=device
+        )
 
         return ModelOutput(
             logits=dummy_logits,

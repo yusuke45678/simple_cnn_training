@@ -1,7 +1,7 @@
 import os
 
 from model import (
-    BaseModel,
+    ClassificationBaseModel,
     ModelConfig,
     ResNet50,
     ResNet18,
@@ -23,7 +23,7 @@ def set_torch_home(
 
 def configure_model(
         model_info: ModelConfig
-) -> BaseModel:
+) -> ClassificationBaseModel:
     """model factory
 
     model_info:
@@ -33,7 +33,7 @@ def configure_model(
         ValueError: invalide model name given by command line
 
     Returns:
-        BaseModel: model
+        ClassificationBaseModel: model
     """
 
     if model_info.use_pretrained:

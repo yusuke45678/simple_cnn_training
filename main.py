@@ -1,10 +1,16 @@
-import torch
-from tqdm import tqdm
 import argparse
+
+from tqdm import tqdm
+
+import torch
+from torch import nn
 
 from args import ArgParse
 from dataset import configure_dataloader
-from model import configure_model, ModelConfig
+from model import (
+    configure_model,
+    ModelConfig,
+)
 from setup import configure_optimizer, configure_scheduler
 
 from logger import configure_logger
@@ -50,7 +56,8 @@ def prepare_training(args: argparse.Namespace):
         dataset_name=args.dataset_name,
     )
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    assert torch.cuda.is_available()
+    device = torch.device("cuda")
 
     model = configure_model(ModelConfig(
         model_name=args.model_name,
@@ -60,7 +67,7 @@ def prepare_training(args: argparse.Namespace):
     ))
     model = model.to(device)
     if args.use_dp:
-        model.set_data_parallel()
+        model = nn.DataParallel(model)  # type: ignore[assignment]
 
     optimizer = configure_optimizer(
         optimizer_name=args.optimizer_name,
@@ -84,17 +91,16 @@ def prepare_training(args: argparse.Namespace):
             start_epoch,
             current_train_step,
             current_val_step,
-            loaded_model,
+            model,
             optimizer,
             scheduler,
-        ) = load_from_checkpoint(
+        ) = load_from_checkpoint(  # type: ignore[assignment]
             args.checkpoint_to_resume,
-            model.get_model(),
+            model,
             optimizer,
             scheduler,
-            model.get_device()
+            device
         )
-        model.set_model(loaded_model)
     else:
         current_train_step = 1
         current_val_step = 1
@@ -113,6 +119,18 @@ def prepare_training(args: argparse.Namespace):
     )
 
 
+class ValidationChecker:
+    def __init__(self, val_interval_epochs, num_epochs):
+        self.val_interval_epochs = val_interval_epochs
+        self.num_epochs = num_epochs
+
+    def should_validate(self, current_epoch):
+        return (
+            current_epoch % self.val_interval_epochs == 0
+            or current_epoch == self.num_epochs
+        )
+
+
 def main():
 
     args = ArgParse.get()
@@ -128,6 +146,8 @@ def main():
         current_val_step,
         start_epoch,
     ) = prepare_training(args)
+
+    val_checker = ValidationChecker(args.val_interval_epochs, args.num_epochs)
 
     with TqdmEpoch(
         start_epoch, args.num_epochs, unit='epoch',
@@ -147,10 +167,8 @@ def main():
             )
             current_train_step = train_output.train_step
 
-            if (
-                current_epoch % args.val_interval_epochs == 0
-                or current_epoch == args.num_epochs
-            ):
+            if val_checker.should_validate(current_epoch):
+
                 val_output = validation(
                     model,
                     dataloaders.val_loader,
@@ -160,13 +178,13 @@ def main():
                 )
                 current_val_step = val_output.val_step
 
-                checkpoint_dict = save_to_checkpoint(
+                checkpoint_dict, _ = save_to_checkpoint(
                     args.save_checkpoint_dir,
                     current_epoch,
                     current_train_step,
                     current_val_step,
                     val_output.top1,
-                    model.get_model(),
+                    model,
                     optimizer,
                     scheduler,
                     logger

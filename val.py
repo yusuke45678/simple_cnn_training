@@ -9,7 +9,7 @@ from utils import (
     AvgMeterLossTopk,
     TqdmLossTopK,
 )
-from model import BaseModel
+from model import ClassificationBaseModel, get_device
 
 
 @dataclass
@@ -20,7 +20,7 @@ class ValidationOutput:
 
 
 def validation(
-    model: BaseModel,
+    model: ClassificationBaseModel,
     val_loader: DataLoader,
     current_val_step: int,
     current_epoch: int,
@@ -29,7 +29,7 @@ def validation(
     """validation for the current model
 
     Args:
-        model(BaseModel): CNN model
+        model(ClassificationBaseModel): CNN model
         loader(DataLoader): validation dataset loader
         current_val_step(int): current step for validation
         current_epoch(int): current epoch
@@ -42,7 +42,7 @@ def validation(
     val_meter = AvgMeterLossTopk("val")
 
     model.eval()
-    device = model.get_device()
+    device = get_device(model)
 
     with torch.no_grad(), TqdmLossTopK(
         val_loader,

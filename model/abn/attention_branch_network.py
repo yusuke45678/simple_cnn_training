@@ -20,15 +20,19 @@ class ABNResNet50(ClassificationBaseModel):
             self.model_config.use_pretrained
         )
 
-    def __call__(
+    def forward(
         self,
         pixel_values: torch.Tensor,
         labels: Optional[torch.Tensor] = None,
     ) -> ModelOutput:
-        perception_branch_logits, attention_branch_logits = self.model(pixel_values)
+
+        perception_branch_logits, attention_branch_logits = \
+            self.model(pixel_values)
 
         if labels is None:
-            return ModelOutput(logits=perception_branch_logits)
+            return ModelOutput(
+                logits=perception_branch_logits
+            )
 
         perception_branch_loss = self.criterion(perception_branch_logits, labels)
         attention_branch_loss = self.criterion(attention_branch_logits, labels)

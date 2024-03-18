@@ -1,4 +1,5 @@
 
+import torch
 import lightning.pytorch as pl
 from lightning.pytorch.plugins import TorchSyncBatchNorm
 
@@ -11,6 +12,8 @@ from model import SimpleLightningModel
 
 
 def main():
+    assert torch.cuda.is_available()
+
     args = ArgParse.get()
 
     loggers, exp_name = configure_logger_pl(
@@ -41,7 +44,7 @@ def main():
         log_every_n_steps=args.log_interval_steps,
         accumulate_grad_batches=args.grad_accum,
         num_sanity_val_steps=0,
-        precision="16-true",  # for FP16 training
+        # precision="16-true",  # for FP16 training, use with caution for nan/inf
         # fast_dev_run=True, # only for debug
         # fast_dev_run=5,  # only for debug
         # limit_train_batches=15,  # only for debug

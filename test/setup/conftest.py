@@ -10,7 +10,8 @@ def model(
     n_classes=10,
     use_pretrained=True,
 ):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    assert torch.cuda.is_available()
+    device = torch.device("cuda")
 
     model_for_test = configure_model(ModelConfig(
         model_name=model_name,
