@@ -2,14 +2,13 @@
 
 CNN/ViT を使って学習する単純な練習用コードです．
 
-## requirements
+## 準備
 
-- pytorch
-  - torchvision
-  - pytorchvideo
-  - lightning
-- comet-ml
-- tqdm
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## 使い方
 
