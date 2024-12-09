@@ -167,6 +167,10 @@ def main():
             )
             current_train_step = train_output.train_step
 
+            # 保存する関数を追加
+            # 関数を別.pyに書き込む
+            # 保存先用のフォルダを作る json 形式で保存
+
             if val_checker.should_validate(current_epoch):
 
                 val_output = validation(

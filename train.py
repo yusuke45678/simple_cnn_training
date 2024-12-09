@@ -12,6 +12,8 @@ from utils import (
 )
 from model import ClassificationBaseModel, get_device
 
+from collections import defaultdict
+
 
 @dataclass
 class TrainConfig:
@@ -76,6 +78,15 @@ def train(
 
     train_meters = AvgMeterLossTopk("train")
 
+    # 動画IDと動画パスを管理する辞書
+    video_id_to_path = {}
+    video_loss_dict = defaultdict(list)  # key {loss{}, 認識(correct)(0.1){}}
+
+    # 動画IDとパスの対応を収集
+    for idx in range(len(train_loader.dataset)):
+        sample = train_loader.dataset[idx]
+        video_id_to_path[f"video{idx}"] = sample["video_path"]
+
     model.train()
     device = get_device(model)
     optimizer_checker = OptimizerChecker(train_config.grad_accum_interval)
@@ -88,14 +99,20 @@ def train(
             unit='step',
     ) as progress_bar_step:
         progress_bar_step.set_description("[train    ]")
-
         for batch_index, batch in progress_bar_step:
 
-            data, labels = batch  # (BCHW, B) for images or (BCTHW, B) for videos
+            # (BCHW, B) for images or (BCTHW, B) for videos torch.Size([8, 3, 16, 224, 224])
+            data, labels = batch
+            # data = batch["video"]
+            # labels = batch["label"]
 
             data = data.to(device)
             labels = labels.to(device)
             batch_size = data.size(0)
+
+            # 動画IDを生成
+            # video_ids = [f"batch{batch_index}_video{i}" for i in range(batch_size)]
+            video_ids = [f"video{batch_index * batch_size + i}" for i in range(batch_size)]
 
             if optimizer_checker.should_zero_grad(batch_index):
                 optimizer.zero_grad()
@@ -104,8 +121,12 @@ def train(
             loss = outputs.loss.mean()  # maen() is only for dp to gather loss
             loss.backward()
 
-            train_topk = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))
+            train_topk = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))  # labelとlogitから予測できたかどうかを記録
             train_meters.update(loss, train_topk, batch_size)
+
+            # lossを動画IDごとに記録
+            for i, video_id in enumerate(video_ids):
+                video_loss_dict[video_id].append(loss.item())
 
             if logger_checker.should_log(current_train_step):
                 progress_bar_step.set_postfix_str_loss_topk(
@@ -129,8 +150,24 @@ def train(
         epoch=current_epoch,
     )
 
-    return TrainOutput(
-        loss=train_meters.loss_meter.avg,
-        top1=train_meters.topk_meters[0].avg,  # top1: topk[0] should be 1
-        train_step=current_train_step
-    )
+    # 高いlossを持つ動画を特定してログ
+    high_loss_videos = sorted(　.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)[:5]
+    log_message = f"High loss videos: {high_loss_videos}"
+    logger.log_text(log_message)
+    print(log_message)
+
+    # 高いlossを持つ動画を特定
+    sorted_loss_videos = sorted(video_loss_dict.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)[:5]
+
+    # 高いlossの動画ファイル名をターミナルに出力
+    # print(f"Epoch {current_epoch} - High loss videos (top 5):")
+    # for video_id, losses in sorted_loss_videos:
+    #    avg_loss = sum(losses) / len(losses)  # lossの平均
+    #    video_path = video_id_to_path.get(video_id, "Unknown video path")
+    #    print(f"Video ID: {video_id}, Loss: {avg_loss}, Video Path: {video_path}")
+#
+    # return TrainOutput(
+    #    loss=train_meters.loss_meter.avg,
+    #    top1=train_meters.topk_meters[0].avg,  # top1: topk[0] should be 1
+    #    train_step=current_train_step
+    # )

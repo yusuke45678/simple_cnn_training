@@ -1,7 +1,6 @@
 from typing import Literal
 from dataclasses import dataclass
 
-
 SupportedModels = Literal[
     "resnet18",
     "resnet50",
@@ -9,6 +8,8 @@ SupportedModels = Literal[
     "vit_b",
     "x3d",
     "zero_output_dummy",
+    "swin_t",
+    "vgg19"
 ]
 
 

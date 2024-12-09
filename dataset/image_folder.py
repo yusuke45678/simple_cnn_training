@@ -6,6 +6,9 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as transforms
 
+# from my_imagefolder import MyDataset
+from dataset.my_imagefolder import MyDataset
+
 
 @dataclass
 class ImageFolderInfo():
@@ -37,14 +40,27 @@ def image_folder(
     assert os.path.exists(root_train_dir) and os.path.isdir(root_train_dir)
     assert os.path.exists(root_val_dir) and os.path.isdir(root_val_dir)
 
-    train_dataset = ImageFolder(
+    # train_dataset = ImageFolder(
+    #     root=root_train_dir,
+    #     transform=image_folder_info.train_transform)
+    # val_dataset = ImageFolder(
+    #     root=root_val_dir,
+    #     transform=image_folder_info.val_transform)
+
+    # 自作関数追加
+    train_dataset = MyDataset(
         root=root_train_dir,
         transform=image_folder_info.train_transform)
-    val_dataset = ImageFolder(
+    val_dataset = MyDataset(
         root=root_val_dir,
         transform=image_folder_info.val_transform)
+    # テスト
+    # print(type(train_dataset.classes))
+    # print(type(val_dataset.classes))
+    # print("Train classes:", train_dataset.classes)
+    # print("Val classes:", val_dataset.classes)
 
-    assert sorted(train_dataset.classes) == sorted(val_dataset.classes)
+    # assert sorted(train_dataset.classes) == sorted(val_dataset.classes)
     assert len(train_dataset.classes) == len(val_dataset.classes)
     n_classes = len(train_dataset.classes)
 

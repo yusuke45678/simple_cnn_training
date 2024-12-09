@@ -1,5 +1,9 @@
 from .cifar10 import cifar10, Cifar10Info
 from .image_folder import image_folder, ImageFolderInfo
+# 追加
+from .my_imagefolder import MyDataset
+from .my_videofolder import MyVideoDataset
+
 from .video_folder import video_folder, VideoFolderInfo
 from .zero_images import zero_images, ZeroImageInfo
 from .transforms import (
@@ -14,6 +18,10 @@ __all__ = [
     'Cifar10Info',
     'image_folder',
     'ImageFolderInfo',
+    # 追加
+    'MyDataset',
+    'MyVideoDataset',
+
     'video_folder',
     'VideoFolderInfo',
     'zero_images',

@@ -9,11 +9,12 @@ from .resnet import ResNet18, ResNet50  # pylint: disable=import-error
 from .abn import ABNResNet50
 from .vit import ViTb
 from .dummy_models import ZeroOutputModel
+from .swin_t import SwinT
+# from .vgg19 import VGG19  # 追加
 
 from .model_factory import configure_model
 
 from .simple_lightning_model import SimpleLightningModel
-
 
 __all__ = [
     'ModelConfig',
@@ -28,4 +29,6 @@ __all__ = [
     'ZeroOutputModel',
     'configure_model',
     'SimpleLightningModel',
+    'SwinT',
+    # 'VGG19',  # 追加
 ]

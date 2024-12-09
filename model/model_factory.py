@@ -9,6 +9,8 @@ from model import (
     X3DM,
     ViTb,
     ZeroOutputModel,
+    SwinT,
+    # VGG19,  # 追加
 )
 
 
@@ -56,6 +58,13 @@ def configure_model(
 
     elif model_info.model_name == 'zero_output_dummy':
         model = ZeroOutputModel(model_info)  # type: ignore[assignment]
+
+    elif model_info.model_name == 'swin_t':
+        model = SwinT(model_info)
+
+    # 追加
+    # elif model_info.model_name == 'vgg19':
+    #     model = VGG19(model_info)  # type: ignore[assignment]
 
     else:
         raise ValueError('invalid model_info.model_name')

@@ -42,34 +42,7 @@
             ]
         },
         {
-            "label": "main.py 1GPU(1)",
-            "type": "shell",
-            "options": {
-                "env": {
-                    "CUDA_VISIBLE_DEVICES": "1",
-                },
-            },
-            "command": "python",
-            "args": [
-                "main.py",
-                "-d",
-                "ImageFolder",
-                "-r",
-                "/mnt/NAS-TVS872XT/dataset-lab/Tiny-ImageNet/",
-                "-w",
-                "16",
-                "-b",
-                "64",
-                "-e",
-                "5",
-                "--optimizer",
-                "Adam",
-                "--log_interval_steps",
-                "10",
-            ]
-        },
-        {
-            "label": "main.py 1GPU(0,1)",
+            "label": "main.py 1GPU(0,1) MyImage",
             "type": "shell",
             "options": {
                 "env": {
@@ -86,13 +59,44 @@
                 "-w",
                 "16",
                 "-b",
-                "64",
+                "8",
+                "-e",
+                "10",
+                "--optimizer",
+                "Adam",
+                "--log_interval_steps",
+                "10",
+            ]
+        },
+        {
+            "label": "main.py 1GPU(0,1) MyVideo",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "CUDA_VISIBLE_DEVICES": "0,1",
+                },
+            },
+            "command": "python",
+            "args": [
+                "main.py",
+                "-d",
+                "VideoFolder",
+                "-r",
+                "/mnt/NAS-TVS872XT/dataset-lab/UCF101.split/split01",
+                "-vd",
+                "test",
+                "-w",
+                "32",
+                "-b",
+                "8",
                 "-e",
                 "5",
                 "--optimizer",
                 "Adam",
                 "--log_interval_steps",
                 "10",
+                "-m",
+                "x3d"
             ]
         },
         {

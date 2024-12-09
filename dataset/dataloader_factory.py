@@ -19,6 +19,9 @@ from dataset import (
     TransformVideoInfo,
 )
 
+# from .my_videofolder import MyVideoDataset
+# import torch
+
 
 @dataclass
 class DataloadersInfo:
@@ -109,6 +112,30 @@ def configure_dataloader(
                 num_workers=args.num_workers,
                 transform=train_transform,
             ))
+
+    # 自作データローダーを追加
+    # elif dataset_name == "my_video_dataset":
+    #     train_transform, val_transform = \
+    #         transform_video(TransformVideoInfo(
+    #             frames_per_clip=args.frames_per_clip
+    #         ))
+    #     train_dataset = MyVideoDataset(args.root, 16, train_transform)
+    #     val_dataset = MyVideoDataset(args.root, 16, val_transform)
+    #     train_loader = torch.utils.data.DataLoader(
+    #         train_dataset,
+    #         batch_size=args.batch_size,
+    #         shuffle=True,
+    #         num_workers=args.num_workers,
+    #         pin_memory=True,
+    #     )
+    #     val_loader = torch.utils.data.DataLoader(
+    #         val_dataset,
+    #         batch_size=args.batch_size,
+    #         shuffle=True,
+    #         num_workers=args.num_workers,
+    #         pin_memory=True,
+    #     )
+    #     n_classes = train_dataset.n_classes
 
     else:
         raise ValueError("invalid dataset_name")
