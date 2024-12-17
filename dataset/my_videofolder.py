@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 
 from sklearn.preprocessing import LabelEncoder
+import pickle
 
 
 class MyVideoDataset(Dataset):
@@ -44,6 +45,8 @@ class MyVideoDataset(Dataset):
         encoder = LabelEncoder()
         self.labels = encoder.fit_transform(self.labels)
         self.labels = torch.tensor(self.labels)
+        with open("label_encoder.pkl", "wb") as f:
+            pickle.dump(encoder, f)
 
         # 追加
         self.video_paths = self.video_paths[:200]

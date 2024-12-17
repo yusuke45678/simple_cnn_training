@@ -90,7 +90,7 @@
                 "-b",
                 "8",
                 "-e",
-                "5",
+                "10",
                 "--optimizer",
                 "Adam",
                 "--log_interval_steps",

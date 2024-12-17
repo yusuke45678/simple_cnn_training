@@ -13,6 +13,10 @@ from utils import (
 from model import ClassificationBaseModel, get_device
 
 from collections import defaultdict
+from loss_analysis import get_high_loss_videos
+
+import torch
+import torch.nn.functional as F
 
 
 @dataclass
@@ -26,6 +30,8 @@ class TrainOutput:
     loss: float
     top1: float
     train_step: int
+    high_loss_videos: list  # 高損失動画情報を追加
+    logits_labels: dict  # 追加：動画IDをキーに予測確率とラベルのリストを記録する辞書
 
 
 class LoggerChecker:
@@ -82,6 +88,8 @@ def train(
     video_id_to_path = {}
     video_loss_dict = defaultdict(list)  # key {loss{}, 認識(correct)(0.1){}}
 
+    logits_labels = defaultdict(list)   # 予測確率とラベルの記録用
+
     # 動画IDとパスの対応を収集
     for idx in range(len(train_loader.dataset)):
         sample = train_loader.dataset[idx]
@@ -91,6 +99,8 @@ def train(
     device = get_device(model)
     optimizer_checker = OptimizerChecker(train_config.grad_accum_interval)
     logger_checker = LoggerChecker(train_config.log_interval_steps)
+
+    # logits_labels = {}
 
     with TqdmLossTopK(
             enumerate(train_loader, start=1),
@@ -124,9 +134,28 @@ def train(
             train_topk = compute_topk_accuracy(outputs.logits, labels, topk=(1, 5))  # labelとlogitから予測できたかどうかを記録
             train_meters.update(loss, train_topk, batch_size)
 
+            # losses = outputs.loss  # バッチ内の各サンプルの損失 (形状: [バッチサイズ])
+            loss_fn = torch.nn.CrossEntropyLoss(reduction='none')  # 個々の損失を計算
+            losses = loss_fn(outputs.logits, labels)              # 各サンプルの損失
+            # loss = losses.mean()                                  # 平均損失を計算
+            # loss.backward()                                       # 平均損失で逆伝播
+
+            # ソフトマックスを使って予測確率を計算
+            probabilities = F.softmax(outputs.logits, dim=-1)
+
+            # 各動画の損失を記録
+            for i, (video_id, sample_loss) in enumerate(zip(video_ids, losses)):
+                video_loss_dict[video_id].append(sample_loss.item())  # 損失を記録
+                # logits_labels[video_id] = (outputs.logits[i], labels[i])  # logits_labels に logits とラベルを記録
+                logits_labels[video_id].append({
+                    "probabilities": probabilities[i].tolist(),  # 予測確率
+                    "label": labels[i].item()  # ラベル
+                })
+
             # lossを動画IDごとに記録
-            for i, video_id in enumerate(video_ids):
-                video_loss_dict[video_id].append(loss.item())
+            # for i, video_id in enumerate(video_ids):
+            #     video_loss_dict[video_id].append(loss.item())
+            #     logits_labels[video_id] = (outputs.logits[i], labels[i])  # 追加
 
             if logger_checker.should_log(current_train_step):
                 progress_bar_step.set_postfix_str_loss_topk(
@@ -151,23 +180,28 @@ def train(
     )
 
     # 高いlossを持つ動画を特定してログ
-    high_loss_videos = sorted(　.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)[:5]
-    log_message = f"High loss videos: {high_loss_videos}"
-    logger.log_text(log_message)
-    print(log_message)
+    # high_loss_videos = sorted(　.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)[:5]
+    # log_message = f"High loss videos: {high_loss_videos}"
+    # logger.log_text(log_message)
+    # print(log_message)
 
     # 高いlossを持つ動画を特定
-    sorted_loss_videos = sorted(video_loss_dict.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)[:5]
+    # sorted_loss_videos = sorted(video_loss_dict.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)[:5]
+    high_loss_videos = get_high_loss_videos(video_loss_dict, video_id_to_path, logits_labels)
 
     # 高いlossの動画ファイル名をターミナルに出力
-    # print(f"Epoch {current_epoch} - High loss videos (top 5):")
+    # log_message = f"Epoch {current_epoch} - High loss videos (top 5):"
+    # logger.log_text(log_message)
     # for video_id, losses in sorted_loss_videos:
-    #    avg_loss = sum(losses) / len(losses)  # lossの平均
-    #    video_path = video_id_to_path.get(video_id, "Unknown video path")
-    #    print(f"Video ID: {video_id}, Loss: {avg_loss}, Video Path: {video_path}")
-#
-    # return TrainOutput(
-    #    loss=train_meters.loss_meter.avg,
-    #    top1=train_meters.topk_meters[0].avg,  # top1: topk[0] should be 1
-    #    train_step=current_train_step
-    # )
+    #     avg_loss = sum(losses) / len(losses)  # lossの平均
+    #     video_path = video_id_to_path.get(video_id, "Unknown video path")
+    #     log_message = f"Video ID: {video_id}, Loss: {avg_loss}, Video Path: {video_path}"
+    #     logger.log_text(log_message)
+
+    return TrainOutput(
+        loss=train_meters.loss_meter.avg,
+        top1=train_meters.topk_meters[0].avg,  # top1: topk[0] should be 1
+        train_step=current_train_step,
+        high_loss_videos=high_loss_videos,
+        logits_labels=dict(logits_labels)  # 記録を含めて出力
+    )

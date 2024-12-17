@@ -22,6 +22,12 @@ from utils import (
 from train import train, TrainConfig
 from val import validation
 
+import csv
+import pandas as pd
+import os
+from datetime import datetime
+import pickle
+
 
 class TqdmEpoch(tqdm):
     def __init__(
@@ -149,6 +155,8 @@ def main():
 
     val_checker = ValidationChecker(args.val_interval_epochs, args.num_epochs)
 
+    train_output_high_loss_videos = []  # 追加
+
     with TqdmEpoch(
         start_epoch, args.num_epochs, unit='epoch',
     ) as progress_bar_epoch:
@@ -170,6 +178,35 @@ def main():
             # 保存する関数を追加
             # 関数を別.pyに書き込む
             # 保存先用のフォルダを作る json 形式で保存
+
+            # 高い損失を持つ動画を表示
+            print("High loss videos from training output:")
+            for video_path, avg_loss, is_correct in train_output.high_loss_videos:
+                # status = "Correct" if is_correct == 1 else "Incorrect"
+                train_output_high_loss_videos.append((current_epoch, round(avg_loss, 4), is_correct, video_path))
+                print(f"Loss: {avg_loss:.4f}, Correct: {is_correct}, Path: {video_path}")
+
+            # 保存されたpickleファイルの読み込み
+            with open("label_encoder.pkl", "rb") as f:
+                train_output = pickle.load(f)
+
+            # LabelEncoder を適切に復元
+            label_encoder = train_output['label_encoder']  # 事前に LabelEncoder を保存している場合
+
+            # 例: 動画ごとの予測詳細を出力
+            for video_id, records in train_output['logits_labels'].items():
+                print(f"Video ID: {video_id}")
+                for record in records:
+                    # 'record' から probabilies と label を取得
+                    probabilities = record['probabilities']
+                    label = record['label']  # 数値ラベル
+
+                    # 数値ラベルを元の文字列ラベルに変換
+                    original_label = label_encoder.inverse_transform([label])[0] if label is not None else None
+
+                    # 出力
+                    print(f"  Probabilities: {probabilities}")
+                    print(f"  Label: {original_label}")
 
             if val_checker.should_validate(current_epoch):
 
@@ -198,6 +235,20 @@ def main():
                     args.model_name,
                     logger
                 )
+
+    # 現在の日付と時刻を取得してファイル名に追加
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    log_folder = "my_log"
+    csv_file_path = os.path.join(log_folder, f"{current_time}.csv")
+
+    # データをDataFrameに変換
+    df = pd.DataFrame(
+        train_output_high_loss_videos,
+        columns=["epoch", "Loss", "is_correct", "video_path"]
+    )
+
+    # CSVファイルに保存
+    df.to_csv(csv_file_path, index=False)
 
 
 if __name__ == "__main__":
